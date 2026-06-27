@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "profile": "cpp-linux-backend-system",
+  "files": [
+    {
+      "path": ".ai/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": ".ai/affected-files.md",
+      "sha256": "c8136bb0a9f634143ea703268806789f95ec3510c506dd7afc2681cf6b11a3bd"
+    },
+    {
+      "path": ".ai/approvals/README.md",
+      "sha256": "46fb131525e709fee6440d07b64cb113556f9a5ba6a63a9c09a026f7fbd04da8"
+    },
+    {
+      "path": ".ai/epic.md",
+      "sha256": "4db8f8972f100afc0f963c2aef182748db71d4a46512fd8030aba213b2156ee3"
+    },
+    {
+      "path": ".ai/implementation-plan.md",
+      "sha256": "796c3297ff371f58999af70ca42e010656aa4abf12d18c6c7665b0e62c836e80"
+    },
+    {
+      "path": ".ai/reviews/README.md",
+      "sha256": "7a0426311283caef2a98b94b2ac29f92ba2314c616f954cf4164b7f0517764a0"
+    },
+    {
+      "path": ".ai/risk-and-rollback.md",
+      "sha256": "f81dc9776184b1212767dd24021232f75a042fbf15b4a1f06dc96bbf20392df1"
+    },
+    {
+      "path": ".ai/run-trace.md",
+      "sha256": "533b76f7e8980a8193dd8d145add6cf97819a1bd93a276e545c9a921ff1264cc"
+    },
+    {
+      "path": ".ai/scope.md",
+      "sha256": "4db107f4286ac3b205cd0c069bdab2defd00931b7825019802469f27b562aeaa"
+    },
+    {
+      "path": ".ai/subagent-packets/README.md",
+      "sha256": "cd3b49455f74a68411162d38f603388151f4d3e7dc45bebe776977747db404bc"
+    },
+    {
+      "path": ".ai/subagent-packets/evaluator.md",
+      "sha256": "4329f21dc0188ee259e2e9963d8b9805b6893593896260872f5619e519a189e5"
+    },
+    {
+      "path": ".ai/subagent-packets/explorer.md",
+      "sha256": "f8d34fa6bb2d9a8987fe0f82acd05972d530358a157ad7757650a3732490d86b"
+    },
+    {
+      "path": ".ai/subagent-packets/implementer.md",
+      "sha256": "7ebf578d6032450ce212852b9cf40b7aa8017d64b0972ee4ac129d1ebb142391"
+    },
+    {
+      "path": ".ai/subagent-packets/planner.md",
+      "sha256": "59a642c0969a093f8593ed486c4d9e7430d0d9a8bbec2bcd015d2c2c596419b8"
+    },
+    {
+      "path": ".ai/subagent-packets/reviewer.md",
+      "sha256": "f068bdd78446b8a619cc5d3ebda389d1a665bafd451bdd4f4363c38a1bd2e8f9"
+    },
+    {
+      "path": ".ai/tech-design.md",
+      "sha256": "79721b80a1ba6ccff2baa2e7fb7f0e9f33ce1e5d8555460c1a26d564d4ec2428"
+    },
+    {
+      "path": ".ai/templates/README.md",
+      "sha256": "f0b3ef6c12cc04e0b217bb25f1715b5deb15b367fb0ce633008737682e282fc6"
+    },
+    {
+      "path": ".ai/verification.md",
+      "sha256": "e584acdddc52d448963ffe9925e9a49b6e829b86494ec85d057ff6402eddf700"
+    },
+    {
+      "path": ".codex/agents/README.md",
+      "sha256": "1fc752d871294f7cd4e1f396e9cfcd2d7060b0680492892538a3e78472330431"
+    },
+    {
+      "path": ".codex/agents/evaluator.md",
+      "sha256": "f89c58d70d504c39c388893fb36a6c88ae1dd78cd15fd377e83cc7f7a240119a"
+    },
+    {
+      "path": ".codex/agents/explorer.md",
+      "sha256": "d1ebe9f449f8fcfd46cbcdd1278078fbdd67721444ab0c497aeded6ec942be27"
+    },
+    {
+      "path": ".codex/agents/implementer.md",
+      "sha256": "71f9e6a6b5c6bf8a89adfa6cd4b34dbe70d2b2d0186eb97d873976ec7826a481"
+    },
+    {
+      "path": ".codex/agents/planner.md",
+      "sha256": "3bbb1b569a77a7e2beb43471fc31c1b996da7ed79e1b8c63e9f6bf25783f7f12"
+    },
+    {
+      "path": ".codex/agents/reviewer.md",
+      "sha256": "d821adcb990f5e9007f817024487a39cddaa41a83ff275817cbefc233ff760d4"
+    },
+    {
+      "path": ".github/copilot-instructions.md",
+      "sha256": "c3be6e94afc6ad33748d2818126ebccddce59291e77d057dbd53330bae883071"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "1038e187b4ca584b697563afa5abcd4793ef6765950f6b1f9058abb1156f44cb"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "de31e5ff3de46ff418e5ea6a2ce068bd0a5d39b2c96b2325558718cacce71bd2"
+    },
+    {
+      "path": "docs/ai/README.md",
+      "sha256": "442b45633136126ad9b0139ee7bde0fc21850c695dd7b93d5575a2a20337e732"
+    },
+    {
+      "path": "docs/ai/async.md",
+      "sha256": "200430ab399334078195eae030120e67b105b3550b0a60d0b7d5528a137fe1f1"
+    },
+    {
+      "path": "docs/ai/data.md",
+      "sha256": "9e3820043e6d743070de15bc2b0718ec85327e77d62e1448105c27c82c934fb0"
+    },
+    {
+      "path": "docs/ai/dependency.md",
+      "sha256": "b871400bb96e3573dacfb7bec344afe413217870af6aa63556632294e037a461"
+    },
+    {
+      "path": "docs/ai/frameworks.md",
+      "sha256": "c0cd47788a2b75a6696c887fe9c8677494d2ab451c80029640489d6a5e709308"
+    },
+    {
+      "path": "docs/ai/observability.md",
+      "sha256": "41996dda20336d2d479454e542d2d0709b99289dad252f00c7cfe019cf554dcc"
+    },
+    {
+      "path": "docs/ai/packaging.md",
+      "sha256": "5398483725d14b63b12a4b3a27213de70e6e9974932756873faece77173d642e"
+    },
+    {
+      "path": "docs/ai/performance.md",
+      "sha256": "82ac1a2e185840146ac62ea790601c0bc5f7bbf5e9d8cd6b1cf0f1bd97f03e44"
+    },
+    {
+      "path": "docs/ai/python.md",
+      "sha256": "a2854b7272bd8e2c196ce1e29286609ae094490d87fcda7f49c483218c39c882"
+    },
+    {
+      "path": "docs/ai/security.md",
+      "sha256": "ec10aa68e4a74813f631224904ab4636e85b848c460ab08c6c68d1360cc5abb8"
+    },
+    {
+      "path": "docs/ai/testing.md",
+      "sha256": "345a31fccfe53eb90cb6ae16e433d79fcccdacacb7e0f08093b8b9b47516fed6"
+    },
+    {
+      "path": "docs/ai/typing.md",
+      "sha256": "4cacc2b57ddfbde6d468086336c8837881bbed3f65f42ec987ea3e973d7f73c7"
+    },
+    {
+      "path": "docs/ai/verification-matrix.md",
+      "sha256": "195ca11079c62c251814f97514d189f3f82a1c0ce6feaa159099bcc73c1e1577"
+    },
+    {
+      "path": "docs/ai/workflow.md",
+      "sha256": "07aa22c1a7a698e8ed3a37a358fe98dfc2c6c6daca022eb63772c1f6536acfbe"
+    },
+    {
+      "path": "scripts/ai_build.sh",
+      "sha256": "9feb6363dd15910756cf19e3399e82ed7a693b4ad3caa7abc234a03547188f00"
+    },
+    {
+      "path": "scripts/ai_check.sh",
+      "sha256": "667ff58541183e4c227e2c2abb15545fc37a25471ad056e3af354e216621a1f2"
+    },
+    {
+      "path": "scripts/ai_test.sh",
+      "sha256": "db25fee3702819854b3d2af7cb74852b4e97d51ab23fa6c587367a815e196986"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{"path": ".ai/spec.md", "reason": "Large-mode requirement source", "phase": "implement"}
+{"path": ".ai/implementation-plan.md", "reason": "Large-mode implementation plan", "phase": "implement"}
+{"path": ".ai/tech-design.md", "reason": "Large-mode technical design", "phase": "implement"}
+{"path": ".ai/risk-and-rollback.md", "reason": "Rollback and risk guardrails", "phase": "review"}
+{"path": ".ai/verification.md", "reason": "Verification evidence", "phase": "review"}
+{"path": ".ai/handoff.md", "reason": "Cross-session handoff summary", "phase": "handoff"}
+{"path": "docs/ai/tasks/init-large/01-spec.md", "reason": "Durable task spec evidence", "phase": "implement"}
+{"path": "docs/ai/tasks/init-large/03-implementation-plan.md", "reason": "Durable task implementation plan evidence", "phase": "implement"}
+{"path": "docs/ai/tasks/init-large/05-verification.md", "reason": "Durable task verification evidence", "phase": "review"}

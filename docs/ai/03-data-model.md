@@ -1,0 +1,81 @@
+# Data Model
+
+## Document
+
+- `id`: string
+- `original_filename`: string
+- `stored_filename`: string
+- `stored_path`: string
+- `file_ext`: string
+- `content_type`: optional string
+- `file_size`: int
+- `doc_role`: `historical_bid | tender`
+- `created_at`: datetime
+- `updated_at`: datetime
+- `parse_status`: `pending | success | failed`
+- `error_message`: optional string
+
+Phase 1 only creates documents with `parse_status = pending`.
+The original filename is preserved as metadata only; the backend-generated stored filename is the only value used for filesystem persistence.
+
+## Section
+
+- `id`: string
+- `document_id`: string
+- `title`: string
+- `level`: int
+- `order_index`: int
+- `text`: string
+- `page_start`: optional int
+- `page_end`: optional int
+
+## KnowledgeCard
+
+- `id`: string
+- `document_id`: string
+- `section_id`: string
+- `title`: string
+- `tag`: string
+- `content`: string
+- `source_filename`: string
+- `source_section_title`: string
+- `confidence`: float
+- `metadata`: dict
+
+## ScoringItem
+
+- `name`: string
+- `requirement`: string
+- `score`: optional float
+- `source_text`: string
+
+## RiskItem
+
+- `risk_type`: string
+- `description`: string
+- `severity`: `low | medium | high`
+- `source_text`: optional string
+
+## TenderAnalysis
+
+- `document_id`: string
+- `project_requirements`: list[string]
+- `scoring_items`: list[ScoringItem]
+- `disqualification_risks`: list[RiskItem]
+- `raw_text_summary`: string
+
+## Citation
+
+- `source_filename`: string
+- `source_section_title`: string
+- `content_snippet`: string
+- `card_id`: string
+
+## GenerationResult
+
+- `target_tag`: string
+- `generated_content`: string
+- `citations`: list[Citation]
+- `risks`: list[RiskItem]
+- `need_human_review`: bool
+- `raw_prompt`: optional string
