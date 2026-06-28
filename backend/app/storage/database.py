@@ -248,6 +248,33 @@ def list_document_chunks(
     return [_chunk_from_row(row) for row in rows]
 
 
+def list_retrievable_chunks(settings: Settings) -> list[dict[str, Any]]:
+    init_database(settings)
+    with connect(settings.database_path) as connection:
+        rows = connection.execute(
+            """
+            SELECT
+                c.*,
+                d.original_filename,
+                d.doc_role,
+                d.file_ext
+            FROM document_chunks AS c
+            JOIN documents AS d ON d.id = c.document_id
+            WHERE d.parse_status = 'parsed'
+            ORDER BY c.order_index ASC, c.chunk_index ASC, c.id ASC
+            """
+        ).fetchall()
+    records: list[dict[str, Any]] = []
+    for row in rows:
+        values = dict(row)
+        chunk = _chunk_from_row(row)
+        values.update(chunk.model_dump())
+        values.pop("tags_json", None)
+        values.pop("metadata_json", None)
+        records.append(values)
+    return records
+
+
 def count_documents(settings: Settings) -> int:
     init_database(settings)
     with connect(settings.database_path) as connection:

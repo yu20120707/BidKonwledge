@@ -1,5 +1,143 @@
 # Evaluation
 
+## Phase 5 Development Prep Evaluation
+
+Status: prepared, not implemented.
+
+Prepared:
+
+1. `.ai/spec.md` now defines the Phase 5 Demo Page And Script objective, scope,
+   non-goals, expected files, and acceptance criteria.
+2. `.ai/implementation-plan.md` now defines the Phase 5 staged plan.
+3. `.ai/affected-files.md` now lists the expected Phase 5 edit surface.
+4. README now states Phase 5 is planned and describes the intended local demo
+   flow.
+
+Scope control:
+
+- OCR / PaddleOCR: out of scope.
+- Qdrant/Haystack/dense retrieval: out of scope.
+- Production authentication or user management: out of scope.
+- Word/PDF export: out of scope.
+- Final approved bidding output: out of scope.
+
+Residual risk:
+
+1. Harness `.ai/state.json` remains the previous completed `DONE` state with no
+   active Phase 5 gate; no gate transition is claimed.
+2. Phase 5 implementation still needs real development and verification.
+
+## Phase 4 Generation, Citations, And Risks Evaluation
+
+Status: implemented and locally verified.
+
+Implemented:
+
+1. `POST /api/generate`.
+2. Generation request/response schemas.
+3. OpenAI-compatible LLM adapter boundary with fake-test injection seam.
+4. Prompt builder that consumes Phase 3 retrieval results.
+5. Answer formatter that returns citation objects with source filename, section
+   title, content snippet, chunk id, and document id.
+6. Rule-based risk checker for empty generation and missing citations.
+7. Response contract always sets `need_human_review = true`.
+8. Pytest coverage for successful fake-LLM generation, prompt source
+   preservation, citations, risks, invalid requests, no configured LLM response,
+   and external-service boundary checks.
+
+Scope control:
+
+- OCR / PaddleOCR: not implemented.
+- Embeddings: not implemented.
+- Qdrant/vector store ingestion: not implemented.
+- Haystack runtime: not implemented.
+- Frontend Demo: not implemented.
+- User system: not implemented.
+- Word/PDF export: not implemented.
+- Final human-approved bidding document output: not implemented.
+- Reference repo vendoring: not done.
+
+Verification summary:
+
+- `ai-status`: passed, large mode confirmed, status remains `DONE`.
+- `ai-doctor`: passed with expected active-worktree warning.
+- Targeted Phase 4 pytest: `6 passed, 1 warning`.
+- Full `python -m pytest backend/tests`: `64 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed and runs compile/test checks.
+- Explicit `python -m pytest backend/tests`: passed, `64 passed, 1 warning`.
+- uvicorn + `curl.exe --noproxy "*"` smoke: `POST /api/generate` returned
+  structured `LLM_NOT_CONFIGURED` 503 with no external call.
+- `git diff --check`: passed with line-ending warnings only.
+- `bash ./scripts/ai_check.sh`: not verified because WSL/bash is unavailable.
+
+Residual risk:
+
+1. Harness `.ai/state.json` remains the previous completed `DONE` state with no
+   active Phase 4 gate; no gate transition is claimed.
+2. The real OpenAI-compatible HTTP adapter is behind an interface but has not
+   been exercised against a live provider in automated tests.
+3. Third-party FastAPI/Starlette `httpx` deprecation warning remains.
+
+## Phase 3 Retrieval Evaluation
+
+Status: implemented and locally verified for deterministic chunk retrieval over
+Phase 2 persisted SQLite chunks.
+
+Implemented:
+
+1. `POST /api/retrieve`.
+2. Retrieval request model with `query`, `tag`, and `top_k`.
+3. Chunk-based metadata-preserving result model with `chunk_id`,
+   `document_id`, `section_id`, `section_title`, `section_path`, `text`,
+   `tags`, `score`, and `source`.
+4. Source metadata with `original_filename`, `doc_role`, `file_ext`,
+   page fields, and chunk metadata.
+5. Storage helper for retrieving chunks from parsed documents.
+6. Local deterministic retrieval service:
+   - exact tag filter
+   - simple keyword matching
+   - stable score/order behavior
+7. Pytest coverage for tag-only, query-only, tag + query, no match,
+   deterministic scoring/order, invalid empty request, and no LLM/vector
+   dependency.
+8. README and durable API/data-model docs updated for Phase 3.
+9. `.ai` runtime artifacts updated for Phase 3.
+
+Scope control:
+
+- OCR / PaddleOCR: not implemented.
+- Embeddings: not implemented.
+- Qdrant/vector store: not implemented.
+- Haystack runtime: not implemented.
+- LLM generation: not implemented.
+- Prompt builder: not implemented.
+- Full knowledge-card generation: not implemented.
+- Frontend Demo: not implemented.
+- User system: not implemented.
+- Word/PDF export: not implemented.
+- Reference repo vendoring: not done.
+
+Verification summary:
+
+- `ai-status`: passed, large mode confirmed, status remains `DONE`.
+- `ai-doctor`: passed with expected active-worktree warning.
+- Targeted Phase 3 pytest: `7 passed, 1 warning`.
+- Full `python -m pytest backend/tests`: `58 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed and runs compile/test checks.
+- Explicit `python -m pytest backend/tests`: passed, `58 passed, 1 warning`.
+- `git diff --check`: passed with line-ending warnings only.
+- uvicorn + `curl.exe --noproxy "*"` smoke: `POST /api/retrieve` returned the
+  expected pre-seeded parsed chunk from temporary SQLite.
+- `bash ./scripts/ai_check.sh`: not verified because WSL/bash is unavailable.
+
+Residual risk:
+
+1. Harness `.ai/state.json` remains the previous completed `DONE` state with no
+   active Phase 3 gate; no gate transition is claimed.
+2. Retrieval is intentionally lexical/local and does not provide semantic dense
+   retrieval. This matches the Phase 3 minimal closure requested in this task.
+3. Third-party FastAPI/Starlette `httpx` deprecation warning remains.
+
 ## Phase 2 Document Parsing And Chunking Evaluation
 
 Status: implemented and locally verified for API/state/persistence/chunking with injected parser, real Docling `.docx` smoke, and real Docling text-based `.pdf` smoke.

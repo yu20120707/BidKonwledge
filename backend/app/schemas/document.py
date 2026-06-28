@@ -109,3 +109,65 @@ class DocumentChunkResponse(BaseModel):
 class DocumentChunksResponse(BaseModel):
     document_id: str
     chunks: list[DocumentChunkResponse]
+
+
+class RetrievalRequest(BaseModel):
+    query: str | None = None
+    tag: str | None = None
+    top_k: int = 5
+
+
+class RetrievalSourceMetadata(BaseModel):
+    original_filename: str
+    doc_role: str
+    file_ext: str
+    page_start: int | None = None
+    page_end: int | None = None
+    chunk_metadata: dict[str, Any]
+
+
+class RetrievalResult(BaseModel):
+    chunk_id: str
+    document_id: str
+    section_id: str
+    section_title: str
+    section_path: str
+    text: str
+    tags: list[str]
+    score: float
+    source: RetrievalSourceMetadata
+
+
+class RetrievalResponse(BaseModel):
+    query: str | None
+    tag: str | None
+    results: list[RetrievalResult]
+
+
+class GenerationRequest(BaseModel):
+    target_tag: str
+    query: str
+    top_k: int = 5
+
+
+class Citation(BaseModel):
+    source_filename: str
+    source_section_title: str
+    content_snippet: str
+    chunk_id: str
+    document_id: str
+
+
+class RiskItem(BaseModel):
+    risk_type: str
+    description: str
+    severity: str
+    source_text: str | None = None
+
+
+class GenerationResponse(BaseModel):
+    target_tag: str
+    generated_content: str
+    citations: list[Citation]
+    risks: list[RiskItem]
+    need_human_review: bool

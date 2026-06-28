@@ -1,94 +1,83 @@
-# Spec - Phase 2 Document Parsing And Chunking
+# Spec - Phase 5 Demo Page And Script
 
 ## Objective
 
-Implement the smallest backend-only Phase 2 capability for parsing already-uploaded
-documents into normalized sections and chunks.
+Prepare the final MVP demo layer that presents the completed backend chain to a
+stakeholder.
 
-Phase 2 proves that the service can trigger parsing for uploaded `.docx` and
-text-based `.pdf` files, persist parser output in SQLite, and expose the parsed
-document/chunk state through minimal APIs.
+Phase 5 should expose a minimal demo page and a repeatable demo script over the
+existing upload, parse, retrieve, and generate APIs. It should make the raw JSON,
+citations, risks, and `need_human_review = true` visible.
+
+This file is a pre-development spec. Phase 5 code has not been implemented yet.
 
 ## Required Execution Mode
 
 This task must run under Auto_AICoding_Harness `large` mode with the
 `python-backend-service` profile.
 
-Initial evidence:
+Current baseline:
 
-- `ai-status`: passed, `mode: large`, `status: DONE`.
-- `ai-doctor`: passed, working tree clean before Phase 2 edits.
+- Phase 1 upload and SQLite metadata are implemented.
+- Phase 2 parsing/chunking is implemented for small `.docx` and text-based
+  `.pdf`; OCR/scanned PDFs remain out of scope.
+- Phase 3 local deterministic retrieval is implemented through
+  `POST /api/retrieve`.
+- Phase 4 candidate generation is implemented through `POST /api/generate`.
+- Current harness state remains the previous completed task state:
+  `current_gate: none`. Do not claim a Phase 5 gate transition unless a harness
+  command succeeds.
 
-## In Scope
+## In Scope For Phase 5
 
 Implement only:
 
-1. Docling adapter, imported lazily through a backend adapter boundary.
-2. Parsing for already-uploaded `.docx` and text-based `.pdf` documents.
-3. Normalized section and chunk schemas.
-4. SQLite persistence for sections and chunks.
-5. Minimal deterministic tag rules.
-6. Parse status transitions:
-   - `pending`
-   - `parsing`
-   - `parsed`
-   - `failed`
-7. Minimal APIs:
-   - `POST /api/documents/{document_id}/parse`
-   - `GET /api/documents/{document_id}`
-   - `GET /api/documents/{document_id}/chunks`
-8. Pytest coverage for successful parsing, failed parsing, status transitions,
-   chunk persistence, and no RAG/LLM dependency.
-9. README local startup, parse testing, and Phase 2 command updates.
-10. Updated `.ai/verification.md`, `.ai/evaluation.md`, and `.ai/handoff.md`.
+1. Minimal FastAPI-hosted demo page.
+2. Demo page controls for upload, parse, retrieve, and generate.
+3. Raw JSON display for API responses.
+4. Visible citations, risks, and `need_human_review` status.
+5. Demo script or runbook using selected small sample files.
+6. Tests for demo route availability and non-regression of existing APIs.
+7. README Phase 5 demo commands.
+8. Updated `.ai/verification.md`, `.ai/evaluation.md`, and `.ai/handoff.md`.
 
-## Out Of Scope
+## Out Of Scope For Phase 5
 
 Do not implement:
 
 1. OCR or PaddleOCR.
-2. Embeddings.
-3. Vector store or Qdrant.
-4. Haystack retrieval pipeline.
-5. LLM generation.
-6. Full knowledge-card generation.
-7. Deep tender analysis.
-8. Frontend Demo.
-9. User system.
-10. Word or PDF export.
-11. Vendoring reference repositories.
+2. Qdrant, Haystack, embeddings, dense retrieval, or hybrid retrieval.
+3. Production authentication or user management.
+4. Word or PDF export.
+5. Full tender deep analysis workflow.
+6. Polished product frontend or multi-page application.
+7. Treating generated content as final approved bidding text.
+8. Vendoring `F:\BidKonwledge_refs` repositories.
 
-## Expected File Scope
+## Expected File Scope For Phase 5
 
 Implementation files:
 
 ```text
-pyproject.toml
 backend/app/main.py
-backend/app/api/documents.py
-backend/app/adapters/docling_parser.py
-backend/app/schemas/document.py
-backend/app/services/document_parsing.py
-backend/app/services/section_chunker.py
-backend/app/services/tagger.py
-backend/app/storage/database.py
+backend/app/api/demo.py
+backend/app/static/demo.html
 ```
 
 Test files:
 
 ```text
-backend/tests/conftest.py
-backend/tests/test_document_parse_api.py
-backend/tests/test_document_chunks.py
-backend/tests/test_phase2_boundaries.py
+backend/tests/test_demo_page.py
+backend/tests/test_phase5_boundaries.py
 ```
 
 Documentation and evidence files:
 
 ```text
 README.md
-docs/ai/03-data-model.md
-docs/ai/04-api-contract.md
+docs/ai/09-phase-roadmap.md
+.ai/spec.md
+.ai/implementation-plan.md
 .ai/affected-files.md
 .ai/run-trace.md
 .ai/verification.md
@@ -96,32 +85,22 @@ docs/ai/04-api-contract.md
 .ai/handoff.md
 ```
 
-## Reference Repository Rule
+## Acceptance Criteria For Phase 5
 
-Reference repositories under `F:\BidKonwledge_refs` remain reference-only.
-Do not copy or vendor RAGFlow or Haystack demo source into this repository.
+Phase 5 is accepted when:
 
-## Acceptance Criteria
-
-Phase 2 is accepted when:
-
-1. Uploaded `.docx` and text-based `.pdf` records can be parsed through the
-   parsing service when Docling is available.
-2. Unsupported parse inputs fail with `parse_status = failed` and an
-   `error_message`.
-3. Status transitions are persisted as `pending -> parsing -> parsed` on success
-   and `pending -> parsing -> failed` on failure.
-4. Sections and chunks are persisted in SQLite with deterministic ordering.
-5. Chunks include normalized fields and deterministic tags.
-6. `GET /api/documents/{document_id}` returns document metadata and parse status.
-7. `GET /api/documents/{document_id}/chunks` returns persisted chunks without
-   invoking RAG, LLM, embeddings, vector stores, or external services.
-8. Automated tests use temporary upload roots and SQLite databases.
-9. README and `.ai` files record real command evidence and residual risks.
+1. A user can open a local demo page from the running FastAPI app.
+2. The page can drive the existing upload, parse, retrieve, and generate APIs.
+3. Raw JSON responses are visible.
+4. Citations, risks, and `need_human_review = true` are visible.
+5. The demo does not require OCR, Qdrant, Haystack, embeddings, export, or a
+   production user system.
+6. Automated tests cover route availability and boundary constraints.
+7. README and `.ai` files record real command evidence and residual risks.
 
 ## Required Verification Commands
 
-Run before completion:
+Run before Phase 5 completion:
 
 ```powershell
 $py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
@@ -131,8 +110,8 @@ $py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\pyt
 python -m pytest backend/tests
 ```
 
-Run local uvicorn plus `curl.exe --noproxy "*"` smoke if the app and parser
-dependencies are available.
+Run local uvicorn plus `curl.exe --noproxy "*"` smoke for the demo route. Use a
+real browser screenshot only if the demo page layout becomes non-trivial.
 
 Run `bash ./scripts/ai_check.sh` if shell tooling is available. If WSL/bash is
 unavailable, record the blocker and do not claim it passed.

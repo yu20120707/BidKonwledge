@@ -1,5 +1,287 @@
 # Verification
 
+## Phase 5 Development Prep Verification
+
+Updated on 2026-06-28.
+
+This section records the documentation-prep baseline before starting Phase 5
+implementation. Phase 5 code has not been implemented yet.
+
+### Context And Scope
+
+Files updated:
+
+- `.ai/spec.md`
+- `.ai/implementation-plan.md`
+- `.ai/affected-files.md`
+- `.ai/run-trace.md`
+- `.ai/verification.md`
+- `.ai/evaluation.md`
+- `.ai/handoff.md`
+- `README.md`
+
+Observed:
+
+- Phase 5 scope is limited to a minimal FastAPI-hosted demo page and demo
+  script/runbook.
+- OCR, Qdrant, Haystack, embeddings, production authentication, user
+  management, Word/PDF export, and final approved bidding output remain out of
+  scope.
+- No Phase 5 business code was implemented in this prep step.
+
+### Verification To Run For This Prep Step
+
+Run:
+
+```powershell
+git diff --check
+```
+
+Expected:
+
+- Passes with no whitespace errors. Line-ending normalization warnings are
+  acceptable on this Windows checkout.
+
+## Phase 4 Generation, Citations, And Risks Verification
+
+Updated on 2026-06-28.
+
+### Harness And Context
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+```
+
+Observed:
+
+- `ai-status`: passed, initialized yes, `mode: large`, profile
+  `python-backend-service`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed required checks; warning only that the working tree has
+  uncommitted Phase 3/4 changes.
+- No Phase 4 harness gate transition is claimed.
+
+### Targeted Automated Tests
+
+Command run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -m pytest backend/tests/test_generation_api.py backend/tests/test_phase4_boundaries.py
+```
+
+Observed:
+
+- Passed: `6 passed, 1 warning`.
+- Covered successful generation with fake LLM, prompt source preservation,
+  citations, risk flags for empty generation and missing citations, invalid
+  request validation, structured not-configured LLM response, and no external
+  LLM/vector/Haystack/Qdrant dependency in tests.
+
+### Full Backend Tests
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -m pytest backend/tests
+.\scripts\ai_check.ps1
+$env:Path='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python;' + $env:Path
+python -m pytest backend/tests
+```
+
+Observed:
+
+- Full backend pytest: passed, `64 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed. It ran `compileall backend/app` and backend
+  pytest.
+- Explicit `python -m pytest backend/tests`: passed, `64 passed, 1 warning`.
+- Warning: existing FastAPI/Starlette test client `httpx` deprecation warning.
+
+### Manual Smoke
+
+Smoke command:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+# Python script starts uvicorn, then calls:
+curl.exe --noproxy "*" -X POST "http://127.0.0.1:8766/api/generate"
+```
+
+Observed:
+
+- `GET /health`: passed before the generation call.
+- `POST /api/generate`: returned HTTP `503` with structured
+  `error_code=LLM_NOT_CONFIGURED` when `OPENAI_API_KEY` was unset.
+- This verifies the live route and structured no-LLM-config behavior without
+  making any external LLM call.
+
+### Project Scripts And Diff Hygiene
+
+Command attempted:
+
+```powershell
+$env:PYTHON='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+bash ./scripts/ai_check.sh
+```
+
+Observed:
+
+- Failed because this Windows machine has no usable WSL/Linux distribution for
+  `bash`.
+- This is recorded as not verified. Do not claim bash verification passed.
+
+Command run:
+
+```powershell
+git diff --check
+```
+
+Observed:
+
+- Passed.
+- Git reported line-ending normalization warnings only.
+
+### Unverified Or Deferred
+
+- Live external LLM provider integration is not verified. Automated coverage
+  uses a fake LLM by design.
+- `bash ./scripts/ai_check.sh`: not verified because WSL/bash is unavailable.
+- OCR, Qdrant ingestion, Haystack runtime, embeddings, frontend, user system,
+  and export are intentionally not part of Phase 4.
+
+## Phase 3 Retrieval Verification
+
+Updated on 2026-06-28.
+
+### Harness And Context
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+```
+
+Observed:
+
+- `ai-status`: passed, initialized yes, `mode: large`, profile
+  `python-backend-service`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed required checks; warning only that the working tree has
+  uncommitted Phase 3 changes.
+- Harness state remains the previous completed task state. No Phase 3 gate
+  transition is claimed.
+
+### Automated Tests
+
+Targeted Phase 3 command run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -m pytest backend/tests/test_retrieval_api.py backend/tests/test_phase3_boundaries.py
+```
+
+Observed:
+
+- Passed: `7 passed, 1 warning`.
+- Covered tag-only retrieval, query-only retrieval, tag + query retrieval,
+  no-match behavior, deterministic ordering and score, invalid empty request,
+  and no LLM/vector-service dependency.
+
+Full backend command run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -m pytest backend/tests
+```
+
+Observed:
+
+- Passed: `58 passed, 1 warning`.
+- Warning: existing FastAPI/Starlette test client `httpx` deprecation warning.
+
+Required explicit pytest command:
+
+```powershell
+$env:Path='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python;' + $env:Path
+python -m pytest backend/tests
+```
+
+Observed:
+
+- Passed: `58 passed, 1 warning`.
+
+### Project Scripts
+
+Command run:
+
+```powershell
+.\scripts\ai_check.ps1
+```
+
+Observed:
+
+- Runs `compileall backend/app`.
+- Runs `pytest backend/tests`.
+- Result: passed, `58 passed, 1 warning`.
+
+Command attempted:
+
+```powershell
+$env:PYTHON='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+bash ./scripts/ai_check.sh
+```
+
+Observed:
+
+- Failed because this Windows machine has no usable WSL/Linux distribution for
+  `bash`.
+- This is recorded as not verified. Do not claim bash verification passed.
+
+### Manual Smoke
+
+Smoke command:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+# Python script starts uvicorn against a temporary SQLite DB, then calls:
+curl.exe --noproxy "*" -X POST "http://127.0.0.1:8765/api/retrieve"
+```
+
+Observed:
+
+- Temporary SQLite DB was pre-seeded with one parsed chunk.
+- `GET /health`: passed before the retrieval call.
+- `POST /api/retrieve`: passed with tag `运维服务`, query `应急`, and returned
+  the expected `smoke-chunk`.
+- A first smoke attempt passed the business assertion but exited non-zero during
+  temporary SQLite cleanup because Windows held a file lock. The smoke was rerun
+  with tolerant temporary cleanup and exited successfully.
+
+### Diff Hygiene
+
+Command run:
+
+```powershell
+git diff --check
+```
+
+Observed:
+
+- Passed.
+- Git reported line-ending normalization warnings only.
+
+### Unverified Or Deferred
+
+- `bash ./scripts/ai_check.sh`: not verified because WSL/bash is unavailable.
+- Qdrant, Haystack, embeddings, LLM generation, prompt builder, OCR, frontend,
+  user system, and export are intentionally not part of Phase 3 minimal local
+  retrieval.
+
 ## Phase 2 Document Parsing And Chunking Verification
 
 Updated on 2026-06-28.

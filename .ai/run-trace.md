@@ -2,6 +2,145 @@
 
 Keep a short execution log for large-mode work.
 
+## Phase 5 - Development Prep
+
+- command: context read
+- output: read `docs/ai/09-phase-roadmap.md`, current Phase 4 `.ai/spec.md`,
+  `.ai/implementation-plan.md`, `.ai/affected-files.md`, and Phase 4
+  evaluation context.
+- task contract: Level 1 documentation preparation under harness large mode;
+  target is to update runtime artifacts to Phase 5 development-prep state
+  without implementing Phase 5 code.
+- harness note: `.ai/state.json` remains `DONE/current_gate: none`. No new
+  Phase 5 gate transition is claimed.
+- command: update Phase 5 prep artifacts
+- output: rewrote `.ai/spec.md`, `.ai/implementation-plan.md`, and
+  `.ai/affected-files.md` for Phase 5 Demo Page And Script; updated README with
+  Phase 5 planned demo flow and out-of-scope boundaries.
+
+## Phase 4 - Development Prep
+
+- command: pre-phase checks
+- output: `ai-status` reported initialized yes, `mode: large`, profile
+  `python-backend-service`, status `DONE`, and `current_gate: none`;
+  `ai-doctor` passed required checks with expected uncommitted-change warning.
+- command: current baseline verification
+- output: `.\scripts\ai_check.ps1` passed and explicit `python -m pytest
+  backend/tests` passed: 58 passed, 1 warning.
+- task contract: Level 2 documentation/state preparation under harness large
+  mode; target is to update the runtime artifacts to the next Phase 4
+  development-prep state without implementing Phase 4 code.
+- harness note: `.ai/state.json` remains `DONE/current_gate: none`. No new
+  Phase 4 gate transition is claimed.
+- command: update Phase 4 prep artifacts
+- output: rewrote `.ai/spec.md`, `.ai/implementation-plan.md`, and
+  `.ai/affected-files.md` as Phase 4 preparation artifacts; updated README
+  with Phase 4 planned API and fake-LLM test boundary.
+- command: final Phase 4 prep checks
+- output: `ai-status` passed with `mode: large`, `status: DONE`, and
+  `current_gate: none`; `ai-doctor` passed with expected uncommitted-change
+  warning; `.\scripts\ai_check.ps1` passed; explicit `python -m pytest
+  backend/tests` passed: 58 passed, 1 warning; `git diff --check` passed with
+  line-ending warnings only.
+- command: bash ./scripts/ai_check.sh
+- output: failed because WSL/Linux distribution is unavailable; recorded as not
+  verified.
+
+## Phase 4 - Generation, Citations, And Risks
+
+- command: initial harness check
+- output: `ai-status` reported initialized yes, `mode: large`, profile
+  `python-backend-service`, status `DONE`, and `current_gate: none`;
+  `ai-doctor` passed required checks with expected uncommitted-change warning.
+- harness note: `.ai/state.json` remains `DONE/current_gate: none`. Phase 4 is
+  implemented under large-mode discipline, but no new harness gate transition is
+  claimed.
+- task contract: Level 3 / complex under harness large mode; target is minimal
+  backend-only generation from Phase 3 retrieval context with citations, risks,
+  fake-testable LLM adapter, and `need_human_review = true`.
+- subagent plan: no subagent used because API, prompt, formatter, risk checker,
+  fake LLM seam, and tests share one small response contract.
+- command: implementation
+- output: added generation schemas, OpenAI-compatible LLM adapter boundary,
+  prompt builder, answer formatter, risk checker, generation service,
+  `POST /api/generate`, router wiring, and Phase 4 tests.
+- mid-task review: after API/service/tests, target remains Phase 4 backend-only;
+  no OCR/Qdrant/Haystack/embedding/frontend/export work was added; tests use a
+  fake LLM and do not require real LLM credentials; decision is to keep plan.
+- command: targeted Phase 4 pytest
+- output: `backend/tests/test_generation_api.py` and
+  `backend/tests/test_phase4_boundaries.py` passed: 6 passed, 1 warning.
+- command: full backend pytest
+- output: `python -m pytest backend/tests` passed: 64 passed, 1 warning.
+- command: required checks
+- output: `ai-status` passed with `mode: large`, `status: DONE`, and
+  `current_gate: none`; `ai-doctor` passed with expected uncommitted-change
+  warning; `.\scripts\ai_check.ps1` passed and ran compileall plus backend
+  pytest; explicit `python -m pytest backend/tests` passed: 64 passed,
+  1 warning.
+- command: bash ./scripts/ai_check.sh
+- output: failed because WSL/Linux distribution is unavailable; recorded as not
+  verified.
+- command: uvicorn + curl generation smoke
+- output: started uvicorn and called `curl.exe --noproxy "*"` against
+  `POST /api/generate` with no LLM configured; endpoint returned structured
+  HTTP 503 with `error_code=LLM_NOT_CONFIGURED`.
+- command: git diff --check
+- output: passed; only line-ending normalization warnings were reported.
+
+## Phase 3 - Retrieval
+
+- command: initial harness check
+- output: `ai-status` reported initialized yes, `mode: large`, profile
+  `python-backend-service`, status `DONE`, and `current_gate: none`;
+  `ai-doctor` passed required checks.
+- harness note: current `.ai/state.json` is still the previous completed
+  `init-large` task state. Do not claim a Phase 3 gate transition unless a
+  harness command succeeds.
+- command: context read
+- output: read `AGENTS.md`, `README.md`, `.ai/state.json`, `.ai/handoff.md`,
+  `.ai/verification.md`, `.ai/evaluation.md`, required `docs/ai/*` files,
+  source-material indexes, active `.ai` runtime files, and Phase 2 backend/test
+  code.
+- task contract: Level 3 / complex under harness large mode; target is minimal
+  backend-only deterministic retrieval over persisted chunks.
+- scope decision: implement local chunk retrieval first. Do not add Qdrant,
+  Haystack, embeddings, LLM, OCR, prompt builder, frontend, export, user system,
+  or reference-repo vendoring in this phase.
+- subagent plan: no subagent at start because API, schema, storage, service, and
+  tests share one small response contract; main agent owns all writes.
+- command: update Phase 3 runtime artifacts
+- output: rewrote `.ai/spec.md`, `.ai/implementation-plan.md`, and
+  `.ai/affected-files.md` for Phase 3 before backend implementation.
+- command: implementation
+- output: added local retrieval schemas, storage helper, retrieval service,
+  `POST /api/retrieve`, router wiring, and Phase 3 tests.
+- mid-task review: after API/service/tests, target remains Phase 3 backend-only
+  deterministic retrieval; no OCR/Qdrant/Haystack/LLM/frontend/export work was
+  added; no scope expansion found; decision is to keep plan.
+- command: targeted Phase 3 pytest
+- output: `backend/tests/test_retrieval_api.py` and
+  `backend/tests/test_phase3_boundaries.py` passed: 7 passed, 1 warning.
+- command: full backend pytest
+- output: `python -m pytest backend/tests` passed: 58 passed, 1 warning.
+- command: required checks
+- output: `ai-status` passed with `mode: large`, `status: DONE`, and
+  `current_gate: none`; `ai-doctor` passed with expected uncommitted-change
+  warning; `.\scripts\ai_check.ps1` passed and ran compileall plus backend
+  pytest; explicit `python -m pytest backend/tests` passed: 58 passed,
+  1 warning.
+- command: bash ./scripts/ai_check.sh
+- output: failed because WSL/Linux distribution is unavailable; recorded as not
+  verified.
+- command: uvicorn + curl retrieval smoke
+- output: started uvicorn against a temporary SQLite DB with a pre-seeded parsed
+  chunk; `curl.exe --noproxy "*"` `POST /api/retrieve` returned the expected
+  chunk. A first smoke attempt passed the business assertion but failed during
+  temporary SQLite cleanup due to a Windows file lock; rerun with tolerant temp
+  cleanup exited successfully.
+- command: git diff --check
+- output: passed; only line-ending normalization warnings were reported.
+
 ## Phase 2 - Document Parsing And Chunking
 
 - command: initial harness check

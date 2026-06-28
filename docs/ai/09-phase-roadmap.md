@@ -57,32 +57,72 @@ Scope:
 
 ## Phase 3 - Retrieval
 
+Status: complete.
+
 Goal: retrieve historical chunks by tag and query.
 
 Scope:
 
-1. Qdrant adapter.
-2. Haystack query pipeline wrapper.
-3. Dense retrieval first.
-4. Metadata-preserving result format.
-5. Retrieval tests with fake or small local chunks.
+1. `POST /api/retrieve`.
+2. Local deterministic retrieval over Phase 2 SQLite chunks.
+3. Exact tag filtering.
+4. Simple query keyword matching.
+5. Metadata-preserving chunk result format.
+6. Retrieval tests with temporary upload roots and SQLite DBs.
+
+Implementation decision:
+
+- The original roadmap considered Qdrant, Haystack, and dense retrieval for
+  Phase 3. The implemented Phase 3 intentionally uses deterministic local
+  retrieval first because the accepted scope was the smallest backend closure
+  over already-persisted chunks.
+
+Deferred:
+
+- Qdrant adapter.
+- Haystack runtime pipeline.
+- Embeddings and dense retrieval.
+- Hybrid retrieval.
 
 ## Phase 4 - Generation, Citations, And Risks
+
+Status: complete.
 
 Goal: generate candidate content from retrieval context.
 
 Scope:
 
-1. OpenAI-compatible LLM adapter.
-2. Prompt builder.
-3. Answer formatter.
-4. Citation formatter.
-5. Rule-based risk checker.
-6. `need_human_review = true` always.
+1. `POST /api/generate`.
+2. OpenAI-compatible LLM adapter boundary.
+3. Fake-LLM injection seam for automated tests.
+4. Prompt builder over Phase 3 retrieval context.
+5. Citation-preserving answer formatter.
+6. Rule-based risk checker for empty generation and missing citations.
+7. `need_human_review = true` always.
+
+Deferred:
+
+- Live external LLM provider smoke with real credentials.
+- Full tender deep analysis.
+- Final human-approved bidding document output.
 
 ## Phase 5 - Demo Page And Script
 
+Status: next.
+
 Goal: present the full capability chain to a stakeholder.
+
+Input baseline:
+
+1. Phase 1 upload and SQLite metadata are available.
+2. Phase 2 parsing/chunking is available for small `.docx` and text-based
+   `.pdf`; OCR/scanned PDFs remain out of scope.
+3. Phase 3 local retrieval is available through `POST /api/retrieve`.
+4. Phase 4 candidate generation is available through `POST /api/generate`.
+5. Automated tests pass with fake parsers/fake LLM where appropriate; a real
+   external LLM key is optional for manual demo smoke.
+6. All generated content remains candidate content and must show
+   `need_human_review = true`.
 
 Scope:
 
@@ -90,3 +130,11 @@ Scope:
 2. Demo script using selected sample files.
 3. Raw JSON display.
 4. Manual verification notes for citations and risk hints.
+
+Out of scope:
+
+- OCR/PaddleOCR.
+- Qdrant/Haystack/dense retrieval.
+- Production authentication or user management.
+- Word/PDF export.
+- Treating generated text as final approved bidding content.

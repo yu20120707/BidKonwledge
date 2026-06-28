@@ -2,9 +2,15 @@
 
 投标智能知识库能力验证版 Demo。
 
-当前仓库已进入 Phase 2：Document Parsing And Chunking。Phase 2 提供后端最小解析能力：文件上传、Docling 解析适配、section/chunk 入库、确定性标签、解析状态流转和最小查询 API。
+当前仓库已完成 Phase 4：Generation, Citations, And Risks。
 
-Phase 2 仍不包含 OCR、embedding、vector store、Haystack retrieval、LLM generation、知识卡片完整生成、前端 Demo、用户系统或 Word/PDF 导出。
+Phase 3 提供后端最小检索能力：基于 Phase 2 已入库 chunks，支持 tag 过滤、简单 query 关键词匹配、确定性排序和 metadata-preserving 检索结果。
+
+Phase 3 仍不包含 OCR、embedding、vector store、Haystack/Qdrant runtime、LLM generation、Prompt builder、知识卡片完整生成、前端 Demo、用户系统或 Word/PDF 导出。
+
+Phase 4 提供后端最小生成能力：基于 Phase 3 retrieval context 生成候选内容，保留 citations，输出 rule-based risks，并始终返回 `need_human_review = true`。
+
+Phase 5 尚未实现。Phase 5 的开发前目标是：提供最小 FastAPI-hosted demo page 和 demo script，串联 upload、parse、retrieve、generate，并展示 raw JSON、citations、risks 和 human-review 状态。
 
 ## Harness
 
@@ -70,6 +76,58 @@ curl.exe --noproxy "*" "http://127.0.0.1:8000/api/documents/<document_id>/chunks
 
 Use a real small `.docx` or text-based `.pdf` when Docling is installed. The synthetic placeholder command only demonstrates the upload path.
 
+Retrieve persisted chunks:
+
+```powershell
+curl.exe --noproxy "*" -X POST "http://127.0.0.1:8000/api/retrieve" `
+  -H "Content-Type: application/json" `
+  -d "{\"tag\":\"运维服务\",\"query\":\"应急\",\"top_k\":5}"
+```
+
+Retrieval is deterministic and local in Phase 3. It reads parsed chunks from SQLite and does not call Qdrant, Haystack, embeddings, or LLM services.
+
+## Phase 4 API
+
+- `POST /api/generate`
+
+Request:
+
+```json
+{
+  "target_tag": "运维服务",
+  "query": "根据招标要求生成运维服务应急方案",
+  "top_k": 5
+}
+```
+
+Response:
+
+```json
+{
+  "target_tag": "运维服务",
+  "generated_content": "string",
+  "citations": [],
+  "risks": [],
+  "need_human_review": true
+}
+```
+
+Phase 4 must be testable with an injected fake LLM and must not require real LLM credentials in automated tests.
+
+## Phase 5 Planned Demo
+
+- `GET /demo`
+
+Planned demo flow:
+
+1. Upload a small `.docx` or text-based `.pdf`.
+2. Parse the uploaded document.
+3. Retrieve relevant chunks by tag/query.
+4. Generate candidate content from retrieval context.
+5. Display raw JSON, citations, risks, and `need_human_review`.
+
+Phase 5 remains a local capability demo. It must not introduce OCR, Qdrant, Haystack, production authentication, Word/PDF export, or final approved bidding output.
+
 ## Test
 
 ```powershell
@@ -122,6 +180,51 @@ Parse statuses:
 
 Chunks are persisted in SQLite with normalized text payloads, section metadata, page placeholders, deterministic tags, and metadata identifying `deterministic_v1` tagging.
 
+## Phase 3 API
+
+- `POST /api/retrieve`
+
+Retrieval request:
+
+```json
+{
+  "query": "应急",
+  "tag": "运维服务",
+  "top_k": 5
+}
+```
+
+`query` or `tag` is required. Results are chunk-based and preserve source metadata:
+
+```json
+{
+  "query": "应急",
+  "tag": "运维服务",
+  "results": [
+    {
+      "chunk_id": "string",
+      "document_id": "string",
+      "section_id": "string",
+      "section_title": "运维服务应急",
+      "section_path": "运维服务应急",
+      "text": "string",
+      "tags": ["运维服务", "应急响应"],
+      "score": 2.0,
+      "source": {
+        "original_filename": "retrieval.docx",
+        "doc_role": "historical_bid",
+        "file_ext": ".docx",
+        "page_start": null,
+        "page_end": null,
+        "chunk_metadata": {
+          "tagger": "deterministic_v1"
+        }
+      }
+    }
+  ]
+}
+```
+
 ## Source Documents
 
 - [PRD PDF](docs/source-materials/originals/投标智能知识库能力验证版-PRD-v0.1.pdf)
@@ -134,6 +237,6 @@ External reference repositories are kept outside Git under `F:\BidKonwledge_refs
 
 ## Boundary
 
-This is not a complete bidding system. Phase 2 is only the backend parsing/chunking foundation for later retrieval and generation.
+This is not a complete bidding system. Phase 3 is only the backend parsing/chunking plus local retrieval foundation. Phase 4 generated content must remain candidate content only.
 
 All generated bidding content in future phases must require human review.

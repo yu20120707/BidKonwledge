@@ -1,5 +1,224 @@
 # Handoff
 
+## Current State - Phase 5 Development Prep
+
+Phase 5 has been prepared but not implemented.
+
+Current harness state:
+
+- mode: `large`
+- profile: `python-backend-service`
+- state status: `DONE`
+- current gate: none
+
+Important harness note:
+
+- `.ai/state.json` still reflects the previous completed task state. Phase 5
+  prep updated runtime artifacts, but no new Phase 5 harness gate transition is
+  claimed.
+
+Prepared Phase 5 objective:
+
+1. Provide a minimal FastAPI-hosted demo page.
+2. Provide a demo script or runbook using selected small sample files.
+3. Drive upload, parse, retrieve, and generate through existing APIs.
+4. Display raw JSON, citations, risks, and `need_human_review`.
+5. Keep OCR, Qdrant/Haystack, production auth, export, and final approved
+   bidding output out of scope.
+
+Files updated for Phase 5 prep:
+
+- `.ai/spec.md`
+- `.ai/implementation-plan.md`
+- `.ai/affected-files.md`
+- `.ai/run-trace.md`
+- `.ai/verification.md`
+- `.ai/evaluation.md`
+- `.ai/handoff.md`
+- `README.md`
+
+Next recommended action:
+
+```md
+Start Phase 5 implementation from `.ai/spec.md` and
+`.ai/implementation-plan.md`. Before claiming any gate transition, resolve or
+explicitly handle the current `DONE/current_gate: none` harness state.
+```
+
+## Current State - Phase 4 Generation, Citations, And Risks
+
+Phase 4 backend generation has been implemented locally.
+
+Current harness state:
+
+- mode: `large`
+- profile: `python-backend-service`
+- state status: `DONE`
+- current gate: none
+
+Important harness note:
+
+- `.ai/state.json` still reflects the previous completed task state. Phase 4 was
+  executed under large-mode discipline, but no new Phase 4 harness gate
+  transition is claimed.
+
+Implemented backend capabilities:
+
+1. `POST /api/generate`.
+2. Fake-testable OpenAI-compatible LLM adapter boundary.
+3. Prompt builder over Phase 3 retrieval context.
+4. Citation-preserving answer formatter.
+5. Rule-based risk checker.
+6. Generation response always sets `need_human_review = true`.
+7. Phase 4 tests using temporary upload roots, temporary SQLite DBs, and fake
+   LLM injection.
+
+Important files changed or added:
+
+- `backend/app/api/generation.py`
+- `backend/app/adapters/llm_gateway.py`
+- `backend/app/services/generation.py`
+- `backend/app/services/prompt_builder.py`
+- `backend/app/services/answer_formatter.py`
+- `backend/app/services/risk_checker.py`
+- `backend/app/main.py`
+- `backend/app/schemas/document.py`
+- `backend/tests/test_generation_api.py`
+- `backend/tests/test_phase4_boundaries.py`
+- `README.md`
+- `docs/ai/03-data-model.md`
+- `docs/ai/04-api-contract.md`
+- `.ai/spec.md`
+- `.ai/implementation-plan.md`
+- `.ai/affected-files.md`
+- `.ai/run-trace.md`
+- `.ai/verification.md`
+- `.ai/evaluation.md`
+- `.ai/handoff.md`
+
+Targeted verification run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -m pytest backend/tests/test_generation_api.py backend/tests/test_phase4_boundaries.py
+```
+
+Result:
+
+- Targeted Phase 4 pytest: `6 passed, 1 warning`.
+
+Final verification run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+& $py -m pytest backend/tests/test_generation_api.py backend/tests/test_phase4_boundaries.py
+& $py -m pytest backend/tests
+.\scripts\ai_check.ps1
+$env:Path='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python;' + $env:Path
+python -m pytest backend/tests
+bash ./scripts/ai_check.sh
+git diff --check
+```
+
+Results:
+
+- `ai-status`: passed, large mode confirmed, status still `DONE`.
+- `ai-doctor`: passed with expected active-worktree warning.
+- Targeted Phase 4 pytest: `6 passed, 1 warning`.
+- Full backend pytest: `64 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed.
+- Explicit `python -m pytest backend/tests`: `64 passed, 1 warning`.
+- uvicorn + `curl.exe --noproxy "*"` smoke: `POST /api/generate` returned
+  structured HTTP 503 `LLM_NOT_CONFIGURED` when no LLM key was configured.
+- `bash ./scripts/ai_check.sh`: attempted and failed because WSL/bash is
+  unavailable.
+- `git diff --check`: passed with line-ending warnings only.
+
+## Current State - Phase 3 Retrieval
+
+Phase 3 backend retrieval has been implemented locally.
+
+Current harness state:
+
+- mode: `large`
+- profile: `python-backend-service`
+- state status: `DONE`
+- current gate: none
+
+Important harness note:
+
+- `.ai/state.json` still reflects the previous completed task state. Phase 3 was
+  executed under large-mode discipline, but no new Phase 3 harness gate
+  transition is claimed.
+
+Implemented backend capabilities:
+
+1. `POST /api/retrieve`.
+2. Tag filtering over persisted Phase 2 chunks.
+3. Simple deterministic query keyword matching.
+4. Stable retrieval scoring and ordering.
+5. Metadata-preserving chunk result format with source metadata.
+6. Retrieval tests using temporary upload roots and SQLite databases.
+7. Boundary test proving retrieval does not require LLM/vector/Qdrant/Haystack
+   environment variables.
+
+Important files changed or added:
+
+- `backend/app/api/retrieval.py`
+- `backend/app/services/retrieval.py`
+- `backend/app/main.py`
+- `backend/app/schemas/document.py`
+- `backend/app/storage/database.py`
+- `backend/tests/test_retrieval_api.py`
+- `backend/tests/test_phase3_boundaries.py`
+- `README.md`
+- `docs/ai/03-data-model.md`
+- `docs/ai/04-api-contract.md`
+- `.ai/spec.md`
+- `.ai/implementation-plan.md`
+- `.ai/affected-files.md`
+- `.ai/run-trace.md`
+- `.ai/verification.md`
+- `.ai/evaluation.md`
+- `.ai/handoff.md`
+
+Verification run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+& $py -m pytest backend/tests/test_retrieval_api.py backend/tests/test_phase3_boundaries.py
+& $py -m pytest backend/tests
+.\scripts\ai_check.ps1
+$env:Path='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python;' + $env:Path
+python -m pytest backend/tests
+bash ./scripts/ai_check.sh
+git diff --check
+```
+
+Results:
+
+- `ai-status`: passed, large mode confirmed, status still `DONE`.
+- `ai-doctor`: passed with expected active-worktree warning.
+- Targeted Phase 3 pytest: `7 passed, 1 warning`.
+- Full backend pytest: `58 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed.
+- Explicit `python -m pytest backend/tests`: `58 passed, 1 warning`.
+- `bash ./scripts/ai_check.sh`: attempted and failed because WSL/bash is
+  unavailable.
+- uvicorn + `curl.exe --noproxy "*"` smoke: `POST /api/retrieve` passed against
+  a temporary SQLite DB with a pre-seeded parsed chunk.
+- `git diff --check`: passed with line-ending warnings only.
+
+Superseded recommendation:
+
+```md
+Phase 3 review was followed by Phase 4 implementation in this working tree.
+```
+
 ## Current State - Phase 2 Document Parsing And Chunking
 
 Phase 2 backend parsing/chunking has been implemented locally.

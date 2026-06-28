@@ -166,14 +166,14 @@ Response:
 
 ## POST /api/retrieve
 
-Retrieve knowledge cards.
+Retrieve persisted chunks.
 
 Request:
 
 ```json
 {
-  "query": "生成运维服务实施方案",
-  "tag": "运维服务实施方案",
+  "query": "应急",
+  "tag": "运维服务",
   "top_k": 5
 }
 ```
@@ -182,9 +182,36 @@ Response:
 
 ```json
 {
-  "cards": []
+  "query": "应急",
+  "tag": "运维服务",
+  "results": [
+    {
+      "chunk_id": "string",
+      "document_id": "string",
+      "section_id": "string",
+      "section_title": "运维服务应急",
+      "section_path": "运维服务应急",
+      "text": "string",
+      "tags": ["运维服务", "应急响应"],
+      "score": 2.0,
+      "source": {
+        "original_filename": "retrieval.docx",
+        "doc_role": "historical_bid",
+        "file_ext": ".docx",
+        "page_start": null,
+        "page_end": null,
+        "chunk_metadata": {
+          "tagger": "deterministic_v1"
+        }
+      }
+    }
+  ]
 }
 ```
+
+Phase 3 requires at least one of `query` or `tag`. Retrieval is local and
+deterministic over Phase 2 SQLite chunks. It does not call Qdrant, Haystack,
+embeddings, or LLM services.
 
 ## POST /api/generate
 
@@ -194,9 +221,8 @@ Request:
 
 ```json
 {
-  "tender_document_id": "string",
-  "target_tag": "运维服务实施方案",
-  "query": "根据招标要求生成运维服务实施方案",
+  "target_tag": "运维服务",
+  "query": "根据招标要求生成运维服务应急方案",
   "top_k": 5
 }
 ```
@@ -205,13 +231,32 @@ Response:
 
 ```json
 {
-  "target_tag": "运维服务实施方案",
+  "target_tag": "运维服务",
   "generated_content": "string",
-  "citations": [],
-  "risks": [],
+  "citations": [
+    {
+      "source_filename": "generation.docx",
+      "source_section_title": "运维服务应急",
+      "content_snippet": "运维服务支持应急响应，包含突发事件处理和服务保障。",
+      "chunk_id": "string",
+      "document_id": "string"
+    }
+  ],
+  "risks": [
+    {
+      "risk_type": "MISSING_CITATIONS",
+      "description": "No retrieval citations are available for this output.",
+      "severity": "high",
+      "source_text": null
+    }
+  ],
   "need_human_review": true
 }
 ```
+
+Phase 4 uses Phase 3 retrieval context, an injectable LLM adapter, citation
+formatting, and rule-based risk checks. Automated tests use a fake LLM and do
+not require real external LLM credentials.
 
 ## GET /demo
 
