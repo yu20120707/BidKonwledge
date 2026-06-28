@@ -2,15 +2,15 @@
 
 投标智能知识库能力验证版 Demo。
 
-当前仓库已完成 Phase 4：Generation, Citations, And Risks。
+当前仓库已完成 Phase 5：Demo Page And Script。
 
 Phase 3 提供后端最小检索能力：基于 Phase 2 已入库 chunks，支持 tag 过滤、简单 query 关键词匹配、确定性排序和 metadata-preserving 检索结果。
 
-Phase 3 仍不包含 OCR、embedding、vector store、Haystack/Qdrant runtime、LLM generation、Prompt builder、知识卡片完整生成、前端 Demo、用户系统或 Word/PDF 导出。
+Phase 3 本身不包含 OCR、embedding、vector store、Haystack/Qdrant runtime、LLM generation、Prompt builder、知识卡片完整生成、用户系统或 Word/PDF 导出。
 
 Phase 4 提供后端最小生成能力：基于 Phase 3 retrieval context 生成候选内容，保留 citations，输出 rule-based risks，并始终返回 `need_human_review = true`。
 
-Phase 5 尚未实现。Phase 5 的开发前目标是：提供最小 FastAPI-hosted demo page 和 demo script，串联 upload、parse、retrieve、generate，并展示 raw JSON、citations、risks 和 human-review 状态。
+Phase 5 提供最小 FastAPI-hosted demo page，串联 upload、parse、retrieve、generate，并展示 raw JSON、citations、risks 和 human-review 状态。
 
 ## Harness
 
@@ -114,11 +114,24 @@ Response:
 
 Phase 4 must be testable with an injected fake LLM and must not require real LLM credentials in automated tests.
 
-## Phase 5 Planned Demo
+## Phase 5 Demo
 
 - `GET /demo`
 
-Planned demo flow:
+Start backend:
+
+```powershell
+$py = "C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
+& $py -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
+```
+
+Open:
+
+```powershell
+curl.exe --noproxy "*" http://127.0.0.1:8000/demo
+```
+
+Demo flow:
 
 1. Upload a small `.docx` or text-based `.pdf`.
 2. Parse the uploaded document.
@@ -127,6 +140,8 @@ Planned demo flow:
 5. Display raw JSON, citations, risks, and `need_human_review`.
 
 Phase 5 remains a local capability demo. It must not introduce OCR, Qdrant, Haystack, production authentication, Word/PDF export, or final approved bidding output.
+
+If no real LLM key is configured, the generate step returns the existing structured `LLM_NOT_CONFIGURED` response. The demo page keeps the human-review state visible and displays this as a risk item. Automated tests do not require a real LLM key.
 
 ## Test
 
@@ -237,6 +252,6 @@ External reference repositories are kept outside Git under `F:\BidKonwledge_refs
 
 ## Boundary
 
-This is not a complete bidding system. Phase 3 is only the backend parsing/chunking plus local retrieval foundation. Phase 4 generated content must remain candidate content only.
+This is not a complete bidding system. Phase 5 is only a local demo layer over the existing backend chain. Phase 4/5 generated content must remain candidate content only.
 
 All generated bidding content in future phases must require human review.

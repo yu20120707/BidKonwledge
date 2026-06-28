@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BidKnowledge Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --panel: #ffffff;
+      --text: #202124;
+      --muted: #5f6368;
+      --line: #d9dadd;
+      --accent: #0f766e;
+      --accent-dark: #115e59;
+      --danger: #b42318;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+      line-height: 1.5;
+    }
+
+    header,
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 28px 0 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+      gap: 20px;
+      padding: 20px 0 32px;
+    }
+
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 17px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      width: 100%;
+      font: inherit;
+    }
+
+    input,
+    select,
+    textarea {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    button {
+      min-height: 40px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .results {
+      display: grid;
+      gap: 14px;
+    }
+
+    pre {
+      min-height: 120px;
+      max-height: 360px;
+      margin: 0;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #111827;
+      color: #f9fafb;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .status {
+      min-height: 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .review {
+      font-weight: 700;
+      color: var(--danger);
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .list li {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px;
+      background: #fbfbfa;
+    }
+
+    @media (max-width: 820px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BidKnowledge Demo</h1>
+  </header>
+
+  <main>
+    <div class="controls">
+      <section id="upload-section">
+        <h2>Upload</h2>
+        <label>
+          File
+          <input id="file-input" type="file" accept=".txt,.pdf,.doc,.docx">
+        </label>
+        <label>
+          Document role
+          <select id="doc-role">
+            <option value="historical_bid">Historical bid</option>
+            <option value="tender">Tender</option>
+          </select>
+        </label>
+        <button id="upload-button" type="button">Upload</button>
+      </section>
+
+      <section id="parse-section">
+        <h2>Parse</h2>
+        <label>
+          Document ID
+          <input id="document-id" type="text" autocomplete="off">
+        </label>
+        <button id="parse-button" type="button">Parse Document</button>
+      </section>
+
+      <section id="retrieve-section">
+        <h2>Retrieve</h2>
+        <label>
+          Tag
+          <input id="retrieve-tag" type="text" value="运维服务">
+        </label>
+        <label>
+          Query
+          <input id="retrieve-query" type="text" value="应急">
+        </label>
+        <label>
+          Top K
+          <input id="retrieve-top-k" type="number" min="1" max="20" value="5">
+        </label>
+        <button id="retrieve-button" type="button">Retrieve</button>
+      </section>
+
+      <section id="generate-section">
+        <h2>Generate</h2>
+        <label>
+          Target tag
+          <input id="generate-tag" type="text" value="运维服务">
+        </label>
+        <label>
+          Generation query
+          <textarea id="generate-query">根据招标要求生成运维服务应急方案</textarea>
+        </label>
+        <button id="generate-button" type="button">Generate Candidate</button>
+      </section>
+    </div>
+
+    <div class="results">
+      <section id="review-section">
+        <h2>Human Review</h2>
+        <div id="need-human-review" class="review">need_human_review: not generated</div>
+      </section>
+
+      <section id="citations-section">
+        <h2>Citations</h2>
+        <ul id="citations-list" class="list"></ul>
+      </section>
+
+      <section id="risks-section">
+        <h2>Risks</h2>
+        <ul id="risks-list" class="list"></ul>
+      </section>
+
+      <section id="raw-json-section">
+        <h2>Raw JSON</h2>
+        <div id="status-line" class="status"></div>
+        <pre id="raw-json">{}</pre>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const rawJson = document.getElementById("raw-json");
+    const statusLine = document.getElementById("status-line");
+    const documentIdInput = document.getElementById("document-id");
+    const reviewStatus = document.getElementById("need-human-review");
+    const citationsList = document.getElementById("citations-list");
+    const risksList = document.getElementById("risks-list");
+
+    function setStatus(message) {
+      statusLine.textContent = message;
+    }
+
+    function showJson(label, payload) {
+      setStatus(label);
+      rawJson.textContent = JSON.stringify(payload, null, 2);
+    }
+
+    async function parseJsonResponse(response) {
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        showJson(`HTTP ${response.status}`, payload);
+        const error = new Error(payload.message || `HTTP ${response.status}`);
+        error.payload = payload;
+        error.status = response.status;
+        throw error;
+      }
+      return payload;
+    }
+
+    function renderGeneration(payload) {
+      const needReview = payload.need_human_review;
+      reviewStatus.textContent = `need_human_review: ${String(needReview)}`;
+
+      citationsList.replaceChildren(
+        ...(payload.citations || []).map((citation) => {
+          const item = document.createElement("li");
+          item.textContent = `${citation.source_filename} / ${citation.source_section_title}: ${citation.content_snippet}`;
+          return item;
+        })
+      );
+
+      risksList.replaceChildren(
+        ...(payload.risks || []).map((risk) => {
+          const item = document.createElement("li");
+          item.textContent = `${risk.severity}: ${risk.risk_type} - ${risk.description}`;
+          return item;
+        })
+      );
+    }
+
+    function renderGenerationError(payload) {
+      if (payload.error_code !== "LLM_NOT_CONFIGURED") {
+        return;
+      }
+      reviewStatus.textContent = "need_human_review: true";
+      citationsList.replaceChildren();
+
+      const item = document.createElement("li");
+      item.textContent = `high: LLM_NOT_CONFIGURED - ${payload.message || "LLM is not configured."}`;
+      risksList.replaceChildren(item);
+    }
+
+    document.getElementById("upload-button").addEventListener("click", async () => {
+      const file = document.getElementById("file-input").files[0];
+      if (!file) {
+        setStatus("Select a file first.");
+        return;
+      }
+      const form = new FormData();
+      form.append("file", file);
+      form.append("doc_role", document.getElementById("doc-role").value);
+      const payload = await parseJsonResponse(await fetch("/api/files/upload", {
+        method: "POST",
+        body: form
+      }));
+      documentIdInput.value = payload.document_id || "";
+      showJson("Upload response", payload);
+    });
+
+    document.getElementById("parse-button").addEventListener("click", async () => {
+      const documentId = documentIdInput.value.trim();
+      const payload = await parseJsonResponse(await fetch(`/api/documents/${documentId}/parse`, {
+        method: "POST"
+      }));
+      showJson("Parse response", payload);
+    });
+
+    document.getElementById("retrieve-button").addEventListener("click", async () => {
+      const payload = await parseJsonResponse(await fetch("/api/retrieve", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          tag: document.getElementById("retrieve-tag").value.trim() || null,
+          query: document.getElementById("retrieve-query").value.trim() || null,
+          top_k: Number(document.getElementById("retrieve-top-k").value || 5)
+        })
+      }));
+      showJson("Retrieve response", payload);
+    });
+
+    document.getElementById("generate-button").addEventListener("click", async () => {
+      try {
+        const payload = await parseJsonResponse(await fetch("/api/generate", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            target_tag: document.getElementById("generate-tag").value.trim(),
+            query: document.getElementById("generate-query").value.trim(),
+            top_k: Number(document.getElementById("retrieve-top-k").value || 5)
+          })
+        }));
+        renderGeneration(payload);
+        showJson("Generate response", payload);
+      } catch (error) {
+        renderGenerationError(error.payload || {});
+      }
+    });
+  </script>
+</body>
+</html>

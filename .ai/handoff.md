@@ -1,5 +1,131 @@
 # Handoff
 
+## Current State - Phase 5 Demo Page And Script
+
+Phase 5 has been implemented locally.
+
+Current harness state:
+
+- mode: `large`
+- profile: `python-backend-service`
+- state status: `DONE`
+- current gate: none
+
+Important harness note:
+
+- `.ai/state.json` still reflects the previous completed task state. Phase 5 was
+  executed under large-mode discipline, but no new Phase 5 harness gate
+  transition is claimed.
+
+Implemented demo capabilities:
+
+1. `GET /demo`.
+2. FastAPI-hosted static demo page.
+3. Upload, parse, retrieve, and generate controls.
+4. Raw JSON response display.
+5. Citations, risks, and `need_human_review` display areas.
+6. Phase 5 tests for route availability, page hooks, and boundary constraints.
+
+Important files changed or added:
+
+- `backend/app/api/demo.py`
+- `backend/app/static/demo.html`
+- `backend/app/main.py`
+- `backend/tests/test_demo_page.py`
+- `backend/tests/test_phase5_boundaries.py`
+- `README.md`
+- `docs/ai/09-phase-roadmap.md`
+- `.ai/spec.md`
+- `.ai/implementation-plan.md`
+- `.ai/affected-files.md`
+- `.ai/run-trace.md`
+- `.ai/verification.md`
+- `.ai/evaluation.md`
+- `.ai/handoff.md`
+
+Verification run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+& $py -m pytest backend/tests/test_demo_page.py backend/tests/test_phase5_boundaries.py
+.\scripts\ai_check.ps1
+$env:Path='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python;' + $env:Path
+python -m pytest backend/tests
+bash ./scripts/ai_check.sh
+git diff --check
+```
+
+Results:
+
+- `ai-status`: passed, large mode confirmed, status still `DONE`.
+- `ai-doctor`: passed with expected active-worktree warning.
+- Targeted Phase 5 pytest: `4 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed.
+- Explicit `python -m pytest backend/tests`: `68 passed, 1 warning`.
+- uvicorn + `curl.exe --noproxy "*"` smoke: `GET /demo` returned HTTP 200 and
+  demo HTML.
+- `bash ./scripts/ai_check.sh`: attempted and failed because WSL/bash is
+  unavailable.
+- `git diff --check`: passed with line-ending warnings only.
+
+Residual risks:
+
+- Live external LLM provider integration remains optional and was not verified.
+  The demo page can call the existing generate endpoint; without credentials it
+  returns the existing structured `LLM_NOT_CONFIGURED` response and displays it
+  as a risk while keeping `need_human_review` visible.
+- Phase 5 intentionally remains a minimal local demo surface, not a production
+  frontend or final bidding document workflow.
+
+## Current State - Phase 5 Multi-Subagent Hardening Review
+
+Multi-subagent review has been executed.
+
+Subagents used:
+
+1. Bohr: code/security review with `code-review-and-quality` and
+   `security-review`.
+2. Aristotle: workflow/test review with `verification-before-completion` and
+   `systematic-debugging`.
+3. Bernoulli: harness/documentation review with `task-router` and
+   `verification-before-completion`.
+
+Durable artifacts:
+
+- `.ai/subagent-packets/phase5-demo-code-security-review.md`
+- `.ai/subagent-packets/phase5-demo-workflow-test-review.md`
+- `.ai/subagent-packets/phase5-demo-harness-doc-review.md`
+- `.ai/reviews/phase5-demo-hardening-review.md`
+
+Changes after review:
+
+- `backend/app/static/demo.html`: no-LLM generate errors now update the
+  human-review and risks panels.
+- `backend/tests/test_demo_page.py`: added static coverage for no-LLM UI
+  handling.
+- `backend/tests/test_phase5_demo_workflow.py`: added fake-parser/fake-LLM
+  upload -> parse -> retrieve -> generate chain test.
+- `README.md` and `.ai/*`: updated review and verification evidence.
+
+Final verification:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- Targeted hardening pytest: `11 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed with `70 passed, 1 warning`.
+- Explicit `python -m pytest backend/tests`: `70 passed, 1 warning`.
+- Live `GET /demo` smoke: HTTP 200 and expected no-LLM fallback hooks present.
+- `git diff --check`: passed with line-ending warnings only.
+- `bash ./scripts/ai_check.sh`: not verified because WSL/Linux distribution is
+  unavailable.
+
+State caveat:
+
+- `.ai/state.json` remains `DONE/current_gate: none`; no new Phase 5 gate
+  transition is claimed.
+
 ## Current State - Phase 5 Development Prep
 
 Phase 5 has been prepared but not implemented.

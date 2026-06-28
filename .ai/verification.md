@@ -1,5 +1,221 @@
 # Verification
 
+## Phase 5 Demo Page And Script Verification
+
+Updated on 2026-06-28.
+
+### Harness And Context
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+```
+
+Observed:
+
+- `ai-status`: passed, initialized yes, `mode: large`, profile
+  `python-backend-service`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed required checks; warning only that the working tree has
+  uncommitted Phase 5 changes.
+- No Phase 5 harness gate transition is claimed.
+
+### Targeted Automated Tests
+
+Command run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -m pytest backend/tests/test_demo_page.py backend/tests/test_phase5_boundaries.py
+```
+
+Observed:
+
+- Passed: `4 passed, 1 warning`.
+- Covered `GET /demo`, expected upload/parse/retrieve/generate hooks, raw JSON,
+  citations, risks, `need_human_review`, and boundary checks that Phase 5 does
+  not require external service environment variables or forbidden demo-scope
+  dependencies.
+
+### Full Backend Tests
+
+Commands run:
+
+```powershell
+.\scripts\ai_check.ps1
+$env:Path='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python;' + $env:Path
+python -m pytest backend/tests
+```
+
+Observed:
+
+- `.\scripts\ai_check.ps1`: passed. It ran `compileall backend/app` and backend
+  pytest.
+- Explicit `python -m pytest backend/tests`: passed, `68 passed, 1 warning`.
+- Warning: existing FastAPI/Starlette test client `httpx` deprecation warning.
+
+### Manual Smoke
+
+Smoke command:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+# Python script starts uvicorn, then calls:
+curl.exe --noproxy "*" -i "http://127.0.0.1:8770/demo"
+```
+
+Observed:
+
+- First smoke attempt hit a Windows subprocess text-decoding error while
+  reading Chinese HTML output.
+- Rerun in byte mode passed.
+- `GET /demo`: HTTP `200 OK`, `content-type: text/html; charset=utf-8`, and the
+  response contained `BidKnowledge Demo`.
+
+### Project Scripts And Diff Hygiene
+
+Command attempted:
+
+```powershell
+$env:PYTHON='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+bash ./scripts/ai_check.sh
+```
+
+Observed:
+
+- Failed because this Windows machine has no usable WSL/Linux distribution for
+  `bash`.
+- This is recorded as not verified. Do not claim bash verification passed.
+
+Command run:
+
+```powershell
+git diff --check
+```
+
+Observed:
+
+- Passed.
+- Git reported line-ending normalization warnings only.
+
+### Unverified Or Deferred
+
+- `bash ./scripts/ai_check.sh`: not verified because WSL/bash is unavailable.
+- Real external LLM provider integration is not verified. The demo page can call
+  the existing generate endpoint, but automated tests do not require a real LLM
+  key by design.
+- OCR, Qdrant, Haystack, embeddings, production user system, and Word/PDF
+  export are intentionally not part of Phase 5.
+
+## Phase 5 Multi-Subagent Hardening Review Verification
+
+Updated on 2026-06-28.
+
+### Subagent Evidence
+
+Subagents dispatched:
+
+- Bohr: code/security review with `code-review-and-quality` and
+  `security-review`.
+- Aristotle: workflow/test review with `verification-before-completion` and
+  `systematic-debugging`.
+- Bernoulli: harness/doc review with `task-router` and
+  `verification-before-completion`.
+
+Durable review artifact:
+
+- `.ai/reviews/phase5-demo-hardening-review.md`
+
+Observed:
+
+- Bohr: no blocking findings; one P2 UI robustness finding for no-LLM generate
+  path.
+- Aristotle: recommended persisting fake end-to-end API chain test.
+- Bernoulli: required durable review artifact and `.ai` evidence updates.
+
+### Checks Run Before Fixes
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -m pytest backend/tests/test_demo_page.py backend/tests/test_phase5_boundaries.py
+
+$env:Path='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python;' + $env:Path
+python -m pytest backend/tests
+
+.\scripts\ai_check.ps1
+```
+
+Observed:
+
+- Targeted Phase 5 tests: `4 passed, 1 warning`.
+- Full backend pytest: `68 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed.
+- Live uvicorn + `curl.exe --noproxy "*"` `GET /demo` smoke: HTTP 200 and
+  expected demo hooks.
+
+### Fix Verification
+
+Command run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -m pytest backend/tests/test_demo_page.py backend/tests/test_phase5_boundaries.py backend/tests/test_phase5_demo_workflow.py backend/tests/test_generation_api.py
+```
+
+Observed:
+
+- First run failed in the new workflow test because a long Chinese sentence
+  query did not match Phase 3 lexical retrieval and produced
+  `MISSING_CITATIONS`.
+- The test was corrected to query `应急`, matching the current deterministic
+  retrieval contract.
+- Rerun passed: `11 passed, 1 warning`.
+
+### Unverified Or Deferred
+
+- Browser JavaScript execution is still not verified with Playwright or a real
+  browser; current coverage uses static hook assertions plus live HTTP smoke.
+- Real external LLM provider integration is not verified.
+- `bash ./scripts/ai_check.sh` remains not verified because WSL/bash is
+  unavailable.
+
+### Final Hardening Verification
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+& $py -m pytest backend/tests/test_demo_page.py backend/tests/test_phase5_boundaries.py backend/tests/test_phase5_demo_workflow.py backend/tests/test_generation_api.py
+.\scripts\ai_check.ps1
+$env:Path='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python;' + $env:Path
+python -m pytest backend/tests
+# Python script starts uvicorn, then calls:
+curl.exe --noproxy "*" -i "http://127.0.0.1:8772/demo"
+$env:PYTHON='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+bash ./scripts/ai_check.sh
+git diff --check
+```
+
+Observed:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- Targeted hardening pytest: `11 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed; compileall plus backend pytest with
+  `70 passed, 1 warning`.
+- Explicit `python -m pytest backend/tests`: `70 passed, 1 warning`.
+- Live `GET /demo` smoke: HTTP 200 and response contained
+  `renderGenerationError` and `LLM_NOT_CONFIGURED`.
+- `bash ./scripts/ai_check.sh`: failed because WSL/Linux distribution is
+  unavailable; not verified.
+- `git diff --check`: passed with line-ending normalization warnings only.
+
 ## Phase 5 Development Prep Verification
 
 Updated on 2026-06-28.

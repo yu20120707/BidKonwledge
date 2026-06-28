@@ -9,7 +9,8 @@ Phase 5 should expose a minimal demo page and a repeatable demo script over the
 existing upload, parse, retrieve, and generate APIs. It should make the raw JSON,
 citations, risks, and `need_human_review = true` visible.
 
-This file is a pre-development spec. Phase 5 code has not been implemented yet.
+Phase 5 has been implemented against this spec without changing the harness
+gate state.
 
 ## Required Execution Mode
 
@@ -97,6 +98,14 @@ Phase 5 is accepted when:
    production user system.
 6. Automated tests cover route availability and boundary constraints.
 7. README and `.ai` files record real command evidence and residual risks.
+
+Current implementation status:
+
+- `GET /demo` is implemented.
+- The page is a minimal static HTML asset hosted by FastAPI.
+- The page drives existing upload, parse, retrieve, and generate APIs.
+- Raw JSON, citations, risks, and `need_human_review` are visible.
+- Tests cover route availability, page hooks, and boundary constraints.
 
 ## Required Verification Commands
 

@@ -1,5 +1,97 @@
 # Evaluation
 
+## Phase 5 Demo Page And Script Evaluation
+
+Status: implemented and locally verified.
+
+Implemented:
+
+1. `GET /demo`.
+2. FastAPI-hosted minimal static demo page.
+3. Upload, parse, retrieve, and generate controls using existing APIs.
+4. Raw JSON display for API responses.
+5. Visible citations, risks, and `need_human_review` display areas.
+6. Pytest coverage for demo route availability and expected API hooks.
+7. Pytest coverage for Phase 5 boundary constraints.
+8. README and `.ai` artifacts updated with demo commands and verification
+   evidence.
+
+Scope control:
+
+- OCR / PaddleOCR: not implemented.
+- Qdrant/Haystack/dense retrieval: not implemented.
+- Embeddings: not implemented.
+- Production authentication or user management: not implemented.
+- Word/PDF export: not implemented.
+- Final approved bidding output: not implemented.
+- Reference repo vendoring: not done.
+
+Verification summary:
+
+- `ai-status`: passed, large mode confirmed, status remains `DONE`.
+- `ai-doctor`: passed with expected active-worktree warning.
+- Targeted Phase 5 pytest: `4 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed and ran compile/test checks.
+- Explicit `python -m pytest backend/tests`: `68 passed, 1 warning`.
+- uvicorn + `curl.exe --noproxy "*"` smoke: `GET /demo` returned HTTP 200 and
+  demo HTML.
+- `git diff --check`: passed with line-ending warnings only.
+- `bash ./scripts/ai_check.sh`: not verified because WSL/bash is unavailable.
+
+Residual risk:
+
+1. Harness `.ai/state.json` remains the previous completed `DONE` state with no
+   active Phase 5 gate; no gate transition is claimed.
+2. The live generate button depends on the existing Phase 4 LLM configuration.
+   Without a real key, it returns the structured `LLM_NOT_CONFIGURED` response;
+   the demo page now keeps `need_human_review` visible and displays that
+   condition as a risk item.
+3. Browser JavaScript execution is still not verified by Playwright or another
+   real-browser test.
+4. Third-party FastAPI/Starlette `httpx` deprecation warning remains.
+
+## Phase 5 Multi-Subagent Hardening Review Evaluation
+
+Status: completed with one P2 robustness fix and one P1 workflow-test addition.
+
+Subagents used:
+
+1. Bohr: code/security review.
+2. Aristotle: workflow/test robustness review.
+3. Bernoulli: harness/documentation compliance review.
+
+Findings integrated:
+
+- No blocking findings.
+- No security regression found in output handling or static route path handling.
+- Fixed no-LLM generate UI behavior so human-review and risk panels remain
+  meaningful.
+- Added fake-parser/fake-LLM upload -> parse -> retrieve -> generate workflow
+  pytest.
+- Added durable review artifact under `.ai/reviews/`.
+
+Verification summary:
+
+- Pre-fix targeted Phase 5 tests: `4 passed, 1 warning`.
+- Pre-fix full backend pytest: `68 passed, 1 warning`.
+- Pre-fix `.\scripts\ai_check.ps1`: passed.
+- Pre-fix live `/demo` smoke: HTTP 200.
+- Post-fix targeted hardening tests: `11 passed, 1 warning`.
+- Final `.\scripts\ai_check.ps1`: passed with `70 passed, 1 warning`.
+- Final explicit `python -m pytest backend/tests`: `70 passed, 1 warning`.
+- Final live `/demo` smoke: HTTP 200 and no-LLM fallback hooks present.
+
+Residual risk:
+
+1. Browser JavaScript execution is still not verified with Playwright or a real
+   browser; current coverage uses static hook assertions plus live HTTP smoke.
+2. Real external LLM provider integration remains optional and unverified.
+3. `bash ./scripts/ai_check.sh` remains unverified because WSL/bash is
+   unavailable.
+4. Phase 3 retrieval remains lexical and deterministic; long Chinese sentence
+   queries may not retrieve context unless they match the current query-term
+   contract.
+
 ## Phase 5 Development Prep Evaluation
 
 Status: prepared, not implemented.

@@ -18,6 +18,106 @@ Keep a short execution log for large-mode work.
   `.ai/affected-files.md` for Phase 5 Demo Page And Script; updated README with
   Phase 5 planned demo flow and out-of-scope boundaries.
 
+## Phase 5 - Demo Page And Script
+
+- command: initial harness check
+- output: `ai-status` reported initialized yes, `mode: large`, profile
+  `python-backend-service`, status `DONE`, and `current_gate: none`;
+  `ai-doctor` passed required checks with a clean working tree.
+- harness note: `.ai/state.json` remains `DONE/current_gate: none`. Phase 5 is
+  implemented under large-mode discipline, but no new harness gate transition is
+  claimed.
+- task contract: Level 3 / complex under harness large mode; target is a
+  minimal local demo page and runbook over upload, parse, retrieve, and
+  generate, without OCR/Qdrant/Haystack/embedding/export/user-system work.
+- subagent plan: no subagent used because the route, static page, tests, and
+  docs share a small coupled write surface.
+- command: implementation
+- output: added `GET /demo`, FastAPI-hosted `demo.html`, demo workflow controls,
+  raw JSON display, citations, risks, and `need_human_review` display areas.
+- mid-task review: after demo route/page/tests, target remains Phase 5 local
+  demo only; no forbidden dependencies or production frontend scope were added;
+  decision is to keep plan.
+- command: targeted Phase 5 pytest
+- output: `backend/tests/test_demo_page.py` and
+  `backend/tests/test_phase5_boundaries.py` passed: 4 passed, 1 warning.
+- command: required checks
+- output: `ai-status` passed with `mode: large`, `status: DONE`, and
+  `current_gate: none`; `ai-doctor` passed with expected uncommitted-change
+  warning; `.\scripts\ai_check.ps1` passed and ran compileall plus backend
+  pytest; explicit `python -m pytest backend/tests` passed: 68 passed,
+  1 warning.
+- command: uvicorn + curl demo smoke
+- output: first attempt hit a Windows subprocess text-decoding error while
+  reading Chinese HTML output; rerun in byte mode succeeded. `curl.exe
+  --noproxy "*"` `GET /demo` returned HTTP 200 and the demo HTML.
+- command: bash ./scripts/ai_check.sh
+- output: failed because WSL/Linux distribution is unavailable; recorded as not
+  verified.
+- command: git diff --check
+- output: passed; only line-ending normalization warnings were reported.
+
+## Phase 5 - Multi-Subagent Demo Hardening Review
+
+- command: task contract
+- output: classified as Level 3 / complex under harness large mode because the
+  user explicitly requested multi-subagent orchestration to stress review the
+  stakeholder-facing demo workflow. Target is review, robustness testing, and
+  evidence capture; no product-scope expansion is assumed.
+- command: harness status
+- output: `ai-status` reported initialized yes, `mode: large`, profile
+  `python-backend-service`, status `DONE`, and `current_gate: none`;
+  `ai-doctor` passed required checks with expected uncommitted-change warning.
+- command: subagent dispatch
+- output: started Bohr as read-only code/security reviewer with
+  `code-review-and-quality` and `security-review`; packet recorded in
+  `.ai/subagent-packets/phase5-demo-code-security-review.md`.
+- command: subagent dispatch
+- output: started Aristotle as read-only workflow/test reviewer with
+  `verification-before-completion` and `systematic-debugging`; packet recorded
+  in `.ai/subagent-packets/phase5-demo-workflow-test-review.md`.
+- command: subagent dispatch
+- output: started Bernoulli as read-only harness/documentation reviewer with
+  `task-router` and `verification-before-completion`; packet recorded in
+  `.ai/subagent-packets/phase5-demo-harness-doc-review.md`.
+- command: fresh verification before review integration
+- output: targeted Phase 5 tests passed: 4 passed, 1 warning; full backend
+  pytest passed: 68 passed, 1 warning; `.\scripts\ai_check.ps1` passed; live
+  uvicorn + `curl.exe --noproxy "*"` `GET /demo` smoke returned HTTP 200 and
+  expected demo hooks.
+- subagent result: Bohr
+- output: no blocking findings; security review found output handling uses
+  `textContent` and fixed `/demo` static path is safe. P2 finding: no-LLM
+  generate path showed raw JSON but did not update human-review or risks panels.
+- subagent result: Aristotle
+- output: minimal coverage acceptable; recommended persisting the upload ->
+  parse -> retrieve -> generate fake-parser/fake-LLM chain as an automated test
+  and noted browser/JS-level rendering as future hardening.
+- subagent result: Bernoulli
+- output: required durable review artifact plus updates to run-trace,
+  verification, evaluation, and handoff; warned not to claim any new harness
+  gate transition because `.ai/state.json` remains `DONE/current_gate: none`.
+- command: review fixes
+- output: added no-LLM generation UI fallback in `demo.html`; added
+  `backend/tests/test_phase5_demo_workflow.py`; added
+  `.ai/reviews/phase5-demo-hardening-review.md`.
+- command: targeted hardening pytest
+- output: first run failed because the new workflow test used a long Chinese
+  sentence query that did not match Phase 3 lexical retrieval; adjusted the test
+  query to `应急` to stay inside the current deterministic retrieval contract.
+  Rerun passed: 11 passed, 1 warning.
+- command: final hardening verification
+- output: `ai-status` and `ai-doctor` passed with `mode: large`, status `DONE`,
+  and `current_gate: none`; targeted hardening tests passed: 11 passed,
+  1 warning; `.\scripts\ai_check.ps1` passed with 70 backend tests; explicit
+  `python -m pytest backend/tests` passed: 70 passed, 1 warning; uvicorn +
+  `curl.exe --noproxy "*"` `GET /demo` smoke passed and found
+  `renderGenerationError` / `LLM_NOT_CONFIGURED`; `git diff --check` passed
+  with line-ending warnings only.
+- command: bash ./scripts/ai_check.sh
+- output: failed because WSL/Linux distribution is unavailable; recorded as not
+  verified.
+
 ## Phase 4 - Development Prep
 
 - command: pre-phase checks

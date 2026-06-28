@@ -9,7 +9,9 @@
   or user-system work.
 - Rollback: normal Git revert before commit; no database migration is expected.
 
-This file is a pre-development plan. Phase 5 implementation has not started.
+Phase 5 implementation has completed against this plan. The harness state still
+remains the prior `DONE/current_gate: none` state, so no Phase 5 gate transition
+is claimed.
 
 ## Target Outcome
 
@@ -99,6 +101,14 @@ After Stage 2, perform a self-review:
 2. Scope changes since start.
 3. Newly discovered risks.
 4. Decision: keep plan, revise plan, or escalate.
+
+Checkpoint result:
+
+- Stage 1 and Stage 2 completed with targeted tests passing.
+- Scope did not expand beyond the demo route/page/tests/docs surface.
+- No OCR, Qdrant, Haystack, embeddings, export, user system, or production
+  frontend work was added.
+- Decision: keep the original plan.
 
 ## Escalation Triggers
 

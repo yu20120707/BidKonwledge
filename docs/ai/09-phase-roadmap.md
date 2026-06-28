@@ -108,7 +108,7 @@ Deferred:
 
 ## Phase 5 - Demo Page And Script
 
-Status: next.
+Status: complete.
 
 Goal: present the full capability chain to a stakeholder.
 
@@ -130,6 +130,16 @@ Scope:
 2. Demo script using selected sample files.
 3. Raw JSON display.
 4. Manual verification notes for citations and risk hints.
+
+Implemented:
+
+1. `GET /demo`.
+2. FastAPI-hosted static demo page.
+3. Page controls for upload, parse, retrieve, and generate.
+4. Raw JSON display.
+5. Citations, risks, and `need_human_review` display areas.
+6. Pytest coverage for route availability, expected API hooks, and Phase 5
+   boundary constraints.
 
 Out of scope:
 

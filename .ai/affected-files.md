@@ -1,7 +1,6 @@
 # Affected Files - Phase 5 Demo Page And Script
 
-This is the expected Phase 5 edit surface. Phase 5 implementation has not
-started yet.
+This is the Phase 5 edit surface after implementation.
 
 ## Expected Added Files
 
@@ -9,6 +8,9 @@ started yet.
 - `backend/app/static/demo.html`
 - `backend/tests/test_demo_page.py`
 - `backend/tests/test_phase5_boundaries.py`
+- `backend/tests/test_phase5_demo_workflow.py`
+
+Status: added.
 
 ## Expected Updated Files
 
@@ -22,6 +24,12 @@ started yet.
 - `.ai/verification.md`
 - `.ai/evaluation.md`
 - `.ai/handoff.md`
+- `.ai/reviews/phase5-demo-hardening-review.md`
+- `.ai/subagent-packets/phase5-demo-code-security-review.md`
+- `.ai/subagent-packets/phase5-demo-workflow-test-review.md`
+- `.ai/subagent-packets/phase5-demo-harness-doc-review.md`
+
+Status: updated where needed for implementation evidence and handoff.
 
 ## Forbidden Areas
 
