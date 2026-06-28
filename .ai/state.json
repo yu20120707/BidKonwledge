@@ -2,14 +2,16 @@
   "schema_version": 1,
   "mode": "large",
   "profile": "python-backend-service",
-  "status": "WAITING_HUMAN_DIFF_APPROVAL",
-  "current_gate": "diff",
+  "status": "DONE",
+  "current_gate": null,
   "approved_gates": [
     "spec",
-    "plan"
+    "plan",
+    "diff",
+    "final"
   ],
   "created_by": "Auto_AICoding_Harness",
   "task_id": "init-large",
   "task_title": "Initialize harness in large mode",
-  "updated_at": "2026-06-28T01:14:21+08:00"
+  "updated_at": "2026-06-28T12:46:51+08:00"
 }

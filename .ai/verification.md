@@ -1,5 +1,25 @@
 # Verification
 
+## Ran
+
+- command: .\scripts\ai_check.ps1
+- result: passed
+- notes: Ran compileall and backend pytest; 37 passed, 1 warning.
+
+- command: python -m pytest backend/tests
+- result: passed
+- notes: Ran with bundled Python on PATH; 37 passed, 1 warning.
+
+- command: curl.exe --noproxy "*" http://127.0.0.1:8000/health
+- result: passed
+- notes: Local uvicorn smoke returned HTTP 200 and {"status":"ok"}.
+
+## Not Run
+
+- item: bash ./scripts/ai_check.sh
+- reason: WSL/bash is unavailable on this Windows machine.
+- required follow-up: Run in a shell/WSL environment before claiming bash verification.
+
 ## Phase 1 Backend Foundation Verification
 
 Updated on 2026-06-28.
