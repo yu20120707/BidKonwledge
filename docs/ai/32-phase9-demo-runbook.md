@@ -18,6 +18,17 @@ $py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\pyt
 If install or import fails, record the exact error in `.ai/verification.md` and
 do not claim real OCR smoke passed.
 
+PDF input note:
+
+```powershell
+& $py -m pip install PyMuPDF
+& $py -c "import fitz; print('fitz_available=True')"
+```
+
+Use this only as a local smoke dependency unless license review approves it for
+the project. `PyMuPDF` reports dual `GNU AFFERO GPL 3.0 or Artifex Commercial
+License`, so it must not be added to `pyproject.toml` by default.
+
 ## Sample Selection
 
 Use one small scanned PDF or image-derived PDF from the indexed source

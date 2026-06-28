@@ -1,5 +1,75 @@
 # Handoff
 
+## Current State - Phase 9 Real OCR Smoke
+
+Phase 9 real PaddleOCR smoke is locally verified.
+
+Current harness state:
+
+- mode: `large`
+- profile: `python-backend-service`
+- state status: `DONE`
+- current gate: none
+
+Implemented in Phase 9:
+
+1. `pyproject.toml` now declares `paddlepaddle>=2.6,<3.0` in the `ocr`
+   optional dependency group.
+2. `PaddleOCRAdapter` preloads Torch when available before importing PaddleOCR,
+   avoiding the observed Windows DLL load-order failure.
+3. PaddleOCR import-time `ImportError` and `OSError` are converted into
+   sanitized `OCRError` messages.
+4. `backend/tests/test_ocr_adapter_parse.py` covers sanitized runtime import
+   failure.
+
+Real OCR smoke evidence:
+
+- Runtime: bundled Python `3.12.13`.
+- Installed/imported:
+  - `paddleocr 2.10.0`
+  - `paddlepaddle 2.6.2`
+  - local smoke-only `PyMuPDF 1.27.2.3`
+- Sample source:
+  `宁波运维项目\九州拓新\批量输出为图片\宁波市社会保障卡管理服务和职业技能鉴定指导中心（16.95）\宁波市社会保障卡管理服务和职业技能鉴定指导中心（16.95）_08.png`
+- The source image was converted to a temporary PDF under `%TEMP%`; no customer
+  sample or generated PDF was committed.
+- Forced OCR parse passed:
+  - upload HTTP `201`
+  - `parse_mode=ocr`
+  - `parse_status=parsed`
+  - `sections_count=1`
+  - `chunks_count=1`
+  - `ocr_engine=paddleocr`
+  - `ocr_average_confidence=0.9882`
+- Auto fallback parse passed:
+  - `parse_mode=auto`
+  - `parse_status=parsed`
+  - `ocr_fallback_reason=text_parse_failed`
+  - `sections_count=1`
+  - `chunks_count=1`
+- Final verification:
+  - targeted OCR tests: `8 passed, 1 warning`
+  - `.\scripts\ai_check.ps1`: `110 passed, 1 warning`
+  - `python -m pip check`: passed
+  - `git diff --check`: passed with line-ending warnings only
+  - `bash ./scripts/ai_check.sh`: failed because WSL/Linux distribution is
+    unavailable
+
+Important residual risk:
+
+- PaddleOCR PDF input required `fitz`, provided by `PyMuPDF`. `pip show
+  PyMuPDF` reports dual `GNU AFFERO GPL 3.0 or Artifex Commercial License`.
+  It was installed only in the local runtime for smoke and is not added to
+  `pyproject.toml`. Get explicit license approval before making it a project
+  dependency.
+
+Next recommended action:
+
+```md
+Proceed to Phase 10 PRD-shaped demo page flow. Do not add PyMuPDF to project
+dependencies without explicit license approval.
+```
+
 ## Current State - Phase 8B OCR Adapter
 
 Phase 8B has been implemented locally with fake-OCR automated coverage.

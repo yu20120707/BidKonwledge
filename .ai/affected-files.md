@@ -1,42 +1,15 @@
-# Affected Files - Phase 8B OCR Adapter For Scanned PDFs
-
-This is the expected Phase 8B edit surface.
-
-## Added Files
-
-Implementation:
-
-- `backend/app/adapters/ocr_adapter.py`
-
-Tests:
-
-- `backend/tests/test_ocr_adapter_parse.py`
-- `backend/tests/test_phase8b_boundaries.py`
-
-Durable docs:
-
-- `docs/ai/27-phase8b-ocr-adapter-dev-spec.md`
-- `docs/ai/28-phase8b-test-cases.md`
-- `docs/ai/29-phase8b-demo-runbook.md`
+# Affected Files - Phase 9 Real OCR Smoke
 
 ## Updated Files
 
-Backend:
+Implementation/config:
 
-- `backend/app/api/documents.py`
-- `backend/app/services/document_parsing.py`
-- `backend/app/services/section_chunker.py`
-- `backend/app/schemas/document.py`
+- `backend/app/adapters/ocr_adapter.py`
+- `backend/tests/test_ocr_adapter_parse.py`
 - `pyproject.toml`
 
-Docs and evidence:
+Runtime evidence:
 
-- `README.md`
-- `docs/ai/03-data-model.md`
-- `docs/ai/04-api-contract.md`
-- `docs/ai/09-phase-roadmap.md`
-- `docs/ai/17-lightweight-prd-completion-plan.md`
-- `docs/ai/README.md`
 - `.ai/spec.md`
 - `.ai/implementation-plan.md`
 - `.ai/affected-files.md`
@@ -45,24 +18,35 @@ Docs and evidence:
 - `.ai/evaluation.md`
 - `.ai/handoff.md`
 
+## Runtime-Only Artifacts
+
+Do not commit:
+
+- temporary scanned PDF generated under `%TEMP%`
+- uploaded smoke files under temporary upload roots
+- temporary SQLite smoke databases
+- PaddleOCR model cache under `C:\Users\26561\.paddleocr`
+- customer source images or PDFs
+
+## Dependency Boundary
+
+Committed OCR optional dependencies:
+
+- `paddleocr>=2.8,<3.0`
+- `paddlepaddle>=2.6,<3.0`
+
+Local smoke-only dependency:
+
+- `PyMuPDF 1.27.2.3`, installed only in the local Python runtime because
+  PaddleOCR PDF input imports `fitz`. It is not added to `pyproject.toml`
+  because the package reports dual `GNU AFFERO GPL 3.0 or Artifex Commercial`
+  licensing and needs explicit license review before becoming project
+  dependency.
+
 ## Forbidden Areas
 
-- Do not vendor `F:\BidKonwledge_refs\ragflow`.
-- Do not vendor `F:\BidKonwledge_refs\haystack-demos`.
-- Do not copy customer scanned files into the repository.
-- Do not commit generated OCR output.
-- Do not make PaddleOCR a required default or test dependency.
-- Do not add Qdrant, Haystack, embeddings, dense retrieval, hybrid retrieval,
-  LLM parsing, user system, export, or final approved bidding output.
-- Do not implement certificate validation or qualification evidence validation.
-
-## Watch List
-
-- `backend/app/services/document_parsing.py`: keep OCR fallback limited and
-  preserve existing text parsing behavior.
-- `backend/app/adapters/ocr_adapter.py`: PaddleOCR imports must be lazy.
-- `backend/app/api/documents.py`: parse body must remain backward compatible
-  with no-body requests.
-- `backend/app/services/section_chunker.py`: OCR metadata should stay attached
-  to chunks without disrupting existing deterministic tags.
-- Tests must use fake OCR adapters and isolated temp resources.
+- Do not add Qdrant, Haystack, embeddings, dense retrieval, or hybrid retrieval.
+- Do not add table reconstruction.
+- Do not add image batch ingestion.
+- Do not validate certificates, seals, or qualification evidence.
+- Do not commit customer samples or generated OCR output.

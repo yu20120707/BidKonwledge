@@ -102,6 +102,11 @@ $py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\pyt
 & $py -c "import paddleocr; print(paddleocr.__version__)"
 ```
 
+For PDF-input smoke, PaddleOCR may import `fitz`. On this Windows machine that
+required local installation of `PyMuPDF`. Do not add PyMuPDF to project
+dependencies without explicit license review because `pip show PyMuPDF` reports
+dual `GNU AFFERO GPL 3.0 or Artifex Commercial License`.
+
 4. Live API smoke with one scanned PDF:
    - upload
    - forced OCR parse

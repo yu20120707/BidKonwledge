@@ -1,5 +1,130 @@
 # Verification
 
+## Phase 9 Real PaddleOCR Runtime And Scanned PDF Smoke Verification
+
+Updated on 2026-06-28.
+
+This section records Phase 9 real OCR smoke verification.
+
+Updated files:
+
+- `backend/app/adapters/ocr_adapter.py`
+- `backend/tests/test_ocr_adapter_parse.py`
+- `pyproject.toml`
+- `.ai/spec.md`
+- `.ai/implementation-plan.md`
+- `.ai/affected-files.md`
+- `.ai/run-trace.md`
+- `.ai/verification.md`
+- `.ai/evaluation.md`
+- `.ai/handoff.md`
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+& $py -m pytest backend/tests/test_ocr_adapter_parse.py backend/tests/test_phase8b_boundaries.py
+& $py -m pip install -e ".[ocr]"
+& $py -m pip install PyMuPDF
+& $py -m pip install --force-reinstall "paddlepaddle==2.6.2"
+& $py -m pip show paddleocr paddlepaddle PyMuPDF
+& $py -m pip check
+& $py -m pytest backend/tests/test_ocr_adapter_parse.py backend/tests/test_phase8b_boundaries.py
+.\scripts\ai_check.ps1
+git diff --check
+$env:PYTHON='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+bash ./scripts/ai_check.sh
+```
+
+Observed:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with clean working tree before Phase 9 edits.
+- Initial fake-OCR targeted tests passed: `7 passed, 1 warning`.
+- After adding the runtime import sanitization test, targeted OCR tests passed:
+  `8 passed, 1 warning`.
+- `paddleocr_available=False` before installation.
+- `pip install -e ".[ocr]"` installed `paddleocr 2.10.0`.
+- Initial `paddleocr` import failed because the `paddle` runtime module was
+  missing.
+- Added `paddlepaddle` to the `ocr` optional dependency group.
+- `paddlepaddle 3.3.1` installed, but real OCR inference failed with Paddle
+  OneDNN `fused_conv2d` error.
+- Downgraded and constrained the project OCR optional runtime to
+  `paddlepaddle>=2.6,<3.0`.
+- Final import check passed:
+  - `paddleocr_version=2.10.0`
+  - `paddle_version=2.6.2`
+- Windows import order issue was found: importing Paddle before Torch can make
+  Torch fail loading `torch\lib\shm.dll`. `PaddleOCRAdapter` now preloads
+  Torch if available before importing PaddleOCR.
+- `python -m pip check`: passed.
+- Final targeted OCR tests: `8 passed, 1 warning`.
+- Final `.\scripts\ai_check.ps1`: passed with backend pytest
+  `110 passed, 1 warning`.
+- Final `git diff --check`: passed with line-ending normalization warnings
+  only.
+- Final `bash ./scripts/ai_check.sh`: failed because no usable WSL/Linux
+  distribution is available on this Windows machine.
+
+Real OCR smoke sample:
+
+- Indexed source sample:
+  `宁波运维项目\九州拓新\批量输出为图片\宁波市社会保障卡管理服务和职业技能鉴定指导中心（16.95）\宁波市社会保障卡管理服务和职业技能鉴定指导中心（16.95）_08.png`
+- Source size: `351716` bytes.
+- The source image was converted to a temporary PDF under `%TEMP%`; no customer
+  sample or generated PDF was committed.
+- First real OCR run downloaded PaddleOCR models into
+  `C:\Users\26561\.paddleocr\whl`.
+
+Forced OCR API smoke:
+
+- Upload status: HTTP `201`.
+- Parse request: `{"parse_mode":"ocr"}`.
+- Parse status: `parsed`.
+- Sections: `1`.
+- Chunks: `1`.
+- OCR metadata:
+  - `ocr_attempted=true`
+  - `ocr_engine=paddleocr`
+  - `ocr_pages_count=1`
+  - `ocr_average_confidence=0.9882`
+- First chunk preview:
+  `5.本合同一式陆_份，甲方_叁_份，乙方叁_份...`
+
+Auto fallback API smoke:
+
+- Upload status: HTTP `201`.
+- Parse request: `{"parse_mode":"auto"}`.
+- Parse status: `parsed`.
+- Sections: `1`.
+- Chunks: `1`.
+- OCR metadata:
+  - `ocr_attempted=true`
+  - `ocr_fallback_reason=text_parse_failed`
+  - `ocr_engine=paddleocr`
+  - `ocr_pages_count=1`
+  - `ocr_average_confidence=0.9882`
+
+License and dependency note:
+
+- PaddleOCR PDF input required `fitz`, provided locally by `PyMuPDF 1.27.2.3`.
+- `pip show PyMuPDF` reports license:
+  `Dual Licensed - GNU AFFERO GPL 3.0 or Artifex Commercial License`.
+- PyMuPDF was installed only for local smoke and is not added to
+  `pyproject.toml` because project docs require explicit approval before adding
+  AGPL dependencies to the main path.
+
+Unverified:
+
+- `bash ./scripts/ai_check.sh` remains unavailable because WSL/bash is not
+  installed.
+- A live uvicorn + curl smoke was not required after the TestClient API smoke;
+  the smoke still exercised the FastAPI upload/parse/chunks routes and real
+  PaddleOCR runtime.
+
 ## Phase 8B OCR Adapter Verification
 
 Updated on 2026-06-28.

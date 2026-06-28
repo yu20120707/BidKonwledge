@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import builtins
 from pathlib import Path
 
-from backend.app.adapters.ocr_adapter import OCRError, OCRPageText
+import pytest
+
+from backend.app.adapters.ocr_adapter import OCRError, OCRPageText, PaddleOCRAdapter
 from backend.app.api.documents import get_document_parser, get_ocr_adapter
 from backend.app.main import app
 from backend.app.services.section_chunker import NormalizedSection
@@ -207,3 +210,21 @@ def test_ocr_failure_marks_parse_failed_without_absolute_path_leak(client):
     assert body["parse_metadata"]["ocr_attempted"] is True
     assert "C:\\" not in body["error_message"]
     assert "<local_path>" in body["error_message"]
+
+
+def test_paddleocr_runtime_import_error_is_sanitized(monkeypatch, tmp_path):
+    original_import = builtins.__import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "paddleocr":
+            raise OSError(r'Error loading "C:\Users\26561\secret\shm.dll"')
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+
+    with pytest.raises(OCRError) as exc_info:
+        PaddleOCRAdapter().extract(tmp_path / "scan.pdf")
+
+    message = str(exc_info.value)
+    assert "could not be loaded" in message
+    assert "C:\\" not in message

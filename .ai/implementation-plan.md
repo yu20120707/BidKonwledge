@@ -1,147 +1,59 @@
-# Implementation Plan - Phase 8B OCR Adapter For Scanned PDFs
+# Implementation Plan - Phase 9 Real OCR Smoke
 
 ## Execution Classification
 
 - Harness mode: `large`
-- Task level: Level 3 / complex
-- Reason: Phase 8B changes the shared parse path by adding `parse_mode`,
-  OCR fallback, optional external OCR dependency boundaries, and OCR metadata.
-- Rollback: normal Git revert before commit. Database changes should stay
-  within existing parse metadata and section/chunk persistence.
-
-Status: implemented locally on 2026-06-28.
+- Task level: Level 2 / medium
+- Reason: Phase 9 verifies a real optional runtime and may require narrow
+  dependency/runtime fixes, but it does not change public API shape or core data
+  model.
+- Escalation trigger: adding image ingestion, table reconstruction, vector
+  retrieval, or committing a new license-sensitive dependency to the project
+  dependency set.
 
 ## Target Outcome
 
-Add a replaceable OCR adapter that can turn scanned PDF pages into normal
-sections/chunks while keeping existing text parsing behavior intact.
+Real PaddleOCR can be exercised through the existing parse API for one scanned
+PDF smoke, or the exact blocker is recorded with sanitized failure behavior.
 
-## Non-Goals
+## Plan
 
-No required PaddleOCR install, no OCR for large image batches, no certificate
-validation, no table reconstruction, no vector store, no embeddings, no LLM
-parsing, no export, and no final bidding output.
+1. Confirm harness and clean baseline.
+2. Run fake-OCR targeted regression tests.
+3. Install `.[ocr]` and verify imports.
+4. Fix only runtime dependency issues discovered by the real smoke.
+5. Select a small indexed image sample and create a temporary PDF outside Git.
+6. Run forced OCR API smoke.
+7. Run `auto` fallback API smoke.
+8. Update `.ai` evidence and active runtime files.
+9. Run targeted tests, full project check, `pip check`, and diff hygiene.
 
-## Subagent Plan
+## Mid-Task Review
 
-No subagent is planned at task start.
+Status versus original plan:
 
-Reason: implementation is a single coupled parse-path change. Add a read-only
-reviewer only if OCR fallback semantics expand beyond PDF or optional
-dependency handling becomes risky.
+- The task stayed focused on real OCR smoke.
+- Scope expanded narrowly to add `paddlepaddle>=2.6,<3.0` to the OCR optional
+  dependency group and to preload Torch before PaddleOCR import on Windows.
+- PyMuPDF was needed by PaddleOCR for PDF input, but it is not added to
+  project dependencies because the repo guardrail says to avoid AGPL
+  dependencies without explicit approval.
 
-## Implementation Stages
+Decision: keep Phase 9 plan. Record PyMuPDF as local smoke-only and license
+risk, not as committed project dependency.
 
-### Stage 1 - Runtime Artifacts
+## Verification Plan
 
-1. Update `.ai/spec.md`, `.ai/implementation-plan.md`, and
-   `.ai/affected-files.md` to Phase 8B.
-2. Confirm harness state remains `large`.
-
-Verification:
+Required:
 
 ```powershell
 $py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
 & $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
 & $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
-```
-
-### Stage 2 - OCR Adapter Interface
-
-1. Add `backend/app/adapters/ocr_adapter.py`.
-2. Define `OCRPageText`, `OCRAdapter`, `OCRError`, and optional
-   `PaddleOCRAdapter`.
-3. Keep imports lazy.
-4. Add fake OCR tests.
-
-Verification:
-
-```powershell
-& $py -m pytest backend/tests/test_ocr_adapter_parse.py
-```
-
-### Stage 3 - Parse Mode API
-
-1. Add `ParseDocumentRequest`.
-2. Accept optional body on `POST /api/documents/{document_id}/parse`.
-3. Default missing body to `auto`.
-4. Add OCR adapter dependency injection seam.
-
-Verification:
-
-```powershell
-& $py -m pytest backend/tests/test_document_parse_api.py backend/tests/test_ocr_adapter_parse.py
-```
-
-### Stage 4 - OCR Integration
-
-1. Integrate OCR into `document_parsing.parse_document`.
-2. Preserve DOCX and legacy Word conversion behavior.
-3. For PDFs:
-   - `text`: parser only
-   - `ocr`: OCR only
-   - `auto`: parser first, OCR fallback on parser failure or empty chunks
-4. Convert OCR pages into `NormalizedSection` values.
-5. Add OCR metadata to parse metadata.
-6. Sanitize OCR errors.
-
-Verification:
-
-```powershell
 & $py -m pytest backend/tests/test_ocr_adapter_parse.py backend/tests/test_phase8b_boundaries.py
-```
-
-### Stage 5 - Docs And Evidence
-
-1. Update README and durable docs.
-2. Add Phase 8B dev spec, test cases, and runbook.
-3. Update `.ai/run-trace.md`, `.ai/verification.md`, `.ai/evaluation.md`, and
-   `.ai/handoff.md`.
-
-Verification:
-
-```powershell
+& $py -m pip check
+.\scripts\ai_check.ps1
 git diff --check
 ```
 
-### Stage 6 - Final Verification
-
-1. Run harness checks.
-2. Run targeted OCR tests.
-3. Run PowerShell project check.
-4. Run full backend pytest.
-5. Attempt bash check if shell tooling exists.
-6. Record residual risk and optional PaddleOCR manual-smoke status.
-
-Verification:
-
-```powershell
-$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
-& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
-& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
-& $py -m pytest backend/tests/test_ocr_adapter_parse.py backend/tests/test_phase8b_boundaries.py
-.\scripts\ai_check.ps1
-python -m pytest backend/tests
-```
-
-## Mid-Task Review Checkpoint
-
-After Stage 4, perform a self-review:
-
-1. Is OCR still limited to scanned PDF parse support?
-2. Did PaddleOCR become a required test/default dependency?
-3. Did OCR alter the successful text-PDF path?
-4. Are OCR errors sanitized?
-5. Is verification still sufficient?
-
-Decision must be recorded in `.ai/run-trace.md`.
-
-## Escalation Triggers
-
-Pause or escalate if:
-
-1. Image upload support becomes necessary.
-2. PaddleOCR install/model downloads become required for automated tests.
-3. OCR output needs table reconstruction or document validation.
-4. The parse API change breaks existing no-body parse clients.
-5. Error handling risks exposing local paths or OCR model cache paths.
+Also attempt `bash ./scripts/ai_check.sh` if WSL/bash becomes available.

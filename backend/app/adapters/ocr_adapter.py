@@ -29,11 +29,16 @@ class PaddleOCRAdapter:
 
     def extract(self, file_path: Path) -> list[OCRPageText]:
         try:
+            try:
+                import torch  # type: ignore[import-not-found]  # noqa: F401
+            except ImportError:
+                pass
             from paddleocr import PaddleOCR  # type: ignore[import-not-found]
-        except ImportError as exc:
+        except (ImportError, OSError) as exc:
             raise OCRError(
-                "PaddleOCR is not installed. Install the OCR optional dependency "
-                "before running real OCR parsing."
+                "PaddleOCR or PaddlePaddle runtime could not be loaded. "
+                "Install and verify the OCR optional dependency before running "
+                "real OCR parsing."
             ) from exc
 
         try:

@@ -2,6 +2,55 @@
 
 Keep a short execution log for large-mode work.
 
+## Phase 9 - Real PaddleOCR Runtime And Scanned PDF Smoke
+
+- command: push baseline before Phase 9
+- output: committed and pushed `3c49bf9 Complete PRD backend phases and phase 9
+  OCR docs` to `origin/main`.
+- command: task contract
+- output: classified Phase 9 as Level 2 / medium under harness large mode.
+  Target is real PaddleOCR runtime and scanned PDF smoke only; no
+  Qdrant/Haystack/embedding, table reconstruction, image batch ingestion, or
+  certificate validation.
+- command: harness and baseline checks
+- output: `ai-status` confirmed `mode: large`, status `DONE`,
+  `current_gate: none`; `ai-doctor` passed with clean working tree; initial
+  targeted fake-OCR tests passed: 7 passed, 1 warning.
+- command: dependency install
+- output: `pip install -e ".[ocr]"` installed `paddleocr 2.10.0`, but import
+  failed because `paddle` was missing. Added `paddlepaddle` to the OCR optional
+  dependency group.
+- command: runtime compatibility fix
+- output: `paddlepaddle 3.3.1` imported but failed real inference with Paddle
+  OneDNN `fused_conv2d`; constrained runtime to `paddlepaddle>=2.6,<3.0`, and
+  verified `paddleocr 2.10.0` + `paddlepaddle 2.6.2`.
+- command: Windows import-order fix
+- output: found `import paddle; import torch` can fail loading
+  `torch\lib\shm.dll`, while `import torch; import paddleocr` works. Updated
+  `PaddleOCRAdapter` to preload Torch when available and to sanitize
+  import-time `OSError`.
+- mid-task review
+- output: scope expanded narrowly to dependency/runtime fixes. PyMuPDF was
+  required for PaddleOCR PDF input but was kept local-smoke-only because it
+  reports AGPL/commercial licensing. Decision: keep Phase 9 plan and do not add
+  PyMuPDF to project dependencies.
+- command: forced OCR API smoke
+- output: converted the smallest indexed PNG sample to a temporary PDF under
+  `%TEMP%`, uploaded through FastAPI TestClient, parsed with
+  `parse_mode=ocr`, and got `parse_status=parsed`, 1 section, 1 chunk,
+  `ocr_engine=paddleocr`, and `ocr_average_confidence=0.9882`.
+- command: auto fallback API smoke
+- output: uploaded a fresh temporary PDF and parsed with `parse_mode=auto`;
+  text parsing failed and OCR fallback succeeded with
+  `ocr_fallback_reason=text_parse_failed`, 1 section, and 1 chunk.
+- command: final verification
+- output: targeted OCR tests passed: 8 passed, 1 warning; `.\scripts\ai_check.ps1`
+  passed with 110 backend tests; `python -m pip check` passed;
+  `git diff --check` passed with line-ending warnings only.
+- command: bash ./scripts/ai_check.sh
+- output: failed because WSL/Linux distribution is unavailable; recorded as not
+  verified.
+
 ## Phase 8A - Development Prep
 
 - command: task contract

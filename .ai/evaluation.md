@@ -1,5 +1,52 @@
 # Evaluation
 
+## Phase 9 Real PaddleOCR Runtime And Scanned PDF Smoke Evaluation
+
+Status: implemented locally and real-OCR smoke verified.
+
+Implemented:
+
+1. Added `paddlepaddle>=2.6,<3.0` to the `ocr` optional dependency group.
+2. Added Windows-safe PaddleOCR import handling by preloading Torch when
+   available.
+3. Converted import-time `ImportError` and `OSError` into sanitized `OCRError`
+   messages.
+4. Added regression coverage for sanitized PaddleOCR runtime import failure.
+5. Verified real PaddleOCR forced OCR parsing through the existing API.
+6. Verified real PaddleOCR `auto` fallback through the existing API.
+
+Verification summary:
+
+- Harness status confirmed large mode with `current_gate: none`.
+- Targeted OCR tests passed: `8 passed, 1 warning`.
+- `paddleocr 2.10.0` and `paddlepaddle 2.6.2` import successfully.
+- `python -m pip check`: passed.
+- Forced OCR API smoke parsed one temporary scanned PDF into 1 section and
+  1 chunk with `ocr_average_confidence=0.9882`.
+- Auto fallback API smoke parsed the same sample class into 1 section and
+  1 chunk with `ocr_fallback_reason=text_parse_failed`.
+- Final `.\scripts\ai_check.ps1` passed with backend pytest
+  `110 passed, 1 warning`.
+- `bash ./scripts/ai_check.sh` remains unavailable because WSL/Linux
+  distribution is not installed.
+
+Scope control:
+
+- OCR remains optional and outside default automated tests.
+- PyMuPDF was not added to project dependencies because it reports dual
+  AGPL/commercial licensing.
+- No table reconstruction, image batch ingestion, certificate validation,
+  Qdrant, Haystack, embeddings, export, or final bidding output was added.
+
+Residual risk:
+
+1. PyMuPDF is currently required by PaddleOCR for PDF input but remains
+   local-smoke-only until license approval.
+2. First-run model download depends on access to PaddleOCR model URLs and writes
+   to `C:\Users\26561\.paddleocr`.
+3. `.ai/state.json` remains `DONE/current_gate: none`; no new Phase 9 harness
+   gate transition is claimed.
+
 ## Phase 8B OCR Adapter Evaluation
 
 Status: implemented and locally verified with fake OCR.
