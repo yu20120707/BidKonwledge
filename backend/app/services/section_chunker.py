@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import Any
 from uuid import uuid4
 
 from backend.app.schemas.document import DocumentChunkRecord, DocumentSectionRecord
@@ -69,6 +70,7 @@ def build_section_and_chunk_records(
     document_id: str,
     sections: list[NormalizedSection],
     max_chunk_chars: int = MAX_CHUNK_CHARS,
+    chunk_metadata: dict[str, Any] | None = None,
 ) -> tuple[list[DocumentSectionRecord], list[DocumentChunkRecord]]:
     section_records: list[DocumentSectionRecord] = []
     chunk_records: list[DocumentChunkRecord] = []
@@ -106,6 +108,7 @@ def build_section_and_chunk_records(
                     metadata={
                         "section_level": section.level,
                         "tagger": "deterministic_v1",
+                        **(chunk_metadata or {}),
                     },
                 )
             )

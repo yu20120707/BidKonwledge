@@ -31,9 +31,11 @@ def client(test_settings: Settings) -> Iterator[TestClient]:
 def upload(
     client: TestClient,
     filename: str = "sample.txt",
-    content: bytes = b"hello bid knowledge",
+    content: bytes | None = None,
     doc_role: str = "historical_bid",
 ):
+    if content is None:
+        content = b"PK synthetic docx content" if filename.endswith(".docx") else b"hello bid knowledge"
     return client.post(
         "/api/files/upload",
         data={"doc_role": doc_role},

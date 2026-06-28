@@ -38,3 +38,16 @@ def test_demo_page_handles_no_llm_generate_error_in_review_panel(client):
     assert "LLM_NOT_CONFIGURED" in html
     assert 'reviewStatus.textContent = "need_human_review: true"' in html
     assert "risksList.replaceChildren(item)" in html
+
+
+def test_demo_page_includes_user_scoped_llm_config_controls(client):
+    response = client.get("/demo")
+
+    assert response.status_code == 200
+    html = response.text
+    assert 'id="llm-api-key"' in html
+    assert 'type="password"' in html
+    assert 'id="llm-base-url"' in html
+    assert 'id="llm-model"' in html
+    assert "currentLlmConfig" in html
+    assert "requestBody.llm_config = llmConfig" in html

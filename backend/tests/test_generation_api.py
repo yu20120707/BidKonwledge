@@ -136,3 +136,66 @@ def test_generate_without_configured_llm_returns_structured_503(client, monkeypa
 
     assert response.status_code == 503
     assert response.json()["error_code"] == "LLM_NOT_CONFIGURED"
+
+
+def test_generate_uses_request_scoped_llm_config(client, monkeypatch):
+    parse_generation_fixture(client)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    captured: dict[str, str | None] = {}
+
+    def fake_from_request(api_key: str, base_url: str | None, model: str | None):
+        captured["api_key"] = api_key
+        captured["base_url"] = base_url
+        captured["model"] = model
+        return FakeLLM("候选内容：使用页面配置的外部模型。")
+
+    monkeypatch.setattr(
+        "backend.app.api.generation.OpenAICompatibleLLMClient.from_request",
+        fake_from_request,
+    )
+
+    response = client.post(
+        "/api/generate",
+        json={
+            "target_tag": "运维服务",
+            "query": "应急",
+            "top_k": 5,
+            "llm_config": {
+                "api_key": "user-owned-key",
+                "base_url": "https://api.example.com/v1",
+                "model": "demo-model",
+            },
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["generated_content"] == "候选内容：使用页面配置的外部模型。"
+    assert captured == {
+        "api_key": "user-owned-key",
+        "base_url": "https://api.example.com/v1",
+        "model": "demo-model",
+    }
+    assert "user-owned-key" not in response.text
+
+
+def test_generate_rejects_request_scoped_non_https_llm_base_url(client, monkeypatch):
+    parse_generation_fixture(client)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    response = client.post(
+        "/api/generate",
+        json={
+            "target_tag": "运维服务",
+            "query": "应急",
+            "top_k": 5,
+            "llm_config": {
+                "api_key": "user-owned-key",
+                "base_url": "http://127.0.0.1:11434/v1",
+                "model": "demo-model",
+            },
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json()["error_code"] == "INVALID_LLM_CONFIG"
+    assert "user-owned-key" not in response.text

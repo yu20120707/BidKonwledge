@@ -4,6 +4,7 @@ import json
 import os
 from dataclasses import dataclass
 from typing import Protocol
+from urllib.parse import urlparse
 from urllib import request
 
 
@@ -13,6 +14,10 @@ class LLMClient(Protocol):
 
 
 class LLMConfigurationError(RuntimeError):
+    pass
+
+
+class LLMRequestConfigurationError(ValueError):
     pass
 
 
@@ -30,6 +35,34 @@ class OpenAICompatibleLLMClient:
         base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
         model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
         return cls(api_key=api_key, base_url=base_url.rstrip("/"), model=model)
+
+    @classmethod
+    def from_request(
+        cls,
+        api_key: str,
+        base_url: str | None = None,
+        model: str | None = None,
+    ) -> "OpenAICompatibleLLMClient":
+        stripped_api_key = api_key.strip()
+        if not stripped_api_key:
+            raise LLMRequestConfigurationError("llm_config.api_key is required")
+
+        active_base_url = (base_url or "https://api.openai.com/v1").strip().rstrip("/")
+        parsed = urlparse(active_base_url)
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise LLMRequestConfigurationError(
+                "llm_config.base_url must be an HTTPS URL"
+            )
+
+        active_model = (model or "gpt-4o-mini").strip()
+        if not active_model:
+            raise LLMRequestConfigurationError("llm_config.model is required")
+
+        return cls(
+            api_key=stripped_api_key,
+            base_url=active_base_url,
+            model=active_model,
+        )
 
     def generate(self, prompt: str) -> str:
         payload = {

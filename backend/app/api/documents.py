@@ -4,12 +4,15 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
 from backend.app.adapters.docling_parser import DoclingParserAdapter, DocumentParser
+from backend.app.adapters.ocr_adapter import OCRAdapter, PaddleOCRAdapter
+from backend.app.adapters.word_converter import WindowsWordComConverter, WordConverter
 from backend.app.api.files import error_response
 from backend.app.config import Settings, get_settings
 from backend.app.schemas.document import (
     DocumentChunkResponse,
     DocumentChunksResponse,
     DocumentDetailResponse,
+    ParseDocumentRequest,
     ParseDocumentResponse,
 )
 from backend.app.services import document_parsing
@@ -22,6 +25,14 @@ def get_document_parser() -> DocumentParser:
     return DoclingParserAdapter()
 
 
+def get_word_converter() -> WordConverter:
+    return WindowsWordComConverter()
+
+
+def get_ocr_adapter() -> OCRAdapter:
+    return PaddleOCRAdapter()
+
+
 @router.post(
     "/{document_id}/parse",
     response_model=ParseDocumentResponse,
@@ -29,11 +40,21 @@ def get_document_parser() -> DocumentParser:
 )
 def parse_document(
     document_id: str,
+    request: ParseDocumentRequest | None = None,
     settings: Settings = Depends(get_settings),
     parser: DocumentParser = Depends(get_document_parser),
+    word_converter: WordConverter = Depends(get_word_converter),
+    ocr_adapter: OCRAdapter = Depends(get_ocr_adapter),
 ) -> ParseDocumentResponse | JSONResponse:
     try:
-        result = document_parsing.parse_document(settings, document_id, parser)
+        result = document_parsing.parse_document(
+            settings,
+            document_id,
+            parser,
+            word_converter,
+            ocr_adapter,
+            parse_mode=(request.parse_mode if request else "auto"),
+        )
     except document_parsing.DocumentNotFoundError:
         return error_response(404, "DOCUMENT_NOT_FOUND", "Document not found")
     return result.to_response()
@@ -64,6 +85,7 @@ def get_document(
         updated_at=document.updated_at,
         sections_count=counts["sections_count"],
         chunks_count=counts["chunks_count"],
+        parse_metadata=document.parse_metadata,
     )
 
 

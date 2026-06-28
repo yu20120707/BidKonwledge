@@ -35,10 +35,11 @@ class DoclingParserAdapter:
             ) from exc
 
         try:
-            converter = DocumentConverter()
+            converter = DocumentConverter(allowed_formats=[InputFormat.DOCX])
             if file_ext == ".pdf":
                 pipeline_options = PdfPipelineOptions(do_ocr=False)
                 converter = DocumentConverter(
+                    allowed_formats=[InputFormat.PDF],
                     format_options={
                         InputFormat.PDF: PdfFormatOption(
                             pipeline_options=pipeline_options

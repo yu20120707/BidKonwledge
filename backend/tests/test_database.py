@@ -18,6 +18,7 @@ REQUIRED_COLUMNS = {
     "updated_at",
     "parse_status",
     "error_message",
+    "parse_metadata_json",
 }
 
 
@@ -64,6 +65,7 @@ def test_nullable_metadata_defaults_are_safe(client, test_settings):
     row = document_rows(test_settings)[0]
     assert row["content_type"] == "text/plain"
     assert row["error_message"] is None
+    assert row["parse_metadata_json"] == "{}"
 
 
 def test_parse_status_remains_pending(client, test_settings):

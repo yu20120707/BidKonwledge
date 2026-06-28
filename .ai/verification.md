@@ -1,5 +1,321 @@
 # Verification
 
+## Phase 8B OCR Adapter Verification
+
+Updated on 2026-06-28.
+
+This section records Phase 8B implementation verification.
+
+Implemented files:
+
+- `backend/app/adapters/ocr_adapter.py`
+- `backend/tests/test_ocr_adapter_parse.py`
+- `backend/tests/test_phase8b_boundaries.py`
+- `docs/ai/27-phase8b-ocr-adapter-dev-spec.md`
+- `docs/ai/28-phase8b-test-cases.md`
+- `docs/ai/29-phase8b-demo-runbook.md`
+
+Updated files:
+
+- `backend/app/api/documents.py`
+- `backend/app/services/document_parsing.py`
+- `backend/app/services/section_chunker.py`
+- `backend/app/schemas/document.py`
+- `pyproject.toml`
+- `README.md`
+- `docs/ai/03-data-model.md`
+- `docs/ai/04-api-contract.md`
+- `docs/ai/09-phase-roadmap.md`
+- `docs/ai/17-lightweight-prd-completion-plan.md`
+- `docs/ai/README.md`
+- `.ai/*` evidence files
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+& $py -m pytest backend/tests/test_ocr_adapter_parse.py backend/tests/test_phase8b_boundaries.py backend/tests/test_document_parse_api.py backend/tests/test_word_conversion_parse.py
+& $py -m pytest backend/tests
+& $py -m pip check
+& $py -c "import importlib.util; print(importlib.util.find_spec('paddleocr') is not None)"
+.\scripts\ai_check.ps1
+git diff --check
+$env:PYTHON='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+bash ./scripts/ai_check.sh
+```
+
+Observed:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- Targeted Phase 8B and parse regression pytest: `20 passed, 1 warning`.
+- Explicit `python -m pytest backend/tests`: `109 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed. It ran `compileall backend/app` and backend
+  pytest: `109 passed, 1 warning`.
+- `python -m pip check`: passed with no broken requirements.
+- `paddleocr_available=False`; real PaddleOCR smoke was not run.
+- `git diff --check`: passed with line-ending normalization warnings only.
+- `bash ./scripts/ai_check.sh`: failed because no usable WSL/Linux distribution
+  is available on this Windows machine.
+
+Coverage:
+
+- No-body parse defaults to `auto`.
+- Text PDF success path does not call OCR.
+- `parse_mode=text` never calls OCR.
+- `parse_mode=ocr` converts fake OCR page text into sections/chunks.
+- `parse_mode=auto` falls back to OCR when PDF text parse fails.
+- `parse_mode=auto` falls back to OCR when text parse produces no chunks.
+- OCR failures are sanitized.
+- Automated OCR tests do not require PaddleOCR, Qdrant, Haystack, embeddings,
+  LLM credentials, or real external services.
+
+Unverified:
+
+- Real PaddleOCR model/runtime smoke is not verified because PaddleOCR is not
+  installed in the current bundled Python runtime.
+- Bash verification remains unavailable because WSL/bash is not installed.
+
+## Phase 8A Development Prep Verification
+
+Updated on 2026-06-28.
+
+This section records the documentation-prep baseline before starting Phase 8A
+implementation. Phase 8A business code has not been implemented yet.
+
+Files updated:
+
+- `.ai/spec.md`
+- `.ai/implementation-plan.md`
+- `.ai/affected-files.md`
+- `.ai/run-trace.md`
+- `.ai/verification.md`
+- `.ai/evaluation.md`
+- `.ai/handoff.md`
+
+Scope confirmed:
+
+- Phase 8A is legacy Word / mislabeled `.docx` conversion only.
+- OCR/PaddleOCR remains out of scope for this phase.
+- Converted customer sample files must not be committed.
+- Automated tests must not require real Word COM.
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+git diff --check
+.\scripts\ai_check.ps1
+```
+
+Observed:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- `git diff --check`: passed with line-ending normalization warnings only.
+- `.\scripts\ai_check.ps1`: passed. It ran `compileall backend/app` and backend
+  pytest: `91 passed, 1 warning`.
+
+Unverified:
+
+- Phase 8A implementation has not started yet.
+- Direct KSDQZFCG upload -> parse -> tender analyze without manual conversion
+  remains unverified until the adapter is implemented.
+- `bash ./scripts/ai_check.sh` was not rerun in this prep update; the known
+  blocker remains no usable WSL/Linux distribution on this Windows machine.
+
+## Phase 8A Legacy Word Conversion Verification
+
+Updated on 2026-06-28.
+
+This section records Phase 8A implementation verification.
+
+Implemented files:
+
+- `backend/app/services/document_format.py`
+- `backend/app/adapters/word_converter.py`
+- `backend/tests/test_document_format.py`
+- `backend/tests/test_word_conversion_parse.py`
+- `backend/tests/test_phase8a_boundaries.py`
+
+Updated files:
+
+- `backend/app/api/documents.py`
+- `backend/app/services/document_parsing.py`
+- `backend/app/storage/database.py`
+- `backend/app/schemas/document.py`
+- `backend/tests/conftest.py`
+- `backend/tests/test_database.py`
+- `README.md`
+- `docs/ai/03-data-model.md`
+- `docs/ai/04-api-contract.md`
+- `docs/ai/09-phase-roadmap.md`
+- `docs/ai/17-lightweight-prd-completion-plan.md`
+- `docs/ai/23-phase7-demo-runbook.md`
+- `docs/ai/24-phase8a-word-conversion-dev-spec.md`
+- `docs/ai/25-phase8a-test-cases.md`
+- `docs/ai/26-phase8a-demo-runbook.md`
+- `.ai/*` evidence files
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+& $py -m pytest backend/tests/test_document_format.py backend/tests/test_word_conversion_parse.py backend/tests/test_phase8a_boundaries.py
+& $py -m pytest backend/tests
+.\scripts\ai_check.ps1
+git diff --check
+$env:PYTHON='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+bash ./scripts/ai_check.sh
+```
+
+Observed:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- Targeted Phase 8A pytest: `11 passed, 1 warning`.
+- Explicit `python -m pytest backend/tests`: `102 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed. It ran `compileall backend/app` and backend
+  pytest: `102 passed, 1 warning`.
+- `git diff --check`: passed with line-ending normalization warnings only.
+- `bash ./scripts/ai_check.sh`: failed because no usable WSL/Linux distribution
+  is available on this Windows machine.
+
+Real sample smoke:
+
+- Sample:
+  `C:\Users\26561\Desktop\模型训练资料\甲方提供资料\KSDQZFCG（GK）2026-64喀什大学重大设备更新（5.4人工智能数据抓取及衍生智能服务创新平台-多场景应用系统-人力资源管理平台(一期））项目（二次）.docx`
+- The original sample was uploaded as `doc_role=tender`; no manual
+  pre-conversion was performed.
+- Parse metadata:
+  - `original_extension = .docx`
+  - `detected_format = legacy_ole_word`
+  - `is_mislabeled = true`
+  - `requires_conversion = true`
+  - `conversion_required = true`
+  - `conversion_method = word_com`
+  - `converted_path = _derived/<document_id>.converted.docx`
+- Parse result:
+  - `parse_status = parsed`
+  - `sections_count = 10`
+  - `chunks_count = 142`
+- Tender analysis result:
+  - `project_requirements = 26`
+  - `scoring_items = 34`
+  - `disqualification_risks = 52`
+  - `need_human_review = true`
+
+Notes:
+
+- An initial smoke attempt also completed the business chain but exited non-zero
+  because Windows held a temporary SQLite file during temp-directory cleanup.
+  The smoke was rerun with tolerant cleanup and exited successfully.
+- Local dependency confirmation:
+  - `python -m pip show pywin32`: installed, version `312`
+  - `python -c "import win32com.client"`: passed
+  - `pyproject.toml` now declares `pywin32>=306; platform_system == 'Windows'`
+    in the `parsing` optional dependency group.
+
+Unverified:
+
+- Bash verification remains unavailable because WSL/bash is not installed.
+- Real Word COM conversion is verified on this machine, but other Windows
+  environments still need Microsoft Word and pywin32 installed for manual smoke.
+
+## Phase 7 Tender Analysis Verification
+
+Updated on 2026-06-28.
+
+This section records Phase 7 implementation verification.
+
+Implemented files:
+
+- `backend/app/api/tender.py`
+- `backend/app/services/tender_analysis.py`
+- `backend/tests/test_tender_analysis_api.py`
+- `backend/tests/test_phase7_boundaries.py`
+
+Updated files:
+
+- `backend/app/main.py`
+- `backend/app/schemas/document.py`
+- `backend/app/storage/database.py`
+- `README.md`
+- `docs/ai/03-data-model.md`
+- `docs/ai/04-api-contract.md`
+- `docs/ai/09-phase-roadmap.md`
+- `docs/ai/17-lightweight-prd-completion-plan.md`
+- `docs/ai/21-phase7-tender-analysis-dev-spec.md`
+- `docs/ai/22-phase7-test-cases.md`
+- `docs/ai/23-phase7-demo-runbook.md`
+- `.ai/*` evidence files
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+& $py -m pytest backend/tests/test_tender_analysis_api.py backend/tests/test_phase7_boundaries.py
+.\scripts\ai_check.ps1
+python -m pytest backend/tests
+git diff --check
+$env:PYTHON='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+bash ./scripts/ai_check.sh
+```
+
+Observed:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- Targeted Phase 7 pytest: `10 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed. It ran `compileall backend/app` and backend
+  pytest: `91 passed, 1 warning`.
+- Explicit `python -m pytest backend/tests`: `91 passed, 1 warning`.
+- `git diff --check`: passed with line-ending normalization warnings only.
+- `bash ./scripts/ai_check.sh`: failed because no usable WSL/Linux distribution
+  is available on this Windows machine.
+
+Live smoke:
+
+- A Python smoke script seeded a temporary SQLite database with a parsed tender
+  document and one chunk.
+- Started uvicorn on `127.0.0.1:8786`.
+- `curl.exe --noproxy "*"` `POST /api/tender/analyze` returned one project
+  requirement, one scoring item with score `20.0`, and one high-severity
+  disqualification risk.
+- `curl.exe --noproxy "*"` `GET /api/documents/{document_id}/tender-analysis`
+  returned the same persisted analysis.
+
+Real sample smoke:
+
+- Sample:
+  `C:\Users\26561\Desktop\模型训练资料\甲方提供资料\KSDQZFCG（GK）2026-64喀什大学重大设备更新（5.4人工智能数据抓取及衍生智能服务创新平台-多场景应用系统-人力资源管理平台(一期））项目（二次）.docx`
+- Direct upload/parse failed because the file extension is `.docx` but the file
+  header is legacy OLE `D0 CF 11 E0`; Docling reports format `None` and skips it
+  as not allowed for DOCX.
+- A temporary copy renamed to `.doc` was converted to real `.docx` with Word COM.
+- The converted `.docx` completed live HTTP smoke:
+  - upload as `doc_role=tender`: passed
+  - parse: `parse_status=parsed`, `sections_count=10`, `chunks_count=142`
+  - analyze: `project_requirements=26`, `scoring_items=34`,
+    `disqualification_risks=52`
+  - get analysis: returned the same persisted analysis
+  - `need_human_review=true`, `analysis_method=deterministic_tender_v1`
+
+Unverified:
+
+- Automatic legacy `.doc` or mislabeled `.docx` conversion is not implemented.
+- Direct parsing of the original mislabeled `.docx` remains unsupported.
+- Bash verification remains unavailable on this Windows machine unless WSL is
+  installed.
+
 ## Phase 5 Demo Page And Script Verification
 
 Updated on 2026-06-28.
@@ -215,6 +531,166 @@ Observed:
 - `bash ./scripts/ai_check.sh`: failed because WSL/Linux distribution is
   unavailable; not verified.
 - `git diff --check`: passed with line-ending normalization warnings only.
+
+## Phase 5 User-Scoped External LLM API Config Verification
+
+Updated on 2026-06-28.
+
+### Targeted Tests
+
+Command run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -m pytest backend/tests/test_generation_api.py backend/tests/test_demo_page.py backend/tests/test_phase5_demo_workflow.py
+```
+
+Observed:
+
+- Passed: `12 passed, 1 warning`.
+- Covered request-scoped `llm_config`, API key not appearing in responses,
+  rejection of non-HTTPS request-scoped base URL, existing no-key environment
+  fallback behavior, and demo page controls for user-provided LLM config.
+
+### Unverified Or Deferred
+
+- A real external LLM provider call with a real user key was not run.
+- Request-scoped base URLs are intentionally limited to HTTPS. Local HTTP
+  OpenAI-compatible services are not enabled through the page in this version.
+
+### Final Verification
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -m pytest backend/tests/test_generation_api.py backend/tests/test_demo_page.py backend/tests/test_phase5_demo_workflow.py
+.\scripts\ai_check.ps1
+$env:Path='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python;' + $env:Path
+python -m pytest backend/tests
+# Python script starts uvicorn, then calls:
+curl.exe --noproxy "*" -i "http://127.0.0.1:8773/demo"
+$env:PYTHON='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+bash ./scripts/ai_check.sh
+git diff --check
+```
+
+Observed:
+
+- Targeted tests: `12 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed with backend pytest `73 passed, 1 warning`.
+- Explicit `python -m pytest backend/tests`: `73 passed, 1 warning`.
+- Live `/demo` smoke: HTTP 200 and response contained `llm-api-key`,
+  `llm-base-url`, `llm-model`, `currentLlmConfig`, and
+  `requestBody.llm_config`.
+- `bash ./scripts/ai_check.sh`: failed because WSL/Linux distribution is
+  unavailable; not verified.
+- `git diff --check`: passed with line-ending normalization warnings only.
+
+## Lightweight PRD Completion Plan With OCR Verification
+
+Updated on 2026-06-28.
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+git diff --check
+.\scripts\ai_check.ps1
+```
+
+Observed:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- `git diff --check`: passed with line-ending normalization warnings only.
+- `.\scripts\ai_check.ps1`: passed with backend pytest `73 passed, 1 warning`.
+
+Documentation result:
+
+- Added `docs/ai/17-lightweight-prd-completion-plan.md`.
+- Updated `docs/ai/README.md`.
+- Updated `docs/ai/09-phase-roadmap.md`.
+
+Unverified:
+
+- No OCR implementation or real PaddleOCR smoke was run. This task only added
+  the supplemental plan.
+
+## Phase 6 Knowledge Cards And PRD Tags Verification
+
+Updated on 2026-06-28.
+
+This section records Phase 6 implementation verification.
+
+Implemented files:
+
+- `backend/app/api/knowledge.py`
+- `backend/app/services/knowledge_cards.py`
+- `backend/tests/test_knowledge_cards_api.py`
+- `backend/tests/test_phase6_boundaries.py`
+
+Updated files:
+
+- `backend/app/main.py`
+- `backend/app/schemas/document.py`
+- `backend/app/services/tagger.py`
+- `backend/app/storage/database.py`
+- `README.md`
+- `docs/ai/03-data-model.md`
+- `docs/ai/04-api-contract.md`
+- `docs/ai/09-phase-roadmap.md`
+- `docs/ai/18-phase6-knowledge-cards-dev-spec.md`
+- `docs/ai/19-phase6-test-cases.md`
+- `docs/ai/20-phase6-demo-runbook.md`
+- `.ai/*` evidence files
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+& $py -m pytest backend/tests/test_knowledge_cards_api.py backend/tests/test_phase6_boundaries.py
+.\scripts\ai_check.ps1
+$env:Path='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python;' + $env:Path
+python -m pytest backend/tests
+git diff --check
+$env:PYTHON='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+bash ./scripts/ai_check.sh
+```
+
+Observed:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- Targeted Phase 6 pytest: `8 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed. It ran `compileall backend/app` and backend
+  pytest: `81 passed, 1 warning`.
+- Explicit `python -m pytest backend/tests`: `81 passed, 1 warning`.
+- `git diff --check`: passed with line-ending normalization warnings only.
+- `bash ./scripts/ai_check.sh`: failed because no usable WSL/Linux distribution
+  is available on this Windows machine.
+
+Live smoke:
+
+- A Python smoke script seeded a temporary SQLite database with a parsed
+  historical bid document and one chunk.
+- Started uvicorn on `127.0.0.1:8785`.
+- `curl.exe --noproxy "*"` `POST /api/knowledge/build` returned one card tagged
+  `突发应急方案和措施`.
+- `curl.exe --noproxy "*"` `GET /api/documents/{document_id}/knowledge-cards`
+  returned the source chunk id and source filename.
+
+Unverified:
+
+- Real customer sample `.docx` knowledge-card smoke was not run in this step;
+  automated and live smoke coverage used injected parser output / seeded parsed
+  chunks to keep Phase 6 independent of Docling runtime.
+- `bash ./scripts/ai_check.sh` remains not verified because WSL/bash is
+  unavailable.
 
 ## Phase 5 Development Prep Verification
 

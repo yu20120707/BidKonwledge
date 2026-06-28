@@ -1,123 +1,147 @@
-# Implementation Plan - Phase 5 Demo Page And Script
+# Implementation Plan - Phase 8B OCR Adapter For Scanned PDFs
 
 ## Execution Classification
 
 - Harness mode: `large`
 - Task level: Level 3 / complex
-- Reason: Phase 5 exposes the full backend chain through a stakeholder-facing
-  demo surface and must avoid expanding into production frontend, OCR, export,
-  or user-system work.
-- Rollback: normal Git revert before commit; no database migration is expected.
+- Reason: Phase 8B changes the shared parse path by adding `parse_mode`,
+  OCR fallback, optional external OCR dependency boundaries, and OCR metadata.
+- Rollback: normal Git revert before commit. Database changes should stay
+  within existing parse metadata and section/chunk persistence.
 
-Phase 5 implementation has completed against this plan. The harness state still
-remains the prior `DONE/current_gate: none` state, so no Phase 5 gate transition
-is claimed.
+Status: implemented locally on 2026-06-28.
 
 ## Target Outcome
 
-Implement Phase 5 demo only:
-
-1. Minimal FastAPI-hosted demo page.
-2. Demo interactions for upload, parse, retrieve, and generate.
-3. Raw JSON result display.
-4. Citation, risk, and human-review status visibility.
-5. Demo runbook/script for a small representative workflow.
-6. Pytest coverage for demo route and boundary rules.
-7. README and `.ai` evidence updates.
+Add a replaceable OCR adapter that can turn scanned PDF pages into normal
+sections/chunks while keeping existing text parsing behavior intact.
 
 ## Non-Goals
 
-No OCR, Qdrant, Haystack, embeddings, production authentication, user
-management, Word/PDF export, polished frontend product shell, or final approved
-bidding output.
+No required PaddleOCR install, no OCR for large image batches, no certificate
+validation, no table reconstruction, no vector store, no embeddings, no LLM
+parsing, no export, and no final bidding output.
 
 ## Subagent Plan
 
 No subagent is planned at task start.
 
-Reason: the expected implementation is a small, coupled demo route/page plus
-tests. If UI review becomes non-trivial, a read-only reviewer can be added, but
-the first pass should stay serial.
+Reason: implementation is a single coupled parse-path change. Add a read-only
+reviewer only if OCR fallback semantics expand beyond PDF or optional
+dependency handling becomes risky.
 
 ## Implementation Stages
 
-### Stage 1 - Demo Route And Static Asset
+### Stage 1 - Runtime Artifacts
 
-1. Add a demo route such as `GET /demo`.
-2. Serve a minimal static HTML page.
-3. Keep layout functional and focused on the existing API chain.
+1. Update `.ai/spec.md`, `.ai/implementation-plan.md`, and
+   `.ai/affected-files.md` to Phase 8B.
+2. Confirm harness state remains `large`.
 
 Verification:
 
 ```powershell
-python -m pytest backend/tests/test_demo_page.py
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
 ```
 
-### Stage 2 - Demo Workflow Controls
+### Stage 2 - OCR Adapter Interface
 
-1. Add upload, parse, retrieve, and generate controls.
-2. Display raw JSON responses.
-3. Surface citations, risks, and `need_human_review` clearly.
+1. Add `backend/app/adapters/ocr_adapter.py`.
+2. Define `OCRPageText`, `OCRAdapter`, `OCRError`, and optional
+   `PaddleOCRAdapter`.
+3. Keep imports lazy.
+4. Add fake OCR tests.
 
 Verification:
 
 ```powershell
-python -m pytest backend/tests/test_demo_page.py
+& $py -m pytest backend/tests/test_ocr_adapter_parse.py
 ```
 
-### Stage 3 - Boundaries And Documentation
+### Stage 3 - Parse Mode API
 
-1. Add tests proving Phase 5 does not require OCR/Qdrant/Haystack/export/user
-   system.
-2. Update README with demo startup and smoke commands.
-3. Update `.ai/verification.md`, `.ai/evaluation.md`, and `.ai/handoff.md`.
+1. Add `ParseDocumentRequest`.
+2. Accept optional body on `POST /api/documents/{document_id}/parse`.
+3. Default missing body to `auto`.
+4. Add OCR adapter dependency injection seam.
 
 Verification:
 
 ```powershell
-python -m pytest backend/tests/test_demo_page.py backend/tests/test_phase5_boundaries.py
+& $py -m pytest backend/tests/test_document_parse_api.py backend/tests/test_ocr_adapter_parse.py
 ```
 
-### Stage 4 - Required Checks And Smoke
+### Stage 4 - OCR Integration
 
-1. Run harness status checks.
-2. Run project scripts and full pytest.
-3. Run uvicorn + `curl.exe --noproxy "*"` smoke for `GET /demo`.
-4. Attempt bash check if shell tooling is available, otherwise record the
-   Windows/WSL blocker.
+1. Integrate OCR into `document_parsing.parse_document`.
+2. Preserve DOCX and legacy Word conversion behavior.
+3. For PDFs:
+   - `text`: parser only
+   - `ocr`: OCR only
+   - `auto`: parser first, OCR fallback on parser failure or empty chunks
+4. Convert OCR pages into `NormalizedSection` values.
+5. Add OCR metadata to parse metadata.
+6. Sanitize OCR errors.
 
 Verification:
 
 ```powershell
-python -m pytest backend/tests
+& $py -m pytest backend/tests/test_ocr_adapter_parse.py backend/tests/test_phase8b_boundaries.py
+```
+
+### Stage 5 - Docs And Evidence
+
+1. Update README and durable docs.
+2. Add Phase 8B dev spec, test cases, and runbook.
+3. Update `.ai/run-trace.md`, `.ai/verification.md`, `.ai/evaluation.md`, and
+   `.ai/handoff.md`.
+
+Verification:
+
+```powershell
+git diff --check
+```
+
+### Stage 6 - Final Verification
+
+1. Run harness checks.
+2. Run targeted OCR tests.
+3. Run PowerShell project check.
+4. Run full backend pytest.
+5. Attempt bash check if shell tooling exists.
+6. Record residual risk and optional PaddleOCR manual-smoke status.
+
+Verification:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+& $py -m pytest backend/tests/test_ocr_adapter_parse.py backend/tests/test_phase8b_boundaries.py
 .\scripts\ai_check.ps1
+python -m pytest backend/tests
 ```
 
 ## Mid-Task Review Checkpoint
 
-After Stage 2, perform a self-review:
+After Stage 4, perform a self-review:
 
-1. Status versus this plan.
-2. Scope changes since start.
-3. Newly discovered risks.
-4. Decision: keep plan, revise plan, or escalate.
+1. Is OCR still limited to scanned PDF parse support?
+2. Did PaddleOCR become a required test/default dependency?
+3. Did OCR alter the successful text-PDF path?
+4. Are OCR errors sanitized?
+5. Is verification still sufficient?
 
-Checkpoint result:
-
-- Stage 1 and Stage 2 completed with targeted tests passing.
-- Scope did not expand beyond the demo route/page/tests/docs surface.
-- No OCR, Qdrant, Haystack, embeddings, export, user system, or production
-  frontend work was added.
-- Decision: keep the original plan.
+Decision must be recorded in `.ai/run-trace.md`.
 
 ## Escalation Triggers
 
 Pause or escalate if:
 
-1. The demo starts requiring OCR, Qdrant, Haystack, embeddings, export, or user
-   accounts.
-2. The frontend grows beyond a minimal stakeholder demo surface.
-3. Real external LLM configuration becomes mandatory for automated tests.
-4. Generated content could be presented as final approved bidding content.
-5. Verification requires real large customer sample files instead of small
-   representative samples or fake-test paths.
+1. Image upload support becomes necessary.
+2. PaddleOCR install/model downloads become required for automated tests.
+3. OCR output needs table reconstruction or document validation.
+4. The parse API change breaks existing no-body parse clients.
+5. Error handling risks exposing local paths or OCR model cache paths.

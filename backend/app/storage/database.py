@@ -11,6 +11,8 @@ from backend.app.schemas.document import (
     DocumentChunkRecord,
     DocumentRecord,
     DocumentSectionRecord,
+    KnowledgeCardRecord,
+    TenderAnalysisRecord,
 )
 
 
@@ -27,7 +29,8 @@ CREATE TABLE IF NOT EXISTS documents (
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     parse_status TEXT NOT NULL DEFAULT 'pending',
-    error_message TEXT
+    error_message TEXT,
+    parse_metadata_json TEXT NOT NULL DEFAULT '{}'
 )
 """
 
@@ -65,6 +68,43 @@ CREATE TABLE IF NOT EXISTS document_chunks (
 )
 """
 
+CREATE_KNOWLEDGE_CARDS_SQL = """
+CREATE TABLE IF NOT EXISTS knowledge_cards (
+    id TEXT PRIMARY KEY,
+    document_id TEXT NOT NULL,
+    source_chunk_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    tag TEXT NOT NULL,
+    content TEXT NOT NULL,
+    source_filename TEXT NOT NULL,
+    source_section_title TEXT NOT NULL,
+    source_section_path TEXT NOT NULL,
+    page_start INTEGER,
+    page_end INTEGER,
+    confidence REAL NOT NULL,
+    metadata_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE,
+    FOREIGN KEY(source_chunk_id) REFERENCES document_chunks(id) ON DELETE CASCADE
+)
+"""
+
+CREATE_TENDER_ANALYSES_SQL = """
+CREATE TABLE IF NOT EXISTS tender_analyses (
+    id TEXT PRIMARY KEY,
+    document_id TEXT NOT NULL UNIQUE,
+    project_requirements_json TEXT NOT NULL,
+    scoring_items_json TEXT NOT NULL,
+    disqualification_risks_json TEXT NOT NULL,
+    raw_text_summary TEXT NOT NULL,
+    analysis_method TEXT NOT NULL,
+    need_human_review INTEGER NOT NULL,
+    metadata_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE
+)
+"""
+
 
 def connect(database_path: Path) -> sqlite3.Connection:
     database_path.parent.mkdir(parents=True, exist_ok=True)
@@ -77,14 +117,17 @@ def connect(database_path: Path) -> sqlite3.Connection:
 def init_database(settings: Settings) -> None:
     with connect(settings.database_path) as connection:
         connection.execute(CREATE_DOCUMENTS_SQL)
+        _ensure_documents_parse_metadata_column(connection)
         connection.execute(CREATE_SECTIONS_SQL)
         connection.execute(CREATE_CHUNKS_SQL)
+        connection.execute(CREATE_KNOWLEDGE_CARDS_SQL)
+        connection.execute(CREATE_TENDER_ANALYSES_SQL)
         connection.commit()
 
 
 def insert_document(settings: Settings, record: DocumentRecord) -> None:
     init_database(settings)
-    values: dict[str, Any] = record.model_dump()
+    values: dict[str, Any] = _document_to_row(record)
     with connect(settings.database_path) as connection:
         connection.execute(
             """
@@ -100,7 +143,8 @@ def insert_document(settings: Settings, record: DocumentRecord) -> None:
                 created_at,
                 updated_at,
                 parse_status,
-                error_message
+                error_message,
+                parse_metadata_json
             ) VALUES (
                 :id,
                 :original_filename,
@@ -113,7 +157,8 @@ def insert_document(settings: Settings, record: DocumentRecord) -> None:
                 :created_at,
                 :updated_at,
                 :parse_status,
-                :error_message
+                :error_message,
+                :parse_metadata_json
             )
             """,
             values,
@@ -129,7 +174,7 @@ def get_document(settings: Settings, document_id: str) -> DocumentRecord | None:
         ).fetchone()
     if row is None:
         return None
-    return DocumentRecord(**dict(row))
+    return _document_from_row(row)
 
 
 def update_document_parse_status(
@@ -158,20 +203,34 @@ def complete_document_parse_success(
     document_id: str,
     sections: list[DocumentSectionRecord],
     chunks: list[DocumentChunkRecord],
+    parse_metadata: dict[str, Any] | None = None,
 ) -> None:
     init_database(settings)
     updated_at = _utc_now()
     with connect(settings.database_path) as connection:
         _delete_parse_outputs(connection, document_id)
         _insert_parse_outputs(connection, sections, chunks)
-        connection.execute(
-            """
-            UPDATE documents
-            SET parse_status = 'parsed', error_message = NULL, updated_at = ?
-            WHERE id = ?
-            """,
-            (updated_at, document_id),
-        )
+        if parse_metadata is None:
+            connection.execute(
+                """
+                UPDATE documents
+                SET parse_status = 'parsed', error_message = NULL, updated_at = ?
+                WHERE id = ?
+                """,
+                (updated_at, document_id),
+            )
+        else:
+            connection.execute(
+                """
+                UPDATE documents
+                SET parse_status = 'parsed',
+                    error_message = NULL,
+                    updated_at = ?,
+                    parse_metadata_json = ?
+                WHERE id = ?
+                """,
+                (updated_at, json.dumps(parse_metadata, ensure_ascii=False), document_id),
+            )
         connection.commit()
 
 
@@ -179,19 +238,38 @@ def complete_document_parse_failure(
     settings: Settings,
     document_id: str,
     error_message: str,
+    parse_metadata: dict[str, Any] | None = None,
 ) -> None:
     init_database(settings)
     updated_at = _utc_now()
     with connect(settings.database_path) as connection:
         _delete_parse_outputs(connection, document_id)
-        connection.execute(
-            """
-            UPDATE documents
-            SET parse_status = 'failed', error_message = ?, updated_at = ?
-            WHERE id = ?
-            """,
-            (error_message, updated_at, document_id),
-        )
+        if parse_metadata is None:
+            connection.execute(
+                """
+                UPDATE documents
+                SET parse_status = 'failed', error_message = ?, updated_at = ?
+                WHERE id = ?
+                """,
+                (error_message, updated_at, document_id),
+            )
+        else:
+            connection.execute(
+                """
+                UPDATE documents
+                SET parse_status = 'failed',
+                    error_message = ?,
+                    updated_at = ?,
+                    parse_metadata_json = ?
+                WHERE id = ?
+                """,
+                (
+                    error_message,
+                    updated_at,
+                    json.dumps(parse_metadata, ensure_ascii=False),
+                    document_id,
+                ),
+            )
         connection.commit()
 
 
@@ -248,6 +326,128 @@ def list_document_chunks(
     return [_chunk_from_row(row) for row in rows]
 
 
+def replace_document_knowledge_cards(
+    settings: Settings,
+    document_id: str,
+    cards: list[KnowledgeCardRecord],
+) -> None:
+    init_database(settings)
+    with connect(settings.database_path) as connection:
+        connection.execute(
+            "DELETE FROM knowledge_cards WHERE document_id = ?", (document_id,)
+        )
+        connection.executemany(
+            """
+            INSERT INTO knowledge_cards (
+                id,
+                document_id,
+                source_chunk_id,
+                title,
+                tag,
+                content,
+                source_filename,
+                source_section_title,
+                source_section_path,
+                page_start,
+                page_end,
+                confidence,
+                metadata_json,
+                created_at
+            ) VALUES (
+                :id,
+                :document_id,
+                :source_chunk_id,
+                :title,
+                :tag,
+                :content,
+                :source_filename,
+                :source_section_title,
+                :source_section_path,
+                :page_start,
+                :page_end,
+                :confidence,
+                :metadata_json,
+                :created_at
+            )
+            """,
+            [_knowledge_card_to_row(card) for card in cards],
+        )
+        connection.commit()
+
+
+def list_document_knowledge_cards(
+    settings: Settings, document_id: str
+) -> list[KnowledgeCardRecord]:
+    init_database(settings)
+    with connect(settings.database_path) as connection:
+        rows = connection.execute(
+            """
+            SELECT kc.*
+            FROM knowledge_cards AS kc
+            JOIN document_chunks AS c ON c.id = kc.source_chunk_id
+            WHERE kc.document_id = ?
+            ORDER BY c.order_index ASC, c.chunk_index ASC, kc.id ASC
+            """,
+            (document_id,),
+        ).fetchall()
+    return [_knowledge_card_from_row(row) for row in rows]
+
+
+def replace_document_tender_analysis(
+    settings: Settings,
+    analysis: TenderAnalysisRecord,
+) -> None:
+    init_database(settings)
+    with connect(settings.database_path) as connection:
+        connection.execute(
+            "DELETE FROM tender_analyses WHERE document_id = ?",
+            (analysis.document_id,),
+        )
+        connection.execute(
+            """
+            INSERT INTO tender_analyses (
+                id,
+                document_id,
+                project_requirements_json,
+                scoring_items_json,
+                disqualification_risks_json,
+                raw_text_summary,
+                analysis_method,
+                need_human_review,
+                metadata_json,
+                created_at
+            ) VALUES (
+                :id,
+                :document_id,
+                :project_requirements_json,
+                :scoring_items_json,
+                :disqualification_risks_json,
+                :raw_text_summary,
+                :analysis_method,
+                :need_human_review,
+                :metadata_json,
+                :created_at
+            )
+            """,
+            _tender_analysis_to_row(analysis),
+        )
+        connection.commit()
+
+
+def get_document_tender_analysis(
+    settings: Settings, document_id: str
+) -> TenderAnalysisRecord | None:
+    init_database(settings)
+    with connect(settings.database_path) as connection:
+        row = connection.execute(
+            "SELECT * FROM tender_analyses WHERE document_id = ?",
+            (document_id,),
+        ).fetchone()
+    if row is None:
+        return None
+    return _tender_analysis_from_row(row)
+
+
 def list_retrievable_chunks(settings: Settings) -> list[dict[str, Any]]:
     init_database(settings)
     with connect(settings.database_path) as connection:
@@ -291,11 +491,100 @@ def _chunk_to_row(chunk: DocumentChunkRecord) -> dict[str, Any]:
     return values
 
 
+def _document_to_row(document: DocumentRecord) -> dict[str, Any]:
+    values = document.model_dump()
+    values["parse_metadata_json"] = json.dumps(
+        document.parse_metadata, ensure_ascii=False
+    )
+    values.pop("parse_metadata")
+    return values
+
+
+def _document_from_row(row: sqlite3.Row) -> DocumentRecord:
+    values = dict(row)
+    metadata_json = values.pop("parse_metadata_json", "{}") or "{}"
+    values["parse_metadata"] = json.loads(metadata_json)
+    return DocumentRecord(**values)
+
+
+def _ensure_documents_parse_metadata_column(connection: sqlite3.Connection) -> None:
+    rows = connection.execute("PRAGMA table_info(documents)").fetchall()
+    columns = {row[1] for row in rows}
+    if "parse_metadata_json" not in columns:
+        connection.execute(
+            "ALTER TABLE documents ADD COLUMN parse_metadata_json TEXT NOT NULL DEFAULT '{}'"
+        )
+
+
 def _chunk_from_row(row: sqlite3.Row) -> DocumentChunkRecord:
     values = dict(row)
     values["tags"] = json.loads(values.pop("tags_json"))
     values["metadata"] = json.loads(values.pop("metadata_json"))
     return DocumentChunkRecord(**values)
+
+
+def _knowledge_card_to_row(card: KnowledgeCardRecord) -> dict[str, Any]:
+    values = card.model_dump()
+    values["metadata_json"] = json.dumps(card.metadata, ensure_ascii=False)
+    values.pop("metadata")
+    return values
+
+
+def _knowledge_card_from_row(row: sqlite3.Row) -> KnowledgeCardRecord:
+    values = dict(row)
+    values["metadata"] = json.loads(values.pop("metadata_json"))
+    return KnowledgeCardRecord(**values)
+
+
+def _tender_analysis_to_row(analysis: TenderAnalysisRecord) -> dict[str, Any]:
+    return {
+        "id": analysis.id,
+        "document_id": analysis.document_id,
+        "project_requirements_json": json.dumps(
+            [item.model_dump() for item in analysis.project_requirements],
+            ensure_ascii=False,
+        ),
+        "scoring_items_json": json.dumps(
+            [item.model_dump() for item in analysis.scoring_items],
+            ensure_ascii=False,
+        ),
+        "disqualification_risks_json": json.dumps(
+            [item.model_dump() for item in analysis.disqualification_risks],
+            ensure_ascii=False,
+        ),
+        "raw_text_summary": analysis.raw_text_summary,
+        "analysis_method": analysis.analysis_method,
+        "need_human_review": 1 if analysis.need_human_review else 0,
+        "metadata_json": json.dumps(analysis.metadata, ensure_ascii=False),
+        "created_at": analysis.created_at,
+    }
+
+
+def _tender_analysis_from_row(row: sqlite3.Row) -> TenderAnalysisRecord:
+    from backend.app.schemas.document import TenderEvidenceItem
+
+    values = dict(row)
+    return TenderAnalysisRecord(
+        id=values["id"],
+        document_id=values["document_id"],
+        project_requirements=[
+            TenderEvidenceItem(**item)
+            for item in json.loads(values["project_requirements_json"])
+        ],
+        scoring_items=[
+            TenderEvidenceItem(**item)
+            for item in json.loads(values["scoring_items_json"])
+        ],
+        disqualification_risks=[
+            TenderEvidenceItem(**item)
+            for item in json.loads(values["disqualification_risks_json"])
+        ],
+        raw_text_summary=values["raw_text_summary"],
+        analysis_method=values["analysis_method"],
+        need_human_review=bool(values["need_human_review"]),
+        metadata=json.loads(values["metadata_json"]),
+        created_at=values["created_at"],
+    )
 
 
 def _delete_parse_outputs(connection: sqlite3.Connection, document_id: str) -> None:

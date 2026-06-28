@@ -232,6 +232,18 @@
           Generation query
           <textarea id="generate-query">根据招标要求生成运维服务应急方案</textarea>
         </label>
+        <label>
+          LLM API key
+          <input id="llm-api-key" type="password" autocomplete="off" placeholder="Use server env if empty">
+        </label>
+        <label>
+          LLM base URL
+          <input id="llm-base-url" type="url" value="https://api.openai.com/v1">
+        </label>
+        <label>
+          LLM model
+          <input id="llm-model" type="text" value="gpt-4o-mini">
+        </label>
         <button id="generate-button" type="button">Generate Candidate</button>
       </section>
     </div>
@@ -322,6 +334,18 @@
       risksList.replaceChildren(item);
     }
 
+    function currentLlmConfig() {
+      const apiKey = document.getElementById("llm-api-key").value.trim();
+      if (!apiKey) {
+        return null;
+      }
+      return {
+        api_key: apiKey,
+        base_url: document.getElementById("llm-base-url").value.trim() || null,
+        model: document.getElementById("llm-model").value.trim() || null
+      };
+    }
+
     document.getElementById("upload-button").addEventListener("click", async () => {
       const file = document.getElementById("file-input").files[0];
       if (!file) {
@@ -362,14 +386,20 @@
 
     document.getElementById("generate-button").addEventListener("click", async () => {
       try {
+        const requestBody = {
+          target_tag: document.getElementById("generate-tag").value.trim(),
+          query: document.getElementById("generate-query").value.trim(),
+          top_k: Number(document.getElementById("retrieve-top-k").value || 5)
+        };
+        const llmConfig = currentLlmConfig();
+        if (llmConfig) {
+          requestBody.llm_config = llmConfig;
+        }
+
         const payload = await parseJsonResponse(await fetch("/api/generate", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({
-            target_tag: document.getElementById("generate-tag").value.trim(),
-            query: document.getElementById("generate-query").value.trim(),
-            top_k: Number(document.getElementById("retrieve-top-k").value || 5)
-          })
+          body: JSON.stringify(requestBody)
         }));
         renderGeneration(payload);
         showJson("Generate response", payload);

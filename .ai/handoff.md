@@ -1,5 +1,245 @@
 # Handoff
 
+## Current State - Phase 8B OCR Adapter
+
+Phase 8B has been implemented locally with fake-OCR automated coverage.
+
+Current harness state:
+
+- mode: `large`
+- profile: `python-backend-service`
+- state status: `DONE`
+- current gate: none
+
+Implemented capabilities:
+
+1. `OCRAdapter` interface and lazy `PaddleOCRAdapter`.
+2. Optional `ocr` dependency group in `pyproject.toml`.
+3. `POST /api/documents/{document_id}/parse` accepts optional
+   `parse_mode = auto | text | ocr`.
+4. Missing parse body remains backward compatible and defaults to `auto`.
+5. PDF `auto` parse keeps text parser first and falls back to OCR on failure or
+   no chunks.
+6. `text` mode disables OCR.
+7. `ocr` mode uses OCR directly for PDF in Phase 8B.
+8. OCR output becomes normal sections/chunks with OCR metadata.
+
+Important files:
+
+- `backend/app/adapters/ocr_adapter.py`
+- `backend/app/api/documents.py`
+- `backend/app/services/document_parsing.py`
+- `backend/app/services/section_chunker.py`
+- `backend/app/schemas/document.py`
+- `backend/tests/test_ocr_adapter_parse.py`
+- `backend/tests/test_phase8b_boundaries.py`
+
+Verification:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- Targeted Phase 8B and parse regression pytest: `20 passed, 1 warning`.
+- Explicit `python -m pytest backend/tests`: `109 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed with backend pytest
+  `109 passed, 1 warning`.
+- `python -m pip check`: passed.
+- `paddleocr_available=False`; real PaddleOCR smoke was not run.
+- `git diff --check`: passed with line-ending warnings only.
+- `bash ./scripts/ai_check.sh`: failed because WSL/Linux distribution is
+  unavailable.
+
+Residual risk:
+
+- Real PaddleOCR runtime and model download behavior are unverified.
+- OCR is implemented for PDF only in this phase. Image batch ingestion and table
+  reconstruction remain deferred.
+
+Next recommended action:
+
+```md
+Review the Phase 8B diff. The next roadmap phase is the PRD-shaped demo page
+flow; do not expand OCR into table reconstruction or certificate validation
+unless explicitly requested.
+```
+
+## Current State - Phase 8A Development Prep
+
+Phase 8A has been prepared but not implemented.
+
+Current harness state:
+
+- mode: `large`
+- profile: `python-backend-service`
+- state status: `DONE`
+- current gate: none
+
+Important harness note:
+
+- `.ai/state.json` still reflects the previous completed task state. Phase 8A
+  prep updated runtime artifacts, but no new Phase 8A harness gate transition
+  is claimed.
+
+Prepared Phase 8A objective:
+
+1. Detect actual document format from content bytes before parse.
+2. Recognize true `.docx` ZIP content and legacy OLE Word content.
+3. Route legacy `.doc` and mislabeled `.docx` through an optional Word converter
+   to a derived true `.docx` file.
+4. Preserve the original uploaded file unchanged.
+5. Record parse metadata for detection/conversion evidence without absolute path
+   leakage.
+6. Keep automated tests independent of real Word COM.
+7. Declare Windows-only `pywin32` in the `parsing` optional dependency group.
+
+Files updated for Phase 8A prep:
+
+- `.ai/spec.md`
+- `.ai/implementation-plan.md`
+- `.ai/affected-files.md`
+- `.ai/run-trace.md`
+- `.ai/verification.md`
+- `.ai/evaluation.md`
+- `.ai/handoff.md`
+
+Verification:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- `git diff --check`: passed with line-ending normalization warnings only.
+- `.\scripts\ai_check.ps1`: passed with backend pytest
+  `91 passed, 1 warning`.
+
+Next recommended action:
+
+```md
+Start Phase 8A implementation from `.ai/spec.md` and
+`.ai/implementation-plan.md`. Implement the format detector first, then add the
+fake-testable Word converter seam, then integrate conversion into
+`document_parsing.parse_document`.
+```
+
+## Current State - Phase 8A Legacy Word Conversion
+
+Phase 8A has been implemented locally.
+
+Implemented capabilities:
+
+1. Detect document content format before parse.
+2. Recognize true `.docx`, PDF, text, and legacy OLE Word content.
+3. Convert legacy `.doc` and OLE-content mislabeled `.docx` to a derived true
+   `.docx` file before Docling parsing.
+4. Preserve the original uploaded file unchanged.
+5. Record safe parse metadata.
+6. Keep automated tests independent of real Word COM.
+
+Important files:
+
+- `backend/app/services/document_format.py`
+- `backend/app/adapters/word_converter.py`
+- `backend/app/services/document_parsing.py`
+- `backend/app/storage/database.py`
+- `backend/app/schemas/document.py`
+- `backend/tests/test_document_format.py`
+- `backend/tests/test_word_conversion_parse.py`
+- `backend/tests/test_phase8a_boundaries.py`
+
+Verification:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- Targeted Phase 8A pytest: `11 passed, 1 warning`.
+- Explicit `python -m pytest backend/tests`: `102 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed with backend pytest
+  `102 passed, 1 warning`.
+- Real KSDQZFCG sample smoke passed without manual pre-conversion:
+  - upload as `doc_role=tender`: passed
+  - parse metadata detected `legacy_ole_word`, `is_mislabeled=true`,
+    `conversion_method=word_com`
+  - parse: 10 sections, 142 chunks
+  - tender analysis: 26 requirements, 34 scoring items, 52 risks
+  - `need_human_review=true`
+- Local Word COM dependency check passed:
+  - Microsoft Word is available on this machine.
+  - `pywin32 312` is installed.
+  - `win32com.client` imports successfully.
+- `git diff --check`: passed with line-ending warnings only.
+- `bash ./scripts/ai_check.sh`: failed because WSL/Linux distribution is
+  unavailable.
+
+Harness caveat:
+
+- `.ai/state.json` remains `DONE/current_gate: none`; no new Phase 8A gate
+  transition is claimed.
+
+Next recommended action:
+
+```md
+Start the next phase only after reviewing the Phase 8A diff. OCR remains a
+separate adapter phase; do not merge OCR into the legacy Word conversion scope.
+```
+
+## Current State - Phase 7 Tender Analysis
+
+Phase 7 has been implemented locally.
+
+Implemented capabilities:
+
+1. Persisted `tender_analyses` table.
+2. Deterministic tender analyzer over parsed tender chunks.
+3. Project requirement extraction.
+4. Scoring item extraction.
+5. Disqualification risk extraction.
+6. `POST /api/tender/analyze`.
+7. `GET /api/documents/{document_id}/tender-analysis`.
+8. Evidence traceability and `need_human_review = true`.
+
+Important files:
+
+- `backend/app/api/tender.py`
+- `backend/app/services/tender_analysis.py`
+- `backend/app/storage/database.py`
+- `backend/app/schemas/document.py`
+- `backend/tests/test_tender_analysis_api.py`
+- `backend/tests/test_phase7_boundaries.py`
+
+Verification:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- Targeted Phase 7 pytest: `10 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed with backend pytest
+  `91 passed, 1 warning`.
+- Explicit `python -m pytest backend/tests`: `91 passed, 1 warning`.
+- Live uvicorn + `curl.exe --noproxy "*"` analyze/get smoke passed.
+- Real tender sample smoke passed after manual Word COM conversion from
+  mislabeled legacy OLE `.doc` content to true `.docx`; parse returned
+  10 sections and 142 chunks, and analysis returned 26 requirements,
+  34 scoring items, and 52 risks.
+- `git diff --check`: passed with line-ending normalization warnings only.
+- `bash ./scripts/ai_check.sh`: failed because WSL/Linux distribution is
+  unavailable.
+
+Next recommended action:
+
+```md
+Start Phase 8 OCR adapter preparation from the lightweight PRD completion plan.
+Keep PaddleOCR optional behind an adapter and do not add OCR to default test
+requirements.
+```
+
+Sample caveat:
+
+- The recommended `KSDQZFCG...项目（二次）.docx` tender sample is not a true DOCX
+  file. Its header is legacy OLE `D0 CF 11 E0`.
+- Current backend does not automatically convert legacy `.doc` or mislabeled
+  `.docx` files. Use a temporary Word-converted `.docx` for manual smoke until a
+  dedicated conversion phase is added.
+
+Harness caveat:
+
+- `.ai/state.json` remains `DONE/current_gate: none`; no new Phase 7 gate
+  transition is claimed.
+
 ## Current State - Phase 5 Demo Page And Script
 
 Phase 5 has been implemented locally.
@@ -124,6 +364,106 @@ Final verification:
 State caveat:
 
 - `.ai/state.json` remains `DONE/current_gate: none`; no new Phase 5 gate
+  transition is claimed.
+
+## Current State - User-Scoped External LLM API Config
+
+The demo page now lets a user enter an OpenAI-compatible API key, HTTPS base
+URL, and model for the generate step.
+
+Behavior:
+
+- If the page API key field is empty, `/api/generate` uses server environment
+  variables as before.
+- If the page API key field is filled, `/api/generate` uses that key only for
+  the current request.
+- Request-scoped `base_url` must be HTTPS.
+- API keys are not returned in API responses and are not persisted.
+
+Verification:
+
+- Targeted tests passed: `12 passed, 1 warning`.
+- Final `.\scripts\ai_check.ps1`: passed with `73 passed, 1 warning`.
+- Final explicit `python -m pytest backend/tests`: `73 passed, 1 warning`.
+- Live `/demo` smoke: HTTP 200 and user-scoped LLM config controls present.
+
+Residual risk:
+
+- Real external LLM provider smoke has not been run because no real user key was
+  supplied.
+- Local HTTP model servers are not supported by request-scoped page config; use
+  HTTPS OpenAI-compatible endpoints for this demo path.
+
+## Current State - Lightweight PRD Completion Plan With OCR
+
+A supplemental plan has been added:
+
+- `docs/ai/17-lightweight-prd-completion-plan.md`
+
+The plan adds OCR to the lightweight PRD completion roadmap, but only as a
+future adapter-backed capability. No OCR implementation was added in this step.
+
+Recommended next implementation order:
+
+1. Knowledge cards and PRD-aligned tags.
+2. Tender analysis for requirements, scoring items, and disqualification risks.
+3. OCR adapter for scanned PDFs and image-heavy material.
+4. PRD-shaped demo page flow.
+5. Sample JSON outputs and repeatable demo runbook.
+
+Verification:
+
+- `.\scripts\ai_check.ps1`: passed with `73 passed, 1 warning`.
+- `git diff --check`: passed with line-ending warnings only.
+
+## Current State - Phase 6 Knowledge Cards And PRD Tags
+
+Phase 6 has been implemented locally.
+
+Implemented capabilities:
+
+1. Persisted `knowledge_cards` table.
+2. Deterministic knowledge-card builder over parsed historical bid chunks.
+3. PRD-aligned keyword tags.
+4. `POST /api/knowledge/build`.
+5. `GET /api/documents/{document_id}/knowledge-cards`.
+6. Rebuild replaces existing cards for the document.
+7. Source traceability for later citations and demo display.
+
+Important files:
+
+- `backend/app/api/knowledge.py`
+- `backend/app/services/knowledge_cards.py`
+- `backend/app/storage/database.py`
+- `backend/app/services/tagger.py`
+- `backend/app/schemas/document.py`
+- `backend/tests/test_knowledge_cards_api.py`
+- `backend/tests/test_phase6_boundaries.py`
+
+Verification:
+
+- `ai-status`: passed, `mode: large`, status `DONE`, `current_gate: none`.
+- `ai-doctor`: passed with expected uncommitted-change warning.
+- Targeted Phase 6 pytest: `8 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed with backend pytest
+  `81 passed, 1 warning`.
+- Explicit `python -m pytest backend/tests`: `81 passed, 1 warning`.
+- Live uvicorn + `curl.exe --noproxy "*"` build/list smoke passed.
+- `git diff --check`: passed with line-ending normalization warnings only.
+- `bash ./scripts/ai_check.sh`: failed because WSL/Linux distribution is
+  unavailable.
+
+Next recommended action:
+
+```md
+Start Phase 7 tender analysis preparation from the lightweight PRD completion
+plan. Keep OCR, Qdrant/Haystack, embeddings, user system, and export out of
+scope unless explicitly promoted.
+```
+
+Harness caveat:
+
+- `.ai/state.json` remains `DONE/current_gate: none`; no new Phase 6 gate
   transition is claimed.
 
 ## Current State - Phase 5 Development Prep

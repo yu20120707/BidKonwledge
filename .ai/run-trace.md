@@ -2,6 +2,115 @@
 
 Keep a short execution log for large-mode work.
 
+## Phase 8A - Development Prep
+
+- command: task contract
+- output: classified the prep step as Level 2 documentation/state preparation
+  under harness large mode, with the parent Phase 8A implementation classified
+  as Level 3 / complex because it will touch parse orchestration and additive
+  parse metadata.
+- command: context confirmation
+- output: confirmed current blocker is legacy OLE Word content, including a
+  `.docx` extension mislabeled over `D0 CF 11 E0` content. This is separate
+  from OCR and should be solved before the OCR adapter phase.
+- command: update Phase 8A prep artifacts
+- output: rewrote `.ai/spec.md`, `.ai/implementation-plan.md`, and
+  `.ai/affected-files.md` for Phase 8A Legacy / Mislabeled Word Conversion
+  Adapter. The plan keeps OCR, PaddleOCR, Qdrant/Haystack, embeddings, LLM
+  parsing, user system, export, and final bidding output out of scope.
+- harness note: `.ai/state.json` remains `DONE/current_gate: none`. No Phase 8A
+  gate transition is claimed.
+- command: verification
+- output: `ai-status` passed with `mode: large`, status `DONE`, and
+  `current_gate: none`; `ai-doctor` passed with expected uncommitted-change
+  warning; `git diff --check` passed with line-ending normalization warnings
+  only; `.\scripts\ai_check.ps1` passed with backend pytest `91 passed,
+  1 warning`.
+
+## Phase 8B - OCR Adapter For Scanned PDFs
+
+- command: task contract
+- output: classified as Level 3 / complex under harness large mode because the
+  task changes the shared parse path by adding `parse_mode`, OCR fallback, and
+  OCR metadata.
+- command: implementation
+- output: added `backend/app/adapters/ocr_adapter.py` with `OCRAdapter`,
+  `OCRPageText`, `OCRError`, and lazy `PaddleOCRAdapter`. Added optional
+  `ocr` dependency group in `pyproject.toml`.
+- command: parse integration
+- output: added optional `ParseDocumentRequest(parse_mode=auto|text|ocr)`,
+  OCR dependency injection seam, and PDF OCR behavior in
+  `document_parsing.parse_document`. Existing no-body parse calls default to
+  `auto`.
+- mid-task review: scope remained limited to scanned PDF OCR adapter. PaddleOCR
+  stayed optional, automated tests use fake OCR, text-PDF success path remains
+  OCR-free, and no table reconstruction, image batch ingestion, vector service,
+  LLM parsing, export, or final bidding output entered the diff. Decision: keep
+  plan.
+- command: targeted Phase 8B pytest
+- output: `backend/tests/test_ocr_adapter_parse.py`,
+  `backend/tests/test_phase8b_boundaries.py`, `test_document_parse_api.py`, and
+  `test_word_conversion_parse.py` passed: 20 passed, 1 warning.
+- command: full backend pytest
+- output: `python -m pytest backend/tests` passed: 109 passed, 1 warning.
+- command: project check
+- output: `.\scripts\ai_check.ps1` passed with backend pytest
+  `109 passed, 1 warning`.
+- command: dependency probe
+- output: `python -m pip check` passed; `paddleocr_available=False`, so real
+  PaddleOCR smoke was not run.
+- command: bash ./scripts/ai_check.sh
+- output: failed because WSL/Linux distribution is unavailable; recorded as not
+  verified.
+- command: git diff --check
+- output: passed with line-ending normalization warnings only.
+
+## Phase 8A - Legacy / Mislabeled Word Conversion Adapter
+
+- command: task contract
+- output: classified as Level 3 / complex under harness large mode because the
+  task changes the shared parse path, adds optional Word conversion, and extends
+  document parse metadata.
+- command: implementation
+- output: added `backend/app/services/document_format.py` for content-header
+  detection and `backend/app/adapters/word_converter.py` for fake-testable Word
+  conversion plus Windows Word COM implementation. Integrated detection and
+  conversion into `document_parsing.parse_document`.
+- command: metadata implementation
+- output: added additive `documents.parse_metadata_json`, compatible column
+  backfill during database init, `DocumentRecord.parse_metadata`,
+  `DocumentDetailResponse.parse_metadata`, and `ParseDocumentResponse.parse_metadata`.
+- mid-task review: after parser integration and metadata storage, scope remained
+  limited to legacy/mislabeled Word conversion. No OCR, PaddleOCR,
+  Qdrant/Haystack, embeddings, LLM parsing, user system, export, or final
+  bidding output entered the diff. Original uploaded files remain unchanged;
+  converted files are written under `_derived/<document_id>.converted.docx`.
+  Decision: keep plan.
+- command: targeted Phase 8A pytest
+- output: `backend/tests/test_document_format.py`,
+  `backend/tests/test_word_conversion_parse.py`, and
+  `backend/tests/test_phase8a_boundaries.py` passed: 11 passed, 1 warning.
+- command: full backend pytest
+- output: `python -m pytest backend/tests` passed: 102 passed, 1 warning.
+- command: project check
+- output: `.\scripts\ai_check.ps1` passed with backend pytest
+  `102 passed, 1 warning`.
+- command: real KSDQZFCG sample smoke
+- output: original mislabeled KSDQZFCG `.docx` uploaded as `doc_role=tender`,
+  detected as `legacy_ole_word`, converted via `word_com`, parsed without manual
+  pre-conversion, and analyzed successfully. Parse returned 10 sections and 142
+  chunks. Tender analysis returned 26 requirements, 34 scoring items, and 52
+  disqualification risks with `need_human_review=true`.
+- command: Word COM dependency confirmation
+- output: confirmed `pywin32 312` is installed in the bundled Python runtime and
+  `win32com.client` imports successfully. Added the Windows-only pywin32 marker
+  to the `parsing` optional dependency group.
+- command: bash ./scripts/ai_check.sh
+- output: failed because WSL/Linux distribution is unavailable; recorded as not
+  verified.
+- command: git diff --check
+- output: passed with line-ending normalization warnings only.
+
 ## Phase 5 - Development Prep
 
 - command: context read
@@ -54,8 +163,176 @@ Keep a short execution log for large-mode work.
 - command: bash ./scripts/ai_check.sh
 - output: failed because WSL/Linux distribution is unavailable; recorded as not
   verified.
+
+## Phase 5 - User-Scoped External LLM API Config
+
+- command: task contract
+- output: classified as Level 3 / security-sensitive under harness large mode
+  because the change accepts a user-provided API key and optional external LLM
+  endpoint for `POST /api/generate`.
+- scope decision: implement request-scoped `llm_config` only. Do not persist API
+  keys, do not return API keys in responses, do not add a user system, and do
+  not make real external LLM calls mandatory for automated tests.
+- security decision: request-scoped `base_url` must be HTTPS. This avoids
+  turning the local backend into an arbitrary HTTP request path for localhost or
+  private-network URLs.
+- command: implementation
+- output: added `GenerationLLMConfig`, `OpenAICompatibleLLMClient.from_request`,
+  request-scoped config handling in `/api/generate`, and demo page controls for
+  API key, base URL, and model.
+- command: targeted pytest
+- output: `backend/tests/test_generation_api.py`,
+  `backend/tests/test_demo_page.py`, and
+  `backend/tests/test_phase5_demo_workflow.py` passed: 12 passed, 1 warning.
+
+## Lightweight PRD Completion Plan With OCR
+
+- command: task contract
+- output: classified as Level 3 / architecture-planning under harness large
+  mode because OCR changes dependencies, parse behavior, sample selection, and
+  verification gates. Target is a supplemental plan document only; no OCR code
+  is implemented in this step.
+- command: context read
+- output: read PRD-derived project docs, roadmap, target architecture, tech
+  selection, sample catalog, dev rules, and verification notes. The PRD target
+  chain requires historical bid ingestion, knowledge cards, tender analysis,
+  retrieval, external LLM generation, citations, risks, human review, JSON, and
+  demo display.
+- command: documentation
+- output: added `docs/ai/17-lightweight-prd-completion-plan.md`; updated
+  `docs/ai/README.md` and `docs/ai/09-phase-roadmap.md` to reference the
+  Phase 6+ lightweight PRD completion plan and include OCR as a planned adapter
+  capability.
+- command: verification
+- output: `ai-status` and `ai-doctor` passed with `mode: large`, status `DONE`,
+  and `current_gate: none`; `git diff --check` passed with line-ending warnings
+  only; `.\scripts\ai_check.ps1` passed with backend pytest `73 passed,
+  1 warning`.
+
+## Phase 6 - Development Prep
+
+- command: task contract
+- output: classified as Level 3 / complex documentation preparation under
+  harness large mode because Phase 6 will add a persisted knowledge-card data
+  layer and public APIs. Target is development-prep documentation only; no
+  business code is implemented in this step.
+- command: context read
+- output: read current `.ai/spec.md`, `.ai/implementation-plan.md`,
+  `.ai/affected-files.md`, lightweight PRD completion plan, data model, API
+  contract, roadmap, target architecture, and verification docs.
+- command: update Phase 6 prep artifacts
+- output: rewrote `.ai/spec.md`, `.ai/implementation-plan.md`, and
+  `.ai/affected-files.md` for Phase 6 Knowledge Cards And PRD Tags; added
+  `docs/ai/18-phase6-knowledge-cards-dev-spec.md`,
+  `docs/ai/19-phase6-test-cases.md`, and
+  `docs/ai/20-phase6-demo-runbook.md`; updated docs index and roadmap.
+- harness note: `.ai/state.json` remains `DONE/current_gate: none`. No Phase 6
+  gate transition is claimed.
 - command: git diff --check
 - output: passed; only line-ending normalization warnings were reported.
+- command: .\scripts\ai_check.ps1
+- output: passed; ran compileall and backend pytest: 73 passed, 1 warning.
+
+## Phase 6 - Knowledge Cards And PRD Tags
+
+- command: task contract
+- output: classified as Level 3 / complex under harness large mode because the
+  task adds an additive persisted data layer and public API surface. Target is
+  knowledge cards over parsed historical bid chunks with PRD-aligned tags.
+- command: implementation
+- output: added `knowledge_cards` SQLite table, knowledge-card schemas,
+  deterministic PRD tag rules, `backend/app/services/knowledge_cards.py`,
+  `POST /api/knowledge/build`, and
+  `GET /api/documents/{document_id}/knowledge-cards`.
+- mid-task review: after storage/service/API/tests, scope remained limited to
+  knowledge cards and tags. No OCR, tender analysis, vector retrieval,
+  embeddings, Qdrant/Haystack, LLM, user system, export, or final document
+  generation entered the diff. Decision: keep plan.
+- command: targeted Phase 6 pytest
+- output: first run exposed two issues: broad `服务` matching stole more
+  specific PRD tags, and card listing sorted by random chunk id. Fixed by
+  prioritizing more specific PRD tags and ordering card lists by source chunk
+  order. Rerun passed: 8 passed, 1 warning.
+- command: final verification
+- output: `ai-status` and `ai-doctor` passed with `mode: large`, status `DONE`,
+  and `current_gate: none`; `.\scripts\ai_check.ps1` passed with 81 backend
+  tests; explicit `python -m pytest backend/tests` passed: 81 passed,
+  1 warning; `git diff --check` passed with line-ending warnings only.
+- command: live Phase 6 smoke
+- output: seeded a temporary SQLite DB with one parsed historical bid chunk,
+  started uvicorn, used `curl.exe --noproxy "*"` to call build/list APIs, and
+  verified one card tagged `突发应急方案和措施` with source chunk and filename.
+- command: bash ./scripts/ai_check.sh
+- output: failed because WSL/Linux distribution is unavailable; recorded as not
+  verified.
+
+## Phase 7 - Development Prep
+
+- command: task contract
+- output: classified as Level 3 / complex documentation preparation under
+  harness large mode because Phase 7 will add a tender-analysis persisted data
+  layer and public API surface. Target is development-prep documentation only;
+  no business code is implemented in this step.
+- command: context read
+- output: read current harness state, Phase 6 handoff, lightweight PRD
+  completion plan, roadmap, API contract, and active `.ai` runtime files.
+- command: update Phase 7 prep artifacts
+- output: rewrote `.ai/spec.md`, `.ai/implementation-plan.md`, and
+  `.ai/affected-files.md` for Phase 7 Tender Analysis; added
+  `docs/ai/21-phase7-tender-analysis-dev-spec.md`,
+  `docs/ai/22-phase7-test-cases.md`, and
+  `docs/ai/23-phase7-demo-runbook.md`; updated docs index, roadmap, README,
+  data model, and API contract.
+- harness note: `.ai/state.json` remains `DONE/current_gate: none`. No Phase 7
+  gate transition is claimed.
+- command: verification
+- output: `ai-status` and `ai-doctor` passed with `mode: large`, status `DONE`,
+  and `current_gate: none`; `git diff --check` passed with line-ending warnings
+  only; `.\scripts\ai_check.ps1` passed with backend pytest `81 passed,
+  1 warning`; `bash ./scripts/ai_check.sh` failed because WSL/Linux
+  distribution is unavailable.
+
+## Phase 7 - Tender Analysis
+
+- command: task contract
+- output: classified as Level 3 / complex under harness large mode because the
+  task adds an additive persisted data layer and public API surface for tender
+  evidence. Target is deterministic tender analysis over parsed `tender`
+  chunks.
+- command: implementation
+- output: added `tender_analyses` SQLite table, tender evidence/analysis
+  schemas, `backend/app/services/tender_analysis.py`,
+  `POST /api/tender/analyze`, and
+  `GET /api/documents/{document_id}/tender-analysis`.
+- mid-task review: after storage/service/API/tests, scope remained limited to
+  tender analysis. No OCR, vector retrieval, embeddings, Qdrant/Haystack,
+  LLM-based tender understanding, legal/compliance decisioning, user system,
+  export, or final document generation entered the diff. Decision: keep plan.
+- command: targeted Phase 7 pytest
+- output: first run exposed one overbroad test expectation for two requirement
+  items when fixture text only had one requirement match. Corrected the test to
+  match conservative extraction. Rerun passed: 10 passed, 1 warning.
+- command: final verification
+- output: `ai-status` and `ai-doctor` passed with `mode: large`, status `DONE`,
+  and `current_gate: none`; targeted Phase 7 tests passed: 10 passed,
+  1 warning; `.\scripts\ai_check.ps1` passed with 91 backend tests; explicit
+  `python -m pytest backend/tests` passed: 91 passed, 1 warning;
+  `git diff --check` passed with line-ending warnings only.
+- command: live Phase 7 smoke
+- output: seeded a temporary SQLite DB with one parsed tender chunk, started
+  uvicorn, used `curl.exe --noproxy "*"` to call analyze/get APIs, and verified
+  one project requirement, one scoring item, and one high-severity
+  disqualification risk.
+- command: real tender sample smoke
+- output: direct parse of the recommended `KSDQZFCG...项目（二次）.docx` failed
+  because the file has `.docx` extension but legacy OLE `D0 CF 11 E0` content.
+  A temporary copy renamed to `.doc` was converted to real `.docx` with Word
+  COM, then live upload/parse/analyze/get passed. Parse returned 10 sections and
+  142 chunks; analysis returned 26 requirements, 34 scoring items, and
+  52 disqualification risks.
+- command: bash ./scripts/ai_check.sh
+- output: failed because WSL/Linux distribution is unavailable; recorded as not
+  verified.
 
 ## Phase 5 - Multi-Subagent Demo Hardening Review
 
