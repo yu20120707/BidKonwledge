@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -33,3 +35,77 @@ class DocumentRecord(BaseModel):
     updated_at: str
     parse_status: str
     error_message: str | None = None
+
+
+class DocumentSectionRecord(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    document_id: str
+    title: str
+    level: int
+    order_index: int
+    text: str
+    page_start: int | None = None
+    page_end: int | None = None
+
+
+class DocumentChunkRecord(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    document_id: str
+    section_id: str
+    section_title: str
+    section_path: str
+    order_index: int
+    chunk_index: int
+    chunk_type: str
+    text: str
+    tags: list[str]
+    page_start: int | None = None
+    page_end: int | None = None
+    metadata: dict[str, Any]
+
+
+class DocumentDetailResponse(BaseModel):
+    document_id: str
+    original_filename: str
+    doc_role: str
+    file_ext: str
+    file_size: int
+    parse_status: str
+    error_message: str | None
+    created_at: str
+    updated_at: str
+    sections_count: int
+    chunks_count: int
+
+
+class ParseDocumentResponse(BaseModel):
+    document_id: str
+    sections_count: int
+    chunks_count: int
+    parse_status: str
+    error_message: str | None = None
+
+
+class DocumentChunkResponse(BaseModel):
+    chunk_id: str
+    document_id: str
+    section_id: str
+    section_title: str
+    section_path: str
+    order_index: int
+    chunk_index: int
+    chunk_type: str
+    text: str
+    tags: list[str]
+    page_start: int | None = None
+    page_end: int | None = None
+    metadata: dict[str, Any]
+
+
+class DocumentChunksResponse(BaseModel):
+    document_id: str
+    chunks: list[DocumentChunkResponse]

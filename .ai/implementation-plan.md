@@ -1,157 +1,104 @@
-# Implementation Plan - Phase 1 Backend Foundation
+# Implementation Plan - Phase 2 Document Parsing And Chunking
 
 ## Execution Classification
 
 - Harness mode: `large`
 - Task level: Level 3 / complex
-- Reason: this task introduces the backend app entrypoint, upload API contract, local file persistence, SQLite metadata persistence, project scripts, and P0 automated tests for a complete backend workflow.
-- Rollback: normal Git revert before commit; no migrations beyond local SQLite initialization.
+- Reason: this task changes backend API surface, SQLite persistence, document
+  parse-status semantics, and cross-module parser/chunker behavior.
+- Rollback: normal Git revert before commit; SQLite schema changes are additive
+  and local to MVP metadata.
 
 ## Target Outcome
 
-Implement the Phase 1 backend foundation only:
+Implement Phase 2 backend parsing only:
 
-1. FastAPI app startup.
-2. `GET /health`.
-3. `POST /api/files/upload`.
-4. HTTP `201 Created` upload success contract.
-5. Structured upload error contract.
-6. Configurable local upload root and SQLite database path.
-7. Backend-generated stored filenames.
-8. `documents` SQLite table matching `docs/ai/12-phase1-api-persistence.md`.
-9. P0 pytest coverage from `docs/ai/16-phase1-test-cases.md`.
-10. README and `.ai` evidence updates.
+1. Lazy Docling adapter for `.docx` and text-based `.pdf`.
+2. Document parse orchestration service.
+3. Normalized section/chunk persistence.
+4. Deterministic minimal tags.
+5. Minimal document parse/read/chunk APIs.
+6. Pytest coverage using temp upload roots and SQLite DBs.
+7. README and `.ai` evidence updates.
 
 ## Non-Goals
 
-Do not implement OCR, LLM calls, embedding, Qdrant/vector store, Haystack pipeline execution, knowledge cards, tender analysis, frontend Demo, user system, or Word/PDF export.
-
-## Expected File Scope
-
-Implementation files:
-
-```text
-backend/app/__init__.py
-backend/app/main.py
-backend/app/config.py
-backend/app/api/__init__.py
-backend/app/api/health.py
-backend/app/api/files.py
-backend/app/schemas/__init__.py
-backend/app/schemas/document.py
-backend/app/storage/__init__.py
-backend/app/storage/database.py
-backend/app/storage/file_storage.py
-```
-
-Test files:
-
-```text
-backend/tests/conftest.py
-backend/tests/test_health.py
-backend/tests/test_upload_contract.py
-backend/tests/test_upload_validation.py
-backend/tests/test_storage.py
-backend/tests/test_database.py
-backend/tests/test_phase1_boundaries.py
-```
-
-Project files:
-
-```text
-pyproject.toml
-README.md
-scripts/ai_check.ps1
-scripts/ai_check.sh
-.ai/affected-files.md
-.ai/run-trace.md
-.ai/verification.md
-.ai/evaluation.md
-.ai/handoff.md
-```
+No OCR, embeddings, vector store, Haystack pipeline, LLM generation, full
+knowledge cards, tender deep analysis, frontend, user system, or export.
 
 ## Subagent Plan
 
-Use subagents for read-only and review work only. Main agent owns all writes to avoid conflicting edits.
+No subagent is used at task start.
 
-1. Explorer Hooke: read-only API/persistence/test-contract scan.
-2. Explorer Meitner: read-only script/README/verification-artifact scan.
-3. After implementation, use reviewer/evaluator subagent only if useful for final contract review.
+Reason: the write scope is one coupled backend data flow where API, parser,
+database, and tests must evolve together. The main agent owns all writes and
+will perform a mid-task self-review checkpoint after the API/service/test path
+is implemented.
 
 ## Implementation Stages
 
-### Stage 1 - Package And App Skeleton
+### Stage 1 - Persistence And Schemas
 
-1. Add a single dependency file, `pyproject.toml`, with FastAPI, Uvicorn, Pydantic, pytest, and HTTPX.
-2. Add FastAPI app factory/import entrypoint in `backend/app/main.py`.
-3. Add `GET /health` router.
+1. Add additive SQLite tables for `document_sections` and `document_chunks`.
+2. Add document status update helpers and section/chunk query helpers.
+3. Add Pydantic response/schema models for document detail, parse response, and
+   chunks.
 
 Verification:
 
 ```powershell
-python -m compileall backend/app
-python -m pytest backend/tests/test_health.py
+python -m pytest backend/tests/test_database.py
 ```
 
-### Stage 2 - Configuration, SQLite, And File Storage
+### Stage 2 - Parser Adapter, Chunker, Tagger
 
-1. Add settings object with configurable upload root, database path, allowed extensions, and max upload size.
-2. Add SQLite initialization and `documents` insert/query helpers.
-3. Add file-storage helper that generates stored filenames using backend document ids and writes only under upload root.
+1. Add `DoclingParserAdapter` behind `backend/app/adapters`.
+2. Normalize Docling markdown/text output into parser sections.
+3. Add deterministic section/chunk splitting.
+4. Add minimal keyword-based tag rules.
 
 Verification:
 
 ```powershell
-python -m pytest backend/tests/test_storage.py backend/tests/test_database.py
+python -m pytest backend/tests/test_document_chunks.py
 ```
 
-### Stage 3 - Upload API And Error Contract
+### Stage 3 - Document APIs
 
-1. Add `POST /api/files/upload`.
-2. Validate missing file, missing/invalid doc role, empty file, unsafe filename, unsupported extension, and file-too-large.
-3. Save file before metadata insert.
-4. Clean up stored file if metadata insert fails.
-5. Return only documented success fields.
-6. Return fixed error fields: `error_code`, `message`, `details`.
+1. Add `POST /api/documents/{document_id}/parse`.
+2. Add `GET /api/documents/{document_id}`.
+3. Add `GET /api/documents/{document_id}/chunks`.
+4. Wire router into `backend/app/main.py`.
 
 Verification:
 
 ```powershell
-python -m pytest backend/tests/test_upload_contract.py backend/tests/test_upload_validation.py
+python -m pytest backend/tests/test_document_parse_api.py
 ```
 
-### Stage 4 - Boundary Tests And Scripts
+### Stage 4 - Boundaries And Documentation
 
-1. Add tests proving Phase 1 does not require OCR, LLM credentials, vector service, or parser output.
-2. Replace PowerShell project check placeholder with real compile and pytest commands.
-3. Replace bash project check placeholder with the same real check sequence for shell environments.
+1. Add tests proving Phase 2 does not require RAG/LLM/vector dependencies.
+2. Update README with Phase 2 local usage and parse commands.
+3. Update `.ai/verification.md`, `.ai/evaluation.md`, and `.ai/handoff.md`.
+4. Update durable docs only where current Phase 2 API/status semantics would
+   otherwise be stale.
 
 Verification:
 
 ```powershell
-.\scripts\ai_check.ps1
 python -m pytest backend/tests
-```
-
-Run `bash ./scripts/ai_check.sh` when available. If WSL/bash is unavailable on this Windows machine, record the blocker in `.ai/verification.md`.
-
-### Stage 5 - README, Evidence, And Smoke
-
-1. Update README with large-mode status, dependency install, local startup, pytest, and curl commands.
-2. Start uvicorn locally if dependencies are available.
-3. Run `curl.exe --noproxy "*"` health and upload smoke checks.
-4. Update `.ai/verification.md`, `.ai/evaluation.md`, and `.ai/handoff.md` with real command evidence.
-
-Verification:
-
-```powershell
-$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
-& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
-& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
 .\scripts\ai_check.ps1
-python -m pytest backend/tests
-curl.exe --noproxy "*" http://127.0.0.1:8000/health
 ```
+
+### Stage 5 - Required Checks And Smoke
+
+1. Run harness status checks.
+2. Run project scripts and pytest.
+3. Attempt local uvicorn + curl smoke for upload, parse, document read, and
+   chunks when dependencies are usable.
+4. Attempt bash check if shell tooling is available, otherwise record the
+   Windows/WSL blocker.
 
 ## Mid-Task Review Checkpoint
 
@@ -164,10 +111,11 @@ After Stage 3, perform a self-review:
 
 ## Escalation Triggers
 
-Escalate or pause if:
+Pause or escalate if:
 
-1. The upload contract conflicts with docs.
-2. Dependencies cannot be installed or imported.
-3. Tests require external services.
-4. File/database atomicity cannot be verified locally.
-5. Harness gate state blocks implementation.
+1. Docling cannot install or import and the requested real parser support cannot
+   be demonstrated.
+2. Parser behavior requires OCR, LLM, vector services, or large samples.
+3. SQLite schema changes become non-additive or risky to roll back.
+4. Tests would need real `data/uploads` or customer sample folders.
+5. API semantics conflict with the user's Phase 2 status contract.

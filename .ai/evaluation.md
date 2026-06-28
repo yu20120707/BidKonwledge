@@ -1,5 +1,63 @@
 # Evaluation
 
+## Phase 2 Document Parsing And Chunking Evaluation
+
+Status: implemented and locally verified for API/state/persistence/chunking with injected parser, real Docling `.docx` smoke, and real Docling text-based `.pdf` smoke.
+
+Implemented:
+
+1. `POST /api/documents/{document_id}/parse`.
+2. `GET /api/documents/{document_id}`.
+3. `GET /api/documents/{document_id}/chunks`.
+4. Lazy `DoclingParserAdapter` for `.docx` and `.pdf`.
+5. PDF parsing explicitly disables OCR with `PdfPipelineOptions(do_ocr=False)` to keep Phase 2 limited to text-based PDFs.
+6. Additive SQLite tables: `document_sections` and `document_chunks`.
+7. Parse status transitions: `pending`, `parsing`, `parsed`, `failed`.
+8. Parse orchestration with old parse-output replacement on reparse and cleanup on failure.
+9. Normalized section and chunk schemas.
+10. Deterministic keyword tags with `deterministic_v1` metadata.
+11. Pytest coverage for success parse, failed parse, unsupported parse type, status transition, chunk persistence, reparse replacement, pending chunks, not-found errors, and no RAG/LLM/vector dependency.
+12. README Phase 2 local commands and docs updates for API/data model status.
+13. Parser failure messages redact local paths before being returned or persisted.
+14. Parse outputs and final `parsed` / `failed` status updates use atomic SQLite helpers.
+
+Scope control:
+
+- OCR / PaddleOCR: not implemented.
+- Embeddings: not implemented.
+- Qdrant/vector store: not implemented.
+- Haystack retrieval pipeline: not implemented.
+- LLM generation: not implemented.
+- Full knowledge-card generation: not implemented.
+- Deep tender analysis: not implemented.
+- Frontend Demo: not implemented.
+- User system: not implemented.
+- Word/PDF export: not implemented.
+- Reference repo vendoring: not done.
+
+Verification summary:
+
+- `ai-status`: passed, large mode confirmed.
+- `ai-doctor`: passed with expected active-worktree warning.
+- `compileall backend/app`: passed.
+- `pip install -e '.[dev]'`: passed.
+- Targeted Phase 2 pytest: `13 passed, 1 warning`.
+- Full `python -m pytest backend/tests`: `50 passed, 1 warning`.
+- Final full `python -m pytest backend/tests` after CR fixes: `51 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed and runs compile/test checks.
+- Explicit `python -m pytest backend/tests`: passed, `50 passed, 1 warning`.
+- `git diff --check`: passed with line-ending warnings only.
+- uvicorn + `curl.exe --noproxy "*"` smoke: health/upload/parse/document/chunks API path verified with a real synthetic `.docx`; parse returned `parsed`, one section, and one chunk.
+- uvicorn + `curl.exe --noproxy "*"` smoke: health/upload/parse/document/chunks API path verified with a generated text-layer `.pdf`; parse returned `parsed`, one section, and one chunk.
+- `bash ./scripts/ai_check.sh`: not verified because WSL/bash is unavailable.
+- CR subagent final review: no blocking findings and no remaining findings.
+
+Residual risk:
+
+1. The current pytest success path uses injected parser output for deterministic coverage; it intentionally avoids large samples and external parser runtime.
+2. Third-party FastAPI/Starlette `httpx` deprecation warning remains from Phase 1.
+3. Docling PDF parsing still initializes layout models and may download/cache model weights on first run; OCR remains disabled for Phase 2.
+
 ## Phase 1 Backend Foundation Evaluation
 
 Status: implemented and locally verified, pending any required human diff/final gate decision.

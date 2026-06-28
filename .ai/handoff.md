@@ -1,5 +1,102 @@
 # Handoff
 
+## Current State - Phase 2 Document Parsing And Chunking
+
+Phase 2 backend parsing/chunking has been implemented locally.
+
+Current harness state:
+
+- mode: `large`
+- profile: `python-backend-service`
+- state status: `DONE`
+- current gate: none
+
+Implemented backend capabilities:
+
+1. Lazy Docling adapter at `backend/app/adapters/docling_parser.py`.
+2. `POST /api/documents/{document_id}/parse`.
+3. `GET /api/documents/{document_id}`.
+4. `GET /api/documents/{document_id}/chunks`.
+5. Additive SQLite tables for parsed sections and chunks.
+6. Parse status flow: `pending -> parsing -> parsed` on injected-parser success, and `pending -> parsing -> failed` on parser or unsupported-input failure.
+7. Deterministic keyword tag rules.
+8. Reparse replacement of old sections/chunks.
+9. Pytest coverage for success, failure, status flow, chunk persistence, boundary checks, and no RAG/LLM/vector dependency.
+10. README and docs updated for Phase 2 commands and API/data-model semantics.
+11. Text-based PDF parsing uses Docling with OCR explicitly disabled.
+12. Parser failure messages redact local paths.
+13. Parse outputs and final parse status writes use atomic SQLite helpers.
+
+Important files changed or added:
+
+- `pyproject.toml`
+- `backend/app/main.py`
+- `backend/app/api/documents.py`
+- `backend/app/adapters/docling_parser.py`
+- `backend/app/services/document_parsing.py`
+- `backend/app/services/section_chunker.py`
+- `backend/app/services/tagger.py`
+- `backend/app/schemas/document.py`
+- `backend/app/storage/database.py`
+- `backend/tests/test_document_parse_api.py`
+- `backend/tests/test_document_chunks.py`
+- `backend/tests/test_phase2_boundaries.py`
+- `README.md`
+- `docs/ai/03-data-model.md`
+- `docs/ai/04-api-contract.md`
+- `.ai/spec.md`
+- `.ai/implementation-plan.md`
+- `.ai/affected-files.md`
+- `.ai/run-trace.md`
+- `.ai/verification.md`
+- `.ai/evaluation.md`
+- `.ai/handoff.md`
+
+Verification run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+& $py -m pip install -e '.[dev]'
+& $py -m compileall backend/app
+& $py -m pytest backend/tests
+.\scripts\ai_check.ps1
+$env:Path='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python;' + $env:Path
+python -m pytest backend/tests
+bash ./scripts/ai_check.sh
+```
+
+Results:
+
+- `ai-status`: passed, large mode confirmed.
+- `ai-doctor`: passed with active-worktree warning only.
+- `pip install -e '.[dev]'`: passed.
+- `compileall backend/app`: passed.
+- `pytest backend/tests`: initially `50 passed, 1 warning`; after final CR fixes `51 passed, 1 warning`.
+- `.\scripts\ai_check.ps1`: passed.
+- Explicit `python -m pytest backend/tests`: `50 passed, 1 warning`.
+- `bash ./scripts/ai_check.sh`: attempted and failed because WSL/bash is unavailable.
+- uvicorn + `curl.exe --noproxy "*"` smoke: health, upload, parse, document, and chunks passed with a synthetic `.docx`; parse returned `parsed`, one section, one chunk, and deterministic tags.
+- uvicorn + `curl.exe --noproxy "*"` smoke: health, upload, parse, document, and chunks passed with a generated text-layer `.pdf`; parse returned `parsed`, one section, one chunk, and deterministic tags.
+- CR subagent final review: no blocking findings and no remaining findings.
+
+Docling note:
+
+- Bundled Python initially did not have `docling`.
+- `pip index versions docling` found latest `2.107.0`.
+- The first `pip install 'docling>=2.107,<3.0'` timed out after about 304 seconds after installing most large dependencies.
+- A second `pip install 'docling>=2.107,<3.0'` completed successfully.
+- Real Docling `.docx` parse success is verified with a small generated fixture.
+- Initial text-based `.pdf` parse failed because Docling defaulted to OCR and RapidOCR rejected `torch.PP-OCRv6.det.small`.
+- The adapter now sets `PdfPipelineOptions(do_ocr=False)` for `.pdf`, and text-based PDF smoke passes.
+
+Next recommended action:
+
+```md
+Use the current Phase 2 parser for small `.docx` and text-based `.pdf` only. Keep scanned PDFs/OCR as a later explicit phase.
+```
+
 ## Current State - Phase 1 Backend Foundation
 
 Phase 1 backend foundation has been implemented locally.

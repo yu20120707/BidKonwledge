@@ -10,6 +10,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+parsing = [
+    "docling>=2.107,<3.0",
+]
 dev = [
     "httpx>=0.27,<1.0",
     "pytest>=8.0,<9.0",

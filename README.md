@@ -2,7 +2,9 @@
 
 投标智能知识库能力验证版 Demo。
 
-当前仓库已进入 Phase 1：后端底座。Phase 1 只提供 FastAPI 启动、健康检查、文件上传、本地文件保存和 SQLite 元数据记录，不包含 OCR、RAG、LLM、知识卡片、前端 Demo 或导出能力。
+当前仓库已进入 Phase 2：Document Parsing And Chunking。Phase 2 提供后端最小解析能力：文件上传、Docling 解析适配、section/chunk 入库、确定性标签、解析状态流转和最小查询 API。
+
+Phase 2 仍不包含 OCR、embedding、vector store、Haystack retrieval、LLM generation、知识卡片完整生成、前端 Demo、用户系统或 Word/PDF 导出。
 
 ## Harness
 
@@ -20,10 +22,21 @@ $py = "C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\p
 
 推荐使用 Codex bundled Python 或本地 Python 3.11+。
 
+基础后端和测试依赖：
+
 ```powershell
 $py = "C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
 & $py -m pip install -e ".[dev]"
 ```
+
+真实 Docling 解析依赖：
+
+```powershell
+$py = "C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
+& $py -m pip install -e ".[parsing]"
+```
+
+If Docling installation is unavailable or too slow on the current machine, the app still imports and tests can validate the API/state/persistence flow with an injected parser. Real `.docx`/text PDF parsing requires the `parsing` extra.
 
 ## Run Backend
 
@@ -41,11 +54,21 @@ curl.exe --noproxy "*" http://127.0.0.1:8000/health
 Upload smoke:
 
 ```powershell
-Set-Content -Path .\data\samples\phase1-smoke.txt -Value "hello bid knowledge"
+Set-Content -Path .\data\samples\phase2-smoke.docx -Value "synthetic docx placeholder"
 curl.exe --noproxy "*" -X POST "http://127.0.0.1:8000/api/files/upload" `
   -F "doc_role=historical_bid" `
-  -F "file=@.\data\samples\phase1-smoke.txt"
+  -F "file=@.\data\samples\phase2-smoke.docx"
 ```
+
+Parse an uploaded document:
+
+```powershell
+curl.exe --noproxy "*" -X POST "http://127.0.0.1:8000/api/documents/<document_id>/parse"
+curl.exe --noproxy "*" "http://127.0.0.1:8000/api/documents/<document_id>"
+curl.exe --noproxy "*" "http://127.0.0.1:8000/api/documents/<document_id>/chunks"
+```
+
+Use a real small `.docx` or text-based `.pdf` when Docling is installed. The synthetic placeholder command only demonstrates the upload path.
 
 ## Test
 
@@ -84,11 +107,20 @@ Successful uploads return HTTP `201 Created` with:
 - `file_size`
 - `created_at`
 
-Error responses use:
+## Phase 2 API
 
-- `error_code`
-- `message`
-- `details`
+- `POST /api/documents/{document_id}/parse`
+- `GET /api/documents/{document_id}`
+- `GET /api/documents/{document_id}/chunks`
+
+Parse statuses:
+
+- `pending`
+- `parsing`
+- `parsed`
+- `failed`
+
+Chunks are persisted in SQLite with normalized text payloads, section metadata, page placeholders, deterministic tags, and metadata identifying `deterministic_v1` tagging.
 
 ## Source Documents
 
@@ -102,6 +134,6 @@ External reference repositories are kept outside Git under `F:\BidKonwledge_refs
 
 ## Boundary
 
-This is not a complete bidding system. Phase 1 is only the backend foundation for later document parsing and knowledge-base capability.
+This is not a complete bidding system. Phase 2 is only the backend parsing/chunking foundation for later retrieval and generation.
 
 All generated bidding content in future phases must require human review.

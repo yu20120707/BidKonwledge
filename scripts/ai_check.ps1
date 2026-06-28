@@ -21,4 +21,4 @@ Write-Host "Running compile check..."
 Write-Host "Running backend tests..."
 & $python -m pytest backend/tests
 
-Write-Host "Phase 1 project checks passed."
+Write-Host "Project checks passed."

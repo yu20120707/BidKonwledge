@@ -1,5 +1,201 @@
 # Verification
 
+## Phase 2 Document Parsing And Chunking Verification
+
+Updated on 2026-06-28.
+
+### Harness And Context
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
+& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
+```
+
+Observed:
+
+- `ai-status`: passed, initialized yes, `mode: large`, profile `python-backend-service`, status `DONE`.
+- `ai-doctor`: passed required checks; warning only that the working tree has uncommitted Phase 2 changes.
+
+### Docling Dependency Probe
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -c "import importlib.util; print(importlib.util.find_spec('docling') is not None)"
+& $py -m pip index versions docling
+& $py -m pip install 'docling>=2.107,<3.0'
+```
+
+Observed:
+
+- `docling` was not installed in bundled Python.
+- `pip index versions docling` found latest `2.107.0`.
+- `pip install 'docling>=2.107,<3.0'` timed out after about 304 seconds.
+- A residual pip Python process was confirmed by command line and stopped.
+- The timeout was an interrupted heavy dependency install, not a permanent
+  incompatibility. A later `pip --dry-run` showed only four packages remained.
+- Retrying `pip install 'docling>=2.107,<3.0'` completed successfully and
+  installed `docling-2.107.0`, `docling-slim-2.107.0`,
+  `docling-ibm-models-3.13.3`, and `docling-parse-7.0.0`.
+
+Result:
+
+- Real Docling `.docx` parsing is verified on this machine with a synthetic
+  fixture.
+- Real Docling text-based `.pdf` parsing is verified on this machine with a
+  generated text-layer PDF fixture.
+- The code keeps Docling behind a lazy adapter and exposes it as optional `parsing` extra.
+- Tests verify API, status, persistence, chunking, and tagging through an injected parser without RAG/LLM/vector dependencies.
+
+Validation commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -c "import docling; from docling.document_converter import DocumentConverter; print('docling_import_ok')"
+& $py -m pip check
+```
+
+Observed:
+
+- Docling import passed.
+- `pip check`: no broken requirements.
+- Direct `DoclingParserAdapter` parse of a small generated `.docx`: one section parsed.
+- Initial direct `DoclingParserAdapter` parse of a generated text PDF failed
+  because Docling defaulted to OCR and RapidOCR failed with `Unsupported
+  configuration: torch.PP-OCRv6.det.small`.
+- The adapter was updated to set `PdfPipelineOptions(do_ocr=False)` for `.pdf`.
+- Direct `DoclingParserAdapter` parse of the generated text PDF then passed:
+  `pdfplumber` confirmed a text layer, and Docling returned one section.
+
+### Build And Automated Tests
+
+Commands run:
+
+```powershell
+$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+& $py -m pip install -e '.[dev]'
+& $py -m compileall backend/app
+& $py -m pytest backend/tests/test_document_parse_api.py backend/tests/test_document_chunks.py backend/tests/test_phase2_boundaries.py
+& $py -m pytest backend/tests
+```
+
+Observed:
+
+- `pip install -e '.[dev]'`: passed after adding the optional `parsing` extra.
+- `compileall backend/app`: passed.
+- Targeted Phase 2 tests: `13 passed, 1 warning`.
+- Full backend tests: `50 passed, 1 warning`.
+- Warning: FastAPI/Starlette test client reports `httpx` integration deprecation and suggests `httpx2`; no functional failure observed.
+- After final self-review and CR fixes, targeted parser/chunk/database tests
+  passed: `19 passed, 1 warning`.
+- After final CR fixes, full backend tests passed: `51 passed, 1 warning`.
+
+Required explicit pytest command:
+
+```powershell
+$env:Path='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python;' + $env:Path
+python -m pytest backend/tests
+```
+
+Observed:
+
+- Initially `50 passed, 1 warning`.
+- After final CR fixes: `51 passed, 1 warning`.
+
+### Final Code Review Fixes
+
+Self-review and CR subagent review found and fixed:
+
+- Parser failure messages could expose local absolute paths. The parsing service
+  now redacts backslash Windows paths, forward-slash Windows paths, `file:///`
+  URIs, configured upload roots, and configured DB parent paths.
+- Parse output replacement and final `parsed` / `failed` status writes were split
+  across transactions. The storage layer now has atomic
+  `complete_document_parse_success` and `complete_document_parse_failure`
+  helpers for the main parse success/failure paths.
+
+Final CR subagent result:
+
+- No blocking findings.
+- No remaining findings from the prior CR.
+
+### Project Scripts
+
+Command run:
+
+```powershell
+.\scripts\ai_check.ps1
+```
+
+Observed:
+
+- Runs `compileall backend/app`.
+- Runs `pytest backend/tests`.
+- Result: passed, `50 passed, 1 warning`.
+
+Command attempted:
+
+```powershell
+$env:PYTHON='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+bash ./scripts/ai_check.sh
+```
+
+Observed:
+
+- Failed because this Windows machine has no usable WSL/Linux distribution for `bash`.
+- This is recorded as not verified. Do not claim bash verification passed.
+
+### Manual Smoke
+
+PowerShell `Start-Process` and `Start-Job` uvicorn background startup attempts failed with Windows `Access is denied`.
+
+Fallback smoke used a Python process to start uvicorn in a thread, then called `curl.exe --noproxy "*"` against the live local server with temporary upload root and SQLite DB.
+
+Observed before Docling retry:
+
+- `GET /health`: passed, `{"status":"ok"}`.
+- `POST /api/files/upload`: passed.
+- `POST /api/documents/{document_id}/parse`: returned expected `failed` status because Docling was not installed.
+
+Observed after Docling retry:
+
+- `GET /health`: passed.
+- `POST /api/files/upload`: passed with `parse_status=pending`.
+- `POST /api/documents/{document_id}/parse`: passed with `parse_status=parsed`, `sections_count=1`, `chunks_count=1`.
+- `GET /api/documents/{document_id}`: returned persisted `parsed` status.
+- `GET /api/documents/{document_id}/chunks`: returned one chunk with deterministic tags `运维服务`, `应急响应`, and `项目管理`.
+- Temporary upload root and SQLite DB were removed after smoke.
+
+Observed after text-based PDF smoke:
+
+- Generated a small synthetic text-layer PDF using `reportlab`.
+- Verified the PDF text layer with `pdfplumber`.
+- Direct adapter parse passed after disabling PDF OCR.
+- Live API `POST /api/documents/{document_id}/parse` returned `parse_status=parsed`, `sections_count=1`, and `chunks_count=1`.
+- `GET /api/documents/{document_id}/chunks` returned one chunk containing the PDF text and deterministic tags `运维服务`, `应急响应`, and `项目管理`.
+- Temporary upload root, SQLite DB, and generated PDF were removed after smoke.
+
+### Diff Hygiene
+
+Command run:
+
+```powershell
+git diff --check
+```
+
+Observed:
+
+- Passed.
+- Git reported line-ending normalization warnings only.
+
+### Unverified Or Deferred
+
+- `bash ./scripts/ai_check.sh`: not verified because WSL/bash is unavailable.
+
 ## Ran
 
 - command: .\scripts\ai_check.ps1

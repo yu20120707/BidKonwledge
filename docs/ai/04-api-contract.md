@@ -58,8 +58,65 @@ Response:
 {
   "document_id": "string",
   "sections_count": 10,
-  "tables_count": 2,
-  "parse_status": "success"
+  "chunks_count": 20,
+  "parse_status": "parsed",
+  "error_message": null
+}
+```
+
+Phase 2 status values are `pending`, `parsing`, `parsed`, and `failed`.
+
+## GET /api/documents/{document_id}
+
+Return document metadata and current parse counts.
+
+Response:
+
+```json
+{
+  "document_id": "string",
+  "original_filename": "string",
+  "doc_role": "historical_bid",
+  "file_ext": ".docx",
+  "file_size": 123,
+  "parse_status": "parsed",
+  "error_message": null,
+  "created_at": "2026-06-27T12:00:00Z",
+  "updated_at": "2026-06-27T12:01:00Z",
+  "sections_count": 10,
+  "chunks_count": 20
+}
+```
+
+## GET /api/documents/{document_id}/chunks
+
+Return persisted normalized chunks for a document.
+
+Response:
+
+```json
+{
+  "document_id": "string",
+  "chunks": [
+    {
+      "chunk_id": "string",
+      "document_id": "string",
+      "section_id": "string",
+      "section_title": "运维服务方案",
+      "section_path": "运维服务方案",
+      "order_index": 0,
+      "chunk_index": 0,
+      "chunk_type": "text",
+      "text": "string",
+      "tags": ["运维服务"],
+      "page_start": null,
+      "page_end": null,
+      "metadata": {
+        "section_level": 1,
+        "tagger": "deterministic_v1"
+      }
+    }
+  ]
 }
 ```
 

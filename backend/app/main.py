@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 
-from backend.app.api import files, health
+from backend.app.api import documents, files, health
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="BidKnowledge Phase 1 Backend")
+    app = FastAPI(title="BidKnowledge Backend")
     app.include_router(health.router)
     app.include_router(files.router)
+    app.include_router(documents.router)
     return app
 
 

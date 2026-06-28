@@ -1,139 +1,123 @@
-# Spec - Phase 1 Backend Foundation
+# Spec - Phase 2 Document Parsing And Chunking
 
 ## Objective
 
-Implement the smallest runnable FastAPI backend foundation for the 投标智能知识库能力验证版 Demo.
+Implement the smallest backend-only Phase 2 capability for parsing already-uploaded
+documents into normalized sections and chunks.
 
-Phase 1 proves that the service can start, accept an uploaded file, save it under a configurable local upload root, and persist document metadata in SQLite.
-
-Phase 1 is a backend foundation milestone. It is not the customer-facing Demo acceptance milestone.
+Phase 2 proves that the service can trigger parsing for uploaded `.docx` and
+text-based `.pdf` files, persist parser output in SQLite, and expose the parsed
+document/chunk state through minimal APIs.
 
 ## Required Execution Mode
 
-This task must run under Auto_AICoding_Harness `large` mode with the `python-backend-service` profile.
+This task must run under Auto_AICoding_Harness `large` mode with the
+`python-backend-service` profile.
 
-Before implementation:
+Initial evidence:
 
-1. Run `ai-status` or `ai-doctor`.
-2. Confirm `.ai/state.json` reports `"mode": "large"`.
-3. Use large-mode gates according to `AGENTS.md`.
-4. Use subagent orchestration because the user explicitly requested it.
+- `ai-status`: passed, `mode: large`, `status: DONE`.
+- `ai-doctor`: passed, working tree clean before Phase 2 edits.
 
 ## In Scope
 
 Implement only:
 
-1. FastAPI application startup.
-2. `GET /health`.
-3. `POST /api/files/upload`.
-4. Upload success response with HTTP `201 Created`.
-5. Upload success fields:
-   - `document_id`
-   - `original_filename`
-   - `doc_role`
-   - `parse_status`
-   - `file_size`
-   - `created_at`
-6. Structured error response fields:
-   - `error_code`
-   - `message`
-   - `details`
-7. Configurable upload root.
-8. Backend-generated stored filenames that do not use raw user filenames.
-9. SQLite `documents` table matching `docs/ai/12-phase1-api-persistence.md`.
-10. Pytest coverage for all P0 cases in `docs/ai/16-phase1-test-cases.md`.
-11. README local startup and test commands.
-12. Updated `.ai/verification.md`, `.ai/evaluation.md`, and `.ai/handoff.md`.
+1. Docling adapter, imported lazily through a backend adapter boundary.
+2. Parsing for already-uploaded `.docx` and text-based `.pdf` documents.
+3. Normalized section and chunk schemas.
+4. SQLite persistence for sections and chunks.
+5. Minimal deterministic tag rules.
+6. Parse status transitions:
+   - `pending`
+   - `parsing`
+   - `parsed`
+   - `failed`
+7. Minimal APIs:
+   - `POST /api/documents/{document_id}/parse`
+   - `GET /api/documents/{document_id}`
+   - `GET /api/documents/{document_id}/chunks`
+8. Pytest coverage for successful parsing, failed parsing, status transitions,
+   chunk persistence, and no RAG/LLM dependency.
+9. README local startup, parse testing, and Phase 2 command updates.
+10. Updated `.ai/verification.md`, `.ai/evaluation.md`, and `.ai/handoff.md`.
 
 ## Out Of Scope
 
 Do not implement:
 
-1. OCR.
-2. LLM calls.
-3. Embeddings.
-4. Vector store or Qdrant.
-5. Haystack pipeline execution.
-6. Knowledge card generation.
-7. Tender file analysis.
+1. OCR or PaddleOCR.
+2. Embeddings.
+3. Vector store or Qdrant.
+4. Haystack retrieval pipeline.
+5. LLM generation.
+6. Full knowledge-card generation.
+7. Deep tender analysis.
 8. Frontend Demo.
 9. User system.
 10. Word or PDF export.
-11. Production deployment.
+11. Vendoring reference repositories.
 
 ## Expected File Scope
 
-Allowed implementation scope:
+Implementation files:
 
 ```text
-backend/
-├── app/
-│   ├── __init__.py
-│   ├── main.py
-│   ├── config.py
-│   ├── api/
-│   │   ├── __init__.py
-│   │   ├── health.py
-│   │   └── files.py
-│   ├── schemas/
-│   │   ├── __init__.py
-│   │   └── document.py
-│   └── storage/
-│       ├── __init__.py
-│       ├── database.py
-│       └── file_storage.py
-└── tests/
-    ├── test_health.py
-    ├── test_upload_contract.py
-    ├── test_upload_validation.py
-    ├── test_storage.py
-    ├── test_database.py
-    └── test_phase1_boundaries.py
+pyproject.toml
+backend/app/main.py
+backend/app/api/documents.py
+backend/app/adapters/docling_parser.py
+backend/app/schemas/document.py
+backend/app/services/document_parsing.py
+backend/app/services/section_chunker.py
+backend/app/services/tagger.py
+backend/app/storage/database.py
 ```
 
-Repository-level files may be updated only as needed:
+Test files:
 
-- `README.md`
-- `.gitignore`
-- one dependency file, preferably `pyproject.toml`
-- `scripts/ai_check.ps1`
-- `scripts/ai_check.sh`
-- `.ai/implementation-plan.md`
-- `.ai/affected-files.md`
-- `.ai/run-trace.md`
-- `.ai/verification.md`
-- `.ai/evaluation.md`
-- `.ai/handoff.md`
+```text
+backend/tests/conftest.py
+backend/tests/test_document_parse_api.py
+backend/tests/test_document_chunks.py
+backend/tests/test_phase2_boundaries.py
+```
+
+Documentation and evidence files:
+
+```text
+README.md
+docs/ai/03-data-model.md
+docs/ai/04-api-contract.md
+.ai/affected-files.md
+.ai/run-trace.md
+.ai/verification.md
+.ai/evaluation.md
+.ai/handoff.md
+```
 
 ## Reference Repository Rule
 
-Reference repositories must remain outside this repository under:
-
-```text
-F:\BidKonwledge_refs
-```
-
-Use RAGFlow only for product/document ingestion/citation reference and Haystack demos only for later pipeline-shape reference. Do not vendor either repository into `F:\BidKonwledge`.
+Reference repositories under `F:\BidKonwledge_refs` remain reference-only.
+Do not copy or vendor RAGFlow or Haystack demo source into this repository.
 
 ## Acceptance Criteria
 
-Phase 1 is accepted when:
+Phase 2 is accepted when:
 
-1. The FastAPI app is importable.
-2. `GET /health` returns HTTP 200 and exactly `{"status": "ok"}`.
-3. `POST /api/files/upload` accepts valid `historical_bid` and `tender` uploads.
-4. Valid upload returns HTTP `201 Created`.
-5. Success responses contain only the documented Phase 1 fields and do not expose absolute local paths.
-6. Invalid upload requests return the documented structured error shape and error codes.
-7. Uploaded bytes are stored under the configured upload root.
-8. Stored filenames are generated by the backend and are distinct from raw original filenames.
-9. SQLite creates and uses a `documents` table with the required Phase 1 fields.
-10. Validation failures do not leave orphan files or metadata rows.
-11. P0 pytest coverage from `docs/ai/16-phase1-test-cases.md` passes.
-12. `scripts/ai_check.ps1` runs real Phase 1 checks.
-13. `scripts/ai_check.sh` is run when available, or the WSL/bash blocker is recorded.
-14. Local uvicorn and `curl.exe --noproxy "*"` smoke checks are run if the app starts locally.
-15. `.ai/verification.md`, `.ai/evaluation.md`, and `.ai/handoff.md` record the actual command evidence and residual risks.
+1. Uploaded `.docx` and text-based `.pdf` records can be parsed through the
+   parsing service when Docling is available.
+2. Unsupported parse inputs fail with `parse_status = failed` and an
+   `error_message`.
+3. Status transitions are persisted as `pending -> parsing -> parsed` on success
+   and `pending -> parsing -> failed` on failure.
+4. Sections and chunks are persisted in SQLite with deterministic ordering.
+5. Chunks include normalized fields and deterministic tags.
+6. `GET /api/documents/{document_id}` returns document metadata and parse status.
+7. `GET /api/documents/{document_id}/chunks` returns persisted chunks without
+   invoking RAG, LLM, embeddings, vector stores, or external services.
+8. Automated tests use temporary upload roots and SQLite databases.
+9. README and `.ai` files record real command evidence and residual risks.
 
 ## Required Verification Commands
 
@@ -147,10 +131,8 @@ $py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\pyt
 python -m pytest backend/tests
 ```
 
-When shell tooling is available:
+Run local uvicorn plus `curl.exe --noproxy "*"` smoke if the app and parser
+dependencies are available.
 
-```powershell
-bash ./scripts/ai_check.sh
-```
-
-If WSL/bash is unavailable, record the reason in `.ai/verification.md` and do not claim the bash script passed.
+Run `bash ./scripts/ai_check.sh` if shell tooling is available. If WSL/bash is
+unavailable, record the blocker and do not claim it passed.

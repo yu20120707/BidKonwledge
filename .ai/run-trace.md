@@ -2,6 +2,98 @@
 
 Keep a short execution log for large-mode work.
 
+## Phase 2 - Document Parsing And Chunking
+
+- command: initial harness check
+- output: `ai-status` reported initialized yes, `mode: large`, profile
+  `python-backend-service`, status `DONE`; `ai-doctor` passed required checks
+  and working tree was clean before Phase 2 edits.
+- command: context read
+- output: read `AGENTS.md`, `docs/ai/README.md`, `README.md`, `.ai/state.json`,
+  `.ai/handoff.md`, `.ai/verification.md`, Phase 2 roadmap/architecture,
+  Phase 1 persistence/test docs, sample catalog, reference repo rules, workflow,
+  data model, API contract, dev rules, tech selection, local environment, and
+  existing backend/test code.
+- task contract: Level 3 / complex under harness large mode; target is minimal
+  backend-only document parsing and chunking; no OCR/RAG/LLM/frontend/export.
+- subagent plan: no subagent at start because API, DB, parser service, and tests
+  share one coupled write path; main agent owns all writes.
+- command: update Phase 2 runtime artifacts
+- output: rewrote `.ai/spec.md`, `.ai/implementation-plan.md`, and
+  `.ai/affected-files.md` for Phase 2 before implementation.
+- command: Docling dependency probe
+- output: bundled Python did not have `docling`; `pip index versions docling`
+  reported latest `2.107.0`; `pip install 'docling>=2.107,<3.0'` timed out
+  after 304 seconds and left a pip process that was confirmed by command line
+  and stopped.
+- command: Docling dependency retry
+- output: after the first timeout, most large dependencies were already
+  installed. `pip --dry-run` showed only `docling`, `docling-slim`,
+  `docling-ibm-models`, and `docling-parse` remained. Retrying
+  `pip install 'docling>=2.107,<3.0'` completed successfully in about 12
+  seconds.
+- command: Docling validation
+- output: `from docling.document_converter import DocumentConverter` imported
+  successfully, `pip check` reported no broken requirements, direct adapter
+  parsing of a synthetic `.docx` produced one section, and live API smoke parsed
+  the uploaded `.docx` with `parse_status=parsed`, one section, one chunk, and
+  deterministic tags.
+- command: text-based PDF smoke
+- output: first PDF parse attempt failed because Docling's default PDF pipeline
+  initialized OCR and RapidOCR failed with `Unsupported configuration:
+  torch.PP-OCRv6.det.small`. Updated the Docling adapter to set
+  `PdfPipelineOptions(do_ocr=False)` for `.pdf`, matching the Phase 2
+  text-based PDF/no-OCR boundary. Direct adapter smoke then parsed a generated
+  text PDF into one section. Live API smoke parsed the uploaded text PDF with
+  `parse_status=parsed`, one section, one chunk, and deterministic tags.
+- command: implementation
+- output: added lazy Docling adapter, document parse API, parse orchestration,
+  section/chunk persistence, deterministic tagger, and Phase 2 tests.
+- mid-task review: after API/service/tests, target remained Phase 2 backend-only;
+  no OCR/RAG/LLM/frontend/export work was added; newly discovered risk is
+  Docling install timeout; decision was to keep plan and record real Docling
+  parsing as unverified.
+- command: targeted pytest
+- output: `backend/tests/test_document_parse_api.py`,
+  `backend/tests/test_document_chunks.py`, and
+  `backend/tests/test_phase2_boundaries.py` passed: 13 passed, 1 warning.
+- command: full pytest
+- output: `python -m pytest backend/tests` passed: 50 passed, 1 warning.
+- command: required checks
+- output: `ai-status` passed; `ai-doctor` passed with expected active-worktree
+  warning; `.\scripts\ai_check.ps1` passed; explicit `python -m pytest
+  backend/tests` passed: 50 passed, 1 warning.
+- command: post-PDF-smoke regression checks
+- output: after disabling PDF OCR in the adapter, `.\scripts\ai_check.ps1`
+  passed and explicit `python -m pytest backend/tests` passed: 50 passed, 1
+  warning.
+- command: final self-review and CR subagent review
+- output: self-review found parser failure messages could expose local absolute
+  paths. Added `_safe_error_message` coverage for backslash paths, forward-slash
+  Windows paths, `file:///` URIs, configured upload roots, and DB parent paths.
+  CR subagent then found parse success/failure final status and outputs should
+  be committed atomically. Added `complete_document_parse_success` and
+  `complete_document_parse_failure`, and wired all parse success/failure paths
+  through those helpers. Final CR subagent review reported no blocking findings
+  and no remaining findings.
+- command: final CR verification
+- output: `.\scripts\ai_check.ps1` passed; explicit `python -m pytest
+  backend/tests` passed: 51 passed, 1 warning; `git diff --check` passed with
+  line-ending warnings only.
+- command: pip install -e '.[dev]'
+- output: passed after adding the optional `parsing` extra; default dev install
+  does not install Docling.
+- command: bash ./scripts/ai_check.sh
+- output: failed because WSL/Linux distribution is unavailable; recorded as not
+  verified.
+- command: uvicorn + curl smoke
+- output: direct PowerShell background startup was blocked by Windows access
+  denied, so uvicorn was started in-process in a Python thread and `curl.exe
+  --noproxy "*"` was used for HTTP calls. After Docling was installed, health,
+  upload, parse, document, and chunks APIs passed on a synthetic `.docx`.
+- command: git diff --check
+- output: passed; only line-ending warnings were reported.
+
 ## Notes
 
 - command: ai-init medium --profile python-backend-service

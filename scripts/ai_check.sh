@@ -15,4 +15,4 @@ echo "Running compile check..."
 echo "Running backend tests..."
 "$PYTHON_BIN" -m pytest backend/tests
 
-echo "Phase 1 project checks passed."
+echo "Project checks passed."
