@@ -327,7 +327,7 @@ Non-goals:
 
 ## Phase 11 - Sample Outputs And Repeatable Runbook
 
-Status: planned.
+Status: complete.
 
 Goal: make the server demo repeatable by another engineer or agent.
 
@@ -341,6 +341,18 @@ Scope:
    large files.
 4. Keep generated bidding content clearly marked as candidate content requiring
    human review.
+
+Implemented:
+
+1. Added a fixed sample manifest under `docs/ai/sample-outputs/phase11/`.
+2. Added representative JSON outputs for historical parse, knowledge cards,
+   tender analysis, retrieval evidence, candidate generation, no-LLM fallback,
+   OCR smoke status, and expected failures.
+3. Added Phase 11 dev spec, test cases, and repeatable demo runbook.
+4. Added a pytest that validates sample JSON files, manifest completeness, and
+   secret/runtime-path boundaries.
+5. Kept customer source files, runtime uploads, SQLite databases, temporary OCR
+   PDFs, and OCR model caches out of Git.
 
 ## Phase 12 - Semantic Retrieval Adapter Spike
 

@@ -1,9 +1,8 @@
 # Handoff
 
-## Current State - Phase 10 PRD-shaped Demo Page Flow
+## Current State - Phase 11 Sample Outputs And Repeatable Runbook
 
-Phase 10 implementation is complete, verified locally, and ready to be committed
-before Phase 11 starts.
+Phase 11 implementation is complete and verified locally.
 
 Current harness state:
 
@@ -18,44 +17,37 @@ Important harness note:
 - Do not claim a new gate has opened unless the matching harness command
   succeeds.
 
-Implemented in Phase 10:
+Implemented in Phase 11 so far:
 
-1. `/demo` has been rebuilt into a PRD-shaped narrative page.
-2. The page now shows:
-   - historical bid upload/parse
-   - knowledge card build/display
-   - tender upload/parse/analysis
-   - PRD tag selection
+1. Fixed sample manifest:
+   `docs/ai/sample-outputs/phase11/manifest.json`
+2. Representative sample outputs:
+   - historical upload/parse
+   - knowledge cards
+   - tender analysis
    - retrieval evidence
    - candidate generation
-   - citations, risks, human review, raw JSON
+   - no-LLM fallback
    - OCR smoke status
-3. PRD labels are mapped at the page layer to the current deterministic
-   retrieval tags; backend retrieval/generation contracts were not changed.
-4. OCR text is limited to Phase 9 smoke evidence:
-   - `paddleocr 2.10.0`
-   - `paddlepaddle 2.6.2`
-   - `parse_mode=ocr` smoke: `1 section / 1 chunk`
-   - `parse_mode=auto` smoke: OCR fallback passed
-   - `PyMuPDF` remains local-smoke-only
-5. Targeted tests now cover the Phase 10 page structure and API chain.
+   - expected failures
+3. Phase 11 docs:
+   - `docs/ai/36-phase11-sample-outputs-dev-spec.md`
+   - `docs/ai/37-phase11-test-cases.md`
+   - `docs/ai/38-phase11-repeatable-demo-runbook.md`
+4. JSON validation test:
+   - `backend/tests/test_phase11_sample_outputs.py`
 
 Latest verification:
 
 - `ai-status`: passed.
 - `ai-doctor`: passed.
 - targeted pytest:
-  `backend/tests/test_demo_page.py backend/tests/test_phase5_demo_workflow.py`
-  -> `6 passed, 1 warning`
-- targeted regression including boundary check:
-  `backend/tests/test_phase5_boundaries.py backend/tests/test_demo_page.py backend/tests/test_phase5_demo_workflow.py`
-  -> `8 passed, 1 warning`
-- `.\scripts\ai_check.ps1`: passed with `111 passed, 1 warning`
+  `backend/tests/test_phase11_sample_outputs.py`
+  -> `3 passed, 1 warning`
+- `.\scripts\ai_check.ps1`: passed with `114 passed, 1 warning`
 - `git diff --check`: passed with line-ending normalization warnings only
 - `bash ./scripts/ai_check.sh`: failed because no usable WSL/Linux distro is
   available
-- `/demo` HTTP smoke: HTTP `200`, Phase 10 title present, OCR boundary copy
-  present
 
 Outstanding blocker:
 

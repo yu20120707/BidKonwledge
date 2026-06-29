@@ -1,0 +1,23 @@
+{
+  "sample_kind": "expected_failure_output",
+  "stage": "candidate_generation_without_llm",
+  "request": {
+    "target_tag": "应急响应",
+    "query": "根据招标要求生成突发应急方案和措施候选内容。",
+    "top_k": 5
+  },
+  "response_status": 503,
+  "response_body": {
+    "error_code": "LLM_NOT_CONFIGURED",
+    "message": "OpenAI-compatible LLM is not configured",
+    "details": {}
+  },
+  "expected_page_behavior": {
+    "generated_content": "未配置外部 LLM，当前没有候选内容。",
+    "need_human_review": true,
+    "risk": {
+      "severity": "high",
+      "risk_type": "LLM_NOT_CONFIGURED"
+    }
+  }
+}

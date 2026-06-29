@@ -1,0 +1,36 @@
+{
+  "sample_kind": "expected_failure_matrix",
+  "stage": "repeatable_demo_boundaries",
+  "cases": [
+    {
+      "case_id": "no_llm_key",
+      "trigger": "No server LLM environment variable and no request-scoped page key.",
+      "expected_result": "POST /api/generate returns structured 503 LLM_NOT_CONFIGURED; page keeps need_human_review visible."
+    },
+    {
+      "case_id": "ocr_dependency_unavailable",
+      "trigger": "PaddleOCR or PaddlePaddle cannot import in the target runtime.",
+      "expected_result": "OCR parse fails with sanitized OCR error; normal fake-OCR automated tests remain valid."
+    },
+    {
+      "case_id": "text_pdf",
+      "trigger": "A text-layer PDF is parsed in parse_mode=auto.",
+      "expected_result": "Docling text parsing succeeds without OCR; ocr_attempted remains false."
+    },
+    {
+      "case_id": "scanned_pdf_requires_ocr",
+      "trigger": "Text parsing fails or produces no chunks for a scanned PDF.",
+      "expected_result": "parse_mode=auto attempts OCR fallback when optional OCR runtime is available."
+    },
+    {
+      "case_id": "large_files_deferred",
+      "trigger": "18 MB, 37 MB, 194 MB, or 229 MB catalog materials are selected for the demo baseline.",
+      "expected_result": "Do not use as Phase 11 fixed baseline; defer until parser memory and timeout behavior are tested."
+    },
+    {
+      "case_id": "qualification_truth_validation",
+      "trigger": "User asks whether certificates, seals, or qualification evidence are authentic.",
+      "expected_result": "Out of scope; show extracted evidence and require human/legal review."
+    }
+  ]
+}

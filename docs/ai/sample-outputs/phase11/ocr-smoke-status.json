@@ -1,0 +1,29 @@
+{
+  "sample_kind": "phase9_smoke_evidence",
+  "stage": "ocr_status",
+  "runtime": {
+    "paddleocr": "2.10.0",
+    "paddlepaddle": "2.6.2",
+    "pymupdf_policy": "local_smoke_only_not_project_dependency"
+  },
+  "sample": {
+    "catalog_relative_path": "宁波运维项目\\九州拓新\\批量输出为图片\\宁波市社会保障卡管理服务和职业技能鉴定指导中心（16.95）\\宁波市社会保障卡管理服务和职业技能鉴定指导中心（16.95）_08.png",
+    "runtime_conversion": "temporary PDF under local temp directory; not committed"
+  },
+  "forced_ocr": {
+    "parse_mode": "ocr",
+    "parse_status": "parsed",
+    "sections_count": 1,
+    "chunks_count": 1,
+    "ocr_engine": "paddleocr",
+    "ocr_average_confidence": 0.9882
+  },
+  "auto_fallback": {
+    "parse_mode": "auto",
+    "parse_status": "parsed",
+    "ocr_fallback_reason": "text_parse_failed",
+    "sections_count": 1,
+    "chunks_count": 1
+  },
+  "claim_boundary": "OCR is smoke-verified locally, not production-ready."
+}

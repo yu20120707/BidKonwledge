@@ -1,0 +1,26 @@
+{
+  "sample_kind": "representative_api_output",
+  "stage": "candidate_generation",
+  "generation_request": {
+    "target_tag": "应急响应",
+    "query": "根据招标要求生成突发应急方案和措施候选内容。",
+    "top_k": 5,
+    "llm_config": "not_recorded"
+  },
+  "generation_response": {
+    "target_tag": "应急响应",
+    "generated_content": "候选内容：建立7x24应急响应机制，明确故障受理、分级处置、升级汇报和恢复验证流程。该内容需要人工结合招标文件逐条复核。",
+    "citations": [
+      {
+        "source_filename": "省人事工资管理服务系统宁波人社运维投标文件-投标书.docx",
+        "source_section_title": "突发应急方案",
+        "content_snippet": "脱敏片段：故障发生后启动应急响应、升级处置和恢复服务。",
+        "chunk_id": "chunk_phase11_hist_002",
+        "document_id": "doc_phase11_hist_001"
+      }
+    ],
+    "risks": [],
+    "need_human_review": true
+  },
+  "operator_note": "This is representative generated content, not a committed final bidding document."
+}

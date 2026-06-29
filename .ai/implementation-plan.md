@@ -1,40 +1,39 @@
-# Implementation Plan - Phase 10 PRD Demo Flow
+# Implementation Plan - Phase 11 Sample Outputs
 
 ## Execution Classification
 
 - Harness mode: `large`
 - Task level: Level 2 / medium
-- Reason: one bounded demo workflow across static page, targeted tests, and
-  task evidence files
-- Escalation trigger: route/API/schema changes become necessary
+- Reason: bounded docs/sample-output/test work across multiple files
+- Escalation trigger: backend API/schema/dependency changes become necessary
 
 ## Target Outcome
 
-A stakeholder can walk the PRD story on one static page without pretending the
-backend already supports new PRD retrieval contracts or production OCR.
+Another engineer can replay the demo with fixed samples and compare observed
+API shape against committed representative JSON outputs.
 
 ## Plan
 
-1. Confirm current `/demo` baseline and active repo/harness state.
-2. Rebuild `demo.html` into a PRD-shaped narrative page.
-3. Keep PRD labels on the page, but map them to current deterministic retrieval
-   tags at the page layer.
-4. Update targeted demo tests to cover new sections, hooks, OCR boundary copy,
-   and the API chain.
-5. Run a Level 2 mid-task self-review.
-6. Add Phase 10 durable docs and update `.ai` runtime artifacts.
-7. Run required verification and record any blocker honestly.
+1. Confirm clean repo and large-mode harness state.
+2. Read Phase 11 roadmap, Phase 10 runbook, source sample catalog, and current
+   `.ai` handoff.
+3. Add fixed sample manifest and representative JSON files.
+4. Add Phase 11 dev spec, test cases, and repeatable runbook.
+5. Add pytest validation for sample JSON and boundary rules.
+6. Update roadmap, docs index, and `.ai` runtime artifacts.
+7. Run targeted tests, project check, diff hygiene, and bash script attempt.
 
 ## Mid-Task Review
 
 Status versus original plan:
 
-- `demo.html` has been restructured into the intended PRD flow.
-- No route, schema, database, or dependency changes were required.
-- One targeted workflow test failed due to parser dependency override lifetime,
-  not due to business logic; fixed by sharing one fake parser instance.
+- The task stayed inside docs/sample-output/test scope.
+- No backend API, schema, dependency, or demo-page changes were required.
+- The first targeted JSON test failed because `expected-failures.json` included
+  a concrete secret environment-variable name. The sample was changed to use a
+  generic server LLM environment phrase.
 
-Decision: keep plan. The task remains Level 2.
+Decision: keep the Level 2 plan. No escalation is needed.
 
 ## Verification Plan
 
@@ -42,7 +41,7 @@ Required:
 
 ```powershell
 $py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
-& $py -m pytest backend/tests/test_demo_page.py backend/tests/test_phase5_demo_workflow.py
+& $py -m pytest backend/tests/test_phase11_sample_outputs.py
 .\scripts\ai_check.ps1
 git diff --check
 ```

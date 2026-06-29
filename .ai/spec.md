@@ -1,20 +1,16 @@
-# Spec - Phase 10 PRD-shaped Demo Page Flow
+# Spec - Phase 11 Sample Outputs And Repeatable Runbook
 
 ## Objective
 
-Upgrade `/demo` from a raw endpoint-control page into a PRD-shaped narrative
-demo flow.
+Make the PRD-shaped server demo repeatable by another engineer or agent.
 
-The page must show:
+Phase 11 produces a fixed demo replay package:
 
-1. historical bid upload and parse
-2. knowledge card build and display
-3. tender upload, parse, and analysis
-4. PRD tag selection
-5. retrieval evidence display
-6. candidate content generation
-7. citations, risks, human review, and raw JSON
-8. OCR capability status based only on Phase 9 smoke evidence
+1. selected sample files from `docs/source-materials/sample-catalog.md`
+2. selected PRD tags and their deterministic retrieval-tag mappings
+3. representative JSON outputs under `docs/ai/sample-outputs/phase11/`
+4. expected success and failure behavior
+5. a repeatable runbook for `/demo` and direct API comparison
 
 ## Required Execution Mode
 
@@ -32,29 +28,34 @@ succeeds.
 
 ## In Scope
 
-1. Rework `backend/app/static/demo.html`.
-2. Update targeted demo tests.
-3. Add Phase 10 durable docs.
-4. Update `.ai` runtime artifacts for the active task.
+1. Add Phase 11 docs:
+   - `docs/ai/36-phase11-sample-outputs-dev-spec.md`
+   - `docs/ai/37-phase11-test-cases.md`
+   - `docs/ai/38-phase11-repeatable-demo-runbook.md`
+2. Add representative JSON under `docs/ai/sample-outputs/phase11/`.
+3. Add lightweight pytest coverage for sample JSON validity and boundaries.
+4. Update roadmap, docs index, and active `.ai` runtime artifacts.
 
 ## Out Of Scope
 
-1. No Qdrant, Haystack, embeddings, dense retrieval, or semantic retrieval.
-2. No table reconstruction.
-3. No image batch ingestion.
-4. No certificate or qualification-material validation.
-5. No login/user system.
-6. No final Word/PDF export.
-7. No PyMuPDF project dependency addition.
-8. No backend API/schema change unless strictly required to keep the page
-   functional.
+1. No backend API/schema changes.
+2. No customer source files or runtime artifacts committed.
+3. No Qdrant, Haystack, embeddings, dense retrieval, or semantic retrieval.
+4. No table reconstruction.
+5. No image batch ingestion.
+6. No certificate or qualification-material authenticity validation.
+7. No login/user system.
+8. No final Word/PDF export.
+9. No PyMuPDF project dependency addition.
 
 ## Acceptance Criteria
 
-1. `/demo` becomes a PRD-shaped single-page flow.
-2. The page reuses existing upload, parse, knowledge, tender-analysis,
-   retrieval, and generation APIs.
-3. PRD-facing labels are visible without silently changing backend retrieval tag
-   semantics.
-4. OCR text is limited to Phase 9 smoke evidence and does not imply
-   production readiness.
+1. A fixed sample manifest exists and identifies two historical bid files, one
+   tender file, one OCR smoke sample, and selected tags.
+2. Representative sample JSON files exist and parse successfully.
+3. JSON samples avoid secrets, local runtime paths, and committed customer
+   content dumps.
+4. The runbook explains success, no-LLM fallback, OCR dependency failure,
+   text-PDF behavior, scanned-PDF OCR fallback, and large-file deferral.
+5. Project verification passes, except for the known bash/WSL blocker if still
+   unavailable.

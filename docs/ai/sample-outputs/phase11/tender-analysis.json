@@ -1,0 +1,75 @@
+{
+  "sample_kind": "representative_api_output",
+  "stage": "tender_analysis",
+  "document_id": "doc_phase11_tender_001",
+  "project_requirements": [
+    {
+      "item_id": "tai_phase11_req_001",
+      "item_type": "requirement",
+      "title": "项目需求",
+      "description": "脱敏片段：本项目需求包括系统运维服务、现场实施和日常巡检。",
+      "source_filename": "KSDQZFCG（GK）2026-64...项目（二次）.docx",
+      "source_chunk_id": "chunk_phase11_tender_001",
+      "source_section_title": "项目需求",
+      "source_section_path": "项目需求",
+      "page_start": 1,
+      "page_end": 2,
+      "matched_keywords": [
+        "需求",
+        "运维",
+        "实施"
+      ],
+      "severity": null,
+      "score": null
+    }
+  ],
+  "scoring_items": [
+    {
+      "item_id": "tai_phase11_score_001",
+      "item_type": "scoring_item",
+      "title": "评分项",
+      "description": "脱敏片段：技术评分标准满分30分，评审重点包含服务方案和人员配置。",
+      "source_filename": "KSDQZFCG（GK）2026-64...项目（二次）.docx",
+      "source_chunk_id": "chunk_phase11_tender_002",
+      "source_section_title": "评分标准",
+      "source_section_path": "评分标准",
+      "page_start": 3,
+      "page_end": 3,
+      "matched_keywords": [
+        "评分",
+        "评审",
+        "评分标准"
+      ],
+      "severity": null,
+      "score": 30.0
+    }
+  ],
+  "disqualification_risks": [
+    {
+      "item_id": "tai_phase11_risk_001",
+      "item_type": "disqualification_risk",
+      "title": "废标/否决风险",
+      "description": "脱敏片段：投标文件不符合资格审查要求或出现无效投标情形将被否决。",
+      "source_filename": "KSDQZFCG（GK）2026-64...项目（二次）.docx",
+      "source_chunk_id": "chunk_phase11_tender_003",
+      "source_section_title": "资格审查",
+      "source_section_path": "资格审查",
+      "page_start": 4,
+      "page_end": 4,
+      "matched_keywords": [
+        "资格审查",
+        "无效投标",
+        "否决"
+      ],
+      "severity": "high",
+      "score": null
+    }
+  ],
+  "raw_text_summary": "脱敏摘要：项目需求、评分标准和资格审查风险。",
+  "analysis_method": "deterministic_tender_v1",
+  "need_human_review": true,
+  "metadata": {
+    "source_chunks_count": 3,
+    "no_match": false
+  }
+}

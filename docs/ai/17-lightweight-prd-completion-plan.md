@@ -291,6 +291,8 @@ Acceptance:
 
 ### Phase 11 - Sample Outputs And Runbook
 
+Status: complete.
+
 Goal: make the server demo repeatable.
 
 Scope:

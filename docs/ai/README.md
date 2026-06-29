@@ -40,6 +40,13 @@ Read these files before implementation work:
 34. `33-phase10-prd-demo-flow-dev-spec.md` - Phase 10 PRD-shaped demo page flow contract.
 35. `34-phase10-test-cases.md` - Phase 10 demo page test-case specification.
 36. `35-phase10-demo-runbook.md` - Phase 10 PRD-shaped demo runbook.
+37. `36-phase11-sample-outputs-dev-spec.md` - Phase 11 fixed sample outputs contract.
+38. `37-phase11-test-cases.md` - Phase 11 sample-output and runbook test cases.
+39. `38-phase11-repeatable-demo-runbook.md` - Phase 11 repeatable demo runbook.
+
+Sample output artifacts:
+
+- `sample-outputs/phase11/` - Phase 11 representative JSON outputs and manifest.
 
 Python backend profile files from Auto_AICoding_Harness are also present:
 

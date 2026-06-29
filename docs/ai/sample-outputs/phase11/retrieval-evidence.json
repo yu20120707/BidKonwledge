@@ -1,0 +1,39 @@
+{
+  "sample_kind": "representative_api_output",
+  "stage": "retrieval_evidence",
+  "narrative_tag": "突发应急方案和措施",
+  "retrieval_request": {
+    "tag": "应急响应",
+    "query": "应急 响应 措施",
+    "top_k": 5
+  },
+  "retrieval_response": {
+    "query": "应急 响应 措施",
+    "tag": "应急响应",
+    "results": [
+      {
+        "chunk_id": "chunk_phase11_hist_002",
+        "document_id": "doc_phase11_hist_001",
+        "section_id": "section_phase11_hist_002",
+        "section_title": "突发应急方案",
+        "section_path": "突发应急方案",
+        "text": "脱敏片段：故障发生后启动应急响应、升级处置和恢复服务。",
+        "tags": [
+          "应急响应",
+          "运维服务"
+        ],
+        "score": 4.0,
+        "source": {
+          "original_filename": "省人事工资管理服务系统宁波人社运维投标文件-投标书.docx",
+          "doc_role": "historical_bid",
+          "file_ext": ".docx",
+          "page_start": 3,
+          "page_end": 3,
+          "chunk_metadata": {
+            "tagger": "deterministic_v1"
+          }
+        }
+      }
+    ]
+  }
+}

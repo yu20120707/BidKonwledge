@@ -1,0 +1,87 @@
+{
+  "sample_kind": "representative_api_output",
+  "stage": "knowledge_cards",
+  "build_response": {
+    "document_id": "doc_phase11_hist_001",
+    "cards_count": 3,
+    "tags": [
+      "运维服务实施方案",
+      "突发应急方案和措施",
+      "网络和数据安全防护保障措施"
+    ]
+  },
+  "list_response": {
+    "document_id": "doc_phase11_hist_001",
+    "cards": [
+      {
+        "card_id": "kc_phase11_001",
+        "document_id": "doc_phase11_hist_001",
+        "source_chunk_id": "chunk_phase11_hist_001",
+        "title": "运维服务实施方案",
+        "tag": "运维服务实施方案",
+        "content": "脱敏片段：运维服务实施、日常巡检、服务台响应和值守保障。",
+        "source_filename": "省人事工资管理服务系统宁波人社运维投标文件-投标书.docx",
+        "source_section_title": "运维服务实施方案",
+        "source_section_path": "运维服务实施方案",
+        "page_start": 1,
+        "page_end": 2,
+        "confidence": 0.8,
+        "metadata": {
+          "tagger": "prd_deterministic_v1",
+          "matched_keywords": [
+            "运维",
+            "服务",
+            "实施"
+          ]
+        },
+        "created_at": "2026-06-29T00:00:00Z"
+      },
+      {
+        "card_id": "kc_phase11_002",
+        "document_id": "doc_phase11_hist_001",
+        "source_chunk_id": "chunk_phase11_hist_002",
+        "title": "突发应急方案",
+        "tag": "突发应急方案和措施",
+        "content": "脱敏片段：故障发生后启动应急响应、升级处置和恢复服务。",
+        "source_filename": "省人事工资管理服务系统宁波人社运维投标文件-投标书.docx",
+        "source_section_title": "突发应急方案",
+        "source_section_path": "突发应急方案",
+        "page_start": 3,
+        "page_end": 3,
+        "confidence": 0.8,
+        "metadata": {
+          "tagger": "prd_deterministic_v1",
+          "matched_keywords": [
+            "应急",
+            "响应",
+            "故障"
+          ]
+        },
+        "created_at": "2026-06-29T00:00:00Z"
+      },
+      {
+        "card_id": "kc_phase11_003",
+        "document_id": "doc_phase11_hist_001",
+        "source_chunk_id": "chunk_phase11_hist_003",
+        "title": "网络和数据安全防护保障措施",
+        "tag": "网络和数据安全防护保障措施",
+        "content": "脱敏片段：数据安全、访问控制、保密管理和安全防护措施。",
+        "source_filename": "省人事工资管理服务系统宁波人社运维投标文件-投标书.docx",
+        "source_section_title": "安全保障",
+        "source_section_path": "安全保障",
+        "page_start": 4,
+        "page_end": 5,
+        "confidence": 0.8,
+        "metadata": {
+          "tagger": "prd_deterministic_v1",
+          "matched_keywords": [
+            "数据安全",
+            "安全",
+            "防护"
+          ]
+        },
+        "created_at": "2026-06-29T00:00:00Z"
+      }
+    ]
+  }
+}

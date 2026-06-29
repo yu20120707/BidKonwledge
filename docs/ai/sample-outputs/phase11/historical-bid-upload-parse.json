@@ -1,0 +1,27 @@
+{
+  "sample_kind": "representative_api_output",
+  "stage": "historical_bid_upload_parse",
+  "sample_id": "historical_bid_primary",
+  "upload_response": {
+    "document_id": "doc_phase11_hist_001",
+    "original_filename": "省人事工资管理服务系统宁波人社运维投标文件-投标书.docx",
+    "doc_role": "historical_bid",
+    "parse_status": "pending",
+    "file_size": 1153434,
+    "created_at": "2026-06-29T00:00:00Z"
+  },
+  "parse_response": {
+    "document_id": "doc_phase11_hist_001",
+    "sections_count": 12,
+    "chunks_count": 48,
+    "parse_status": "parsed",
+    "error_message": null,
+    "parse_metadata": {
+      "parse_mode": "auto",
+      "detected_format": "docx",
+      "conversion_required": false,
+      "ocr_attempted": false
+    }
+  },
+  "operator_note": "Counts are representative for runbook shape; actual counts may vary with parser/library version and sample revision."
+}

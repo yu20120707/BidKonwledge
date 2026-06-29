@@ -1,0 +1,71 @@
+{
+  "phase": "Phase 11",
+  "title": "Repeatable PRD demo sample set",
+  "sample_kind": "documented_replay_manifest",
+  "updated_on": "2026-06-29",
+  "source_materials_catalog": "docs/source-materials/sample-catalog.md",
+  "source_root_policy": "Use the source root recorded in the catalog; do not copy customer samples into Git.",
+  "fixed_sample_files": [
+    {
+      "sample_id": "historical_bid_primary",
+      "doc_role": "historical_bid",
+      "catalog_relative_path": "宁波运维项目\\牧鸿\\省人事工资管理服务系统宁波人社运维投标文件-投标书.docx",
+      "purpose": "Primary historical bid for parsing, knowledge-card build, retrieval evidence, and citations.",
+      "expected_route": "upload -> parse -> knowledge build -> retrieve -> generate"
+    },
+    {
+      "sample_id": "historical_bid_qualification",
+      "doc_role": "historical_bid",
+      "catalog_relative_path": "宁波运维项目\\牧鸿\\省人事工资管理服务系统-宁波人社运维-资格证明文件.docx",
+      "purpose": "Second small historical bid-side file for qualification-material boundary and card display.",
+      "expected_route": "upload -> parse -> knowledge build"
+    },
+    {
+      "sample_id": "tender_primary",
+      "doc_role": "tender",
+      "catalog_relative_path": "KSDQZFCG（GK）2026-64喀什大学重大设备更新（5.4人工智能数据抓取及衍生智能服务创新平台-多场景应用系统-人力资源管理平台(一期））项目（二次）.docx",
+      "purpose": "Primary tender file for tender analysis and PRD demo flow.",
+      "expected_route": "upload -> parse -> tender analyze"
+    },
+    {
+      "sample_id": "ocr_smoke_image",
+      "doc_role": "historical_bid",
+      "catalog_relative_path": "宁波运维项目\\九州拓新\\批量输出为图片\\宁波市社会保障卡管理服务和职业技能鉴定指导中心（16.95）\\宁波市社会保障卡管理服务和职业技能鉴定指导中心（16.95）_08.png",
+      "purpose": "Phase 9 OCR smoke evidence only; convert to a temporary PDF outside Git for manual OCR replay.",
+      "expected_route": "temporary local PDF -> upload -> parse_mode=ocr or parse_mode=auto"
+    }
+  ],
+  "selected_tags": [
+    {
+      "prd_label": "运维服务实施方案",
+      "retrieval_tag": "运维服务",
+      "query": "运维 服务 方案"
+    },
+    {
+      "prd_label": "突发应急方案和措施",
+      "retrieval_tag": "应急响应",
+      "query": "应急 响应 措施"
+    },
+    {
+      "prd_label": "网络和数据安全防护保障措施",
+      "retrieval_tag": "安全保障",
+      "query": "网络 数据 安全 防护"
+    }
+  ],
+  "sample_outputs": [
+    "historical-bid-upload-parse.json",
+    "knowledge-cards.json",
+    "tender-analysis.json",
+    "retrieval-evidence.json",
+    "generation-candidate.json",
+    "no-llm-error.json",
+    "ocr-smoke-status.json",
+    "expected-failures.json"
+  ],
+  "non_goals": [
+    "No customer sample files are committed.",
+    "No generated runtime artifacts under data/ are committed.",
+    "No PyMuPDF project dependency is added.",
+    "No Qdrant, Haystack, embeddings, export, login, or certificate validation is introduced."
+  ]
+}
