@@ -4,19 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BidKnowledge Demo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23176b5a'/%3E%3Cpath d='M9 8h8.5c3.1 0 5.3 1.8 5.3 4.4 0 1.6-.8 2.9-2.1 3.6 1.6.7 2.6 2.1 2.6 3.9 0 2.7-2.2 4.6-5.5 4.6H9V8zm4.1 3.4v3.2h4c1 0 1.6-.6 1.6-1.6s-.6-1.6-1.7-1.6h-3.9zm0 6.3v3.4h4.3c1.1 0 1.8-.7 1.8-1.7 0-1.1-.7-1.7-1.9-1.7h-4.2z' fill='white'/%3E%3C/svg%3E">
   <style>
     :root {
       color-scheme: light;
-      --paper: #f4efe7;
-      --panel: rgba(255, 252, 247, 0.92);
-      --panel-strong: #fffdf9;
-      --ink: #241b15;
-      --muted: #6a5c50;
-      --line: rgba(113, 92, 73, 0.18);
+      --paper: #f4f7f8;
+      --panel: #fbfcfc;
+      --panel-strong: #ffffff;
+      --ink: #17211d;
+      --muted: #52615d;
+      --line: #d7e0dd;
       --accent: #176b5a;
       --accent-strong: #0d4f43;
+      --accent-soft: #e7f2ef;
       --warning: #a1401f;
-      --shadow: 0 18px 50px rgba(36, 27, 21, 0.08);
+      --shadow: 0 12px 28px rgba(23, 33, 29, 0.08);
+      --radius: 8px;
     }
 
     * {
@@ -29,33 +32,29 @@
       color: var(--ink);
       font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
       line-height: 1.5;
-      background:
-        radial-gradient(circle at top left, rgba(206, 180, 145, 0.28), transparent 24rem),
-        linear-gradient(180deg, #f7f1e8 0%, #f2ebe0 42%, #ece4d7 100%);
+      background: var(--paper);
     }
 
     .shell {
       width: min(1320px, calc(100% - 32px));
       margin: 0 auto;
-      padding: 28px 0 40px;
+      padding: 20px 0 36px;
     }
 
     .hero {
       display: grid;
-      gap: 12px;
-      padding: 28px;
+      gap: 14px;
+      padding: 20px;
       border: 1px solid var(--line);
-      border-radius: 28px;
-      background:
-        linear-gradient(135deg, rgba(23, 107, 90, 0.08), rgba(255, 255, 255, 0.66)),
-        var(--panel);
+      border-radius: var(--radius);
+      background: var(--panel);
       box-shadow: var(--shadow);
     }
 
     .eyebrow {
       margin: 0;
       color: var(--accent);
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       font-size: 12px;
       font-weight: 700;
@@ -65,14 +64,14 @@
     h2,
     h3 {
       margin: 0;
-      font-family: Georgia, "Times New Roman", "Songti SC", serif;
       font-weight: 700;
-      letter-spacing: -0.02em;
+      letter-spacing: 0;
     }
 
     h1 {
-      font-size: clamp(30px, 4vw, 52px);
-      max-width: 12ch;
+      font-size: 32px;
+      max-width: 42rem;
+      line-height: 1.18;
     }
 
     .hero p,
@@ -93,8 +92,8 @@
     .summary-card {
       padding: 14px 16px;
       border: 1px solid var(--line);
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.72);
+      border-radius: var(--radius);
+      background: var(--panel-strong);
     }
 
     .summary-label {
@@ -117,6 +116,30 @@
       font-size: 13px;
     }
 
+    .sample-guide {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 14px 16px;
+      border: 1px solid rgba(23, 107, 90, 0.24);
+      border-radius: var(--radius);
+      background: var(--accent-soft);
+    }
+
+    .sample-guide-title {
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .sample-guide-list {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
     .layout {
       display: grid;
       grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.95fr);
@@ -134,10 +157,9 @@
     .panel {
       padding: 22px;
       border: 1px solid var(--line);
-      border-radius: 24px;
+      border-radius: var(--radius);
       background: var(--panel);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
     }
 
     .panel-header {
@@ -174,9 +196,9 @@
     .status-chip {
       align-self: flex-start;
       padding: 6px 10px;
-      border-radius: 999px;
+      border-radius: var(--radius);
       border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.78);
+      background: var(--panel-strong);
       color: var(--muted);
       font-size: 12px;
       font-weight: 700;
@@ -220,10 +242,10 @@
     textarea {
       min-height: 42px;
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: var(--radius);
       padding: 10px 12px;
       color: var(--ink);
-      background: rgba(255, 255, 255, 0.86);
+      background: var(--panel-strong);
     }
 
     textarea {
@@ -234,21 +256,40 @@
     button {
       min-height: 44px;
       border: 0;
-      border-radius: 999px;
+      border-radius: var(--radius);
       padding: 0 18px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      background: var(--accent);
       color: #fff;
       font-weight: 700;
       cursor: pointer;
+      transition: background-color 160ms ease-out, box-shadow 160ms ease-out, transform 160ms ease-out;
     }
 
     button:hover {
-      filter: brightness(1.03);
+      background: var(--accent-strong);
+    }
+
+    button:active {
+      transform: translateY(1px);
     }
 
     button:disabled {
       opacity: 0.56;
       cursor: not-allowed;
+    }
+
+    button.is-locked {
+      background: #e7ecea;
+      color: var(--muted);
+      filter: none;
+    }
+
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    button:focus-visible {
+      outline: 3px solid rgba(23, 107, 90, 0.28);
+      outline-offset: 2px;
     }
 
     .button-row {
@@ -263,8 +304,12 @@
     }
 
     .button-secondary {
-      background: rgba(36, 27, 21, 0.08);
+      background: #e7ecea;
       color: var(--ink);
+    }
+
+    .button-secondary:hover {
+      background: #dce5e1;
     }
 
     .meta-grid {
@@ -276,8 +321,8 @@
     .meta-card {
       padding: 14px;
       border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.72);
+      border-radius: var(--radius);
+      background: var(--panel-strong);
     }
 
     .meta-label {
@@ -317,8 +362,8 @@
     .timeline li {
       padding: 12px 14px;
       border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius);
+      background: var(--panel-strong);
     }
 
     .timeline li {
@@ -354,7 +399,7 @@
     pre {
       margin: 0;
       padding: 16px;
-      border-radius: 18px;
+      border-radius: var(--radius);
       border: 1px solid var(--line);
       background: var(--panel-strong);
     }
@@ -383,8 +428,17 @@
       font-family: Consolas, "Courier New", monospace;
       font-size: 12px;
       padding: 2px 6px;
-      border-radius: 999px;
-      background: rgba(36, 27, 21, 0.08);
+      border-radius: 6px;
+      background: #e7ecea;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition-duration: 1ms !important;
+        scroll-behavior: auto !important;
+      }
     }
 
     @media (max-width: 1120px) {
@@ -408,7 +462,7 @@
       .hero,
       .panel {
         padding: 18px;
-        border-radius: 20px;
+        border-radius: var(--radius);
       }
 
       .summary-grid,
@@ -481,6 +535,14 @@
                 <button id="historical-upload-button" type="button">Upload Historical Bid</button>
                 <button id="historical-parse-button" class="button-secondary" type="button">Parse Historical Bid</button>
               </div>
+              <div id="historical-sample-guide" class="sample-guide">
+                <p class="sample-guide-title">Phase 11 fixed historical samples</p>
+                <ol class="sample-guide-list">
+                  <li>Primary: 宁波运维项目\牧鸿\省人事工资管理服务系统宁波人社运维投标文件-投标书.docx</li>
+                  <li>Qualification side: 宁波运维项目\牧鸿\省人事工资管理服务系统-宁波人社运维-资格证明文件.docx</li>
+                </ol>
+                <p class="status-note">按 manifest 选择本机样本文件；客户源文件不进入 Git。</p>
+              </div>
               <p class="status-note">
                 演示默认调用 <strong>现有 parse API</strong>，页面只重组流程，不新增 parser 契约。
               </p>
@@ -504,6 +566,10 @@
               <p id="historical-status-note" class="status-note">
                 等待上传历史投标文件。
               </p>
+              <div class="stack">
+                <span class="card-title">历史证据池</span>
+                <ul id="historical-evidence-pool-list" class="list"></ul>
+              </div>
             </div>
           </div>
         </section>
@@ -548,6 +614,13 @@
                 <button id="tender-upload-button" type="button">Upload Tender File</button>
                 <button id="tender-parse-button" class="button-secondary" type="button">Parse Tender File</button>
                 <button id="tender-analyze-button" class="button-secondary" type="button">Analyze Tender</button>
+              </div>
+              <div id="tender-sample-guide" class="sample-guide">
+                <p class="sample-guide-title">Phase 11 fixed tender sample</p>
+                <ol class="sample-guide-list">
+                  <li>KSDQZFCG（GK）2026-64喀什大学重大设备更新（5.4人工智能数据抓取及衍生智能服务创新平台-多场景应用系统-人力资源管理平台(一期））项目（二次）.docx</li>
+                </ol>
+                <p class="status-note">先用固定样本完成演示，再换其他 tender 文件。</p>
               </div>
               <p class="status-note">
                 输出包括项目需求、评分项、废标/否决风险，并保持 <strong>human review</strong> 标记。
@@ -620,7 +693,7 @@
                   <span id="selected-prd-tag" class="meta-value">运维服务实施方案</span>
                 </div>
                 <div class="meta-card">
-                  <span class="meta-label">Mapped Retrieval Tag</span>
+                  <span class="meta-label">Fallback Chunk Tag</span>
                   <span id="selected-retrieval-tag" class="meta-value">运维服务</span>
                 </div>
                 <div class="meta-card">
@@ -630,7 +703,7 @@
               </div>
               <p class="status-note">
                 重要决定：<strong>不改 `/api/retrieve` 与 `/api/generate` 契约</strong>，
-                由页面把 PRD 标签映射到当前后端可验证的检索 tag。
+                现在优先使用 PRD 知识卡片标签；底层 chunk tag 只作为兼容 fallback。
               </p>
             </div>
           </div>
@@ -729,13 +802,13 @@
 
   <script>
     const PRD_TAG_OPTIONS = [
-      {label: "运维服务实施方案", retrievalTag: "运维服务", defaultQuery: "运维 服务 方案"},
-      {label: "突发应急方案和措施", retrievalTag: "应急响应", defaultQuery: "应急 响应 措施"},
-      {label: "网络和数据安全防护保障措施", retrievalTag: "安全保障", defaultQuery: "网络 数据 安全 防护"},
-      {label: "服务质量保障和考核评估方案", retrievalTag: "项目管理", defaultQuery: "质量 考核 评估"},
-      {label: "团队人员", retrievalTag: "人员资质", defaultQuery: "团队 人员 资质"},
-      {label: "资格材料", retrievalTag: "人员资质", defaultQuery: "资格 材料 资质"},
-      {label: "商务报价", retrievalTag: "商务报价", defaultQuery: "报价 价格 费用"}
+      {label: "运维服务实施方案", fallbackTag: "运维服务", defaultQuery: "运维 服务 方案"},
+      {label: "突发应急方案和措施", fallbackTag: "应急响应", defaultQuery: "应急 响应 措施"},
+      {label: "网络和数据安全防护保障措施", fallbackTag: "安全保障", defaultQuery: "网络 数据 安全 防护"},
+      {label: "服务质量保障和考核评估方案", fallbackTag: "项目管理", defaultQuery: "质量 考核 评估"},
+      {label: "团队人员", fallbackTag: "人员资质", defaultQuery: "团队 人员 资质"},
+      {label: "资格材料", fallbackTag: "人员资质", defaultQuery: "资格 材料 资质"},
+      {label: "商务报价", fallbackTag: "商务报价", defaultQuery: "报价 价格 费用"}
     ];
 
     const rawJson = document.getElementById("raw-json");
@@ -746,16 +819,23 @@
     const generatedContent = document.getElementById("generated-content");
     const retrievalResultsList = document.getElementById("retrieval-results-list");
     const knowledgeCardsList = document.getElementById("knowledge-cards-list");
+    const historicalEvidencePoolList = document.getElementById("historical-evidence-pool-list");
     const tenderRequirementsList = document.getElementById("tender-requirements-list");
     const tenderRisksList = document.getElementById("tender-risks-list");
 
     const state = {
       historicalDocumentId: null,
+      historicalOriginalFilename: null,
       tenderDocumentId: null,
+      tenderOriginalFilename: null,
       historicalParse: null,
+      tenderParse: null,
+      historicalEvidencePool: [],
       knowledgeCards: [],
       tenderAnalysis: null,
       retrievalResults: [],
+      retrievalEffectiveTag: null,
+      retrievalUsedFallback: false,
       generation: null
     };
 
@@ -797,6 +877,22 @@
       return payload;
     }
 
+    async function runButtonAction(buttonId, busyText, action) {
+      const button = document.getElementById(buttonId);
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = busyText;
+      try {
+        await action();
+      } catch (error) {
+        const message = error?.payload?.message || error?.message || "操作失败，请检查输入后重试。";
+        setStatus(message);
+      } finally {
+        button.textContent = originalText;
+        updateButtonStates();
+      }
+    }
+
     function renderList(target, items, emptyText) {
       if (!items.length) {
         const item = document.createElement("li");
@@ -819,17 +915,42 @@
       return item;
     }
 
+    function setButtonReadiness(id, isReady) {
+      const button = document.getElementById(id);
+      button.disabled = !isReady;
+      button.classList.toggle("is-locked", !isReady);
+    }
+
+    function updateButtonStates() {
+      setButtonReadiness("historical-upload-button", true);
+      setButtonReadiness("historical-parse-button", Boolean(state.historicalDocumentId));
+      setButtonReadiness("knowledge-build-button", state.historicalParse?.parse_status === "parsed");
+      setButtonReadiness("knowledge-refresh-button", state.historicalParse?.parse_status === "parsed");
+      setButtonReadiness("tender-upload-button", true);
+      setButtonReadiness("tender-parse-button", Boolean(state.tenderDocumentId));
+      setButtonReadiness("tender-analyze-button", state.tenderParse?.parse_status === "parsed");
+      setButtonReadiness("retrieve-button", state.knowledgeCards.length > 0);
+      setButtonReadiness("generate-button", state.retrievalResults.length > 0);
+    }
+
     function updateSummary() {
-      document.getElementById("summary-historical").textContent = state.historicalDocumentId ? "Ready" : "Pending";
+      document.getElementById("summary-historical").textContent = state.historicalEvidencePool.length
+        ? `${state.historicalEvidencePool.length} file${state.historicalEvidencePool.length > 1 ? "s" : ""}`
+        : state.historicalParse
+          ? "Parsed"
+          : state.historicalDocumentId
+            ? "Uploaded"
+            : "Pending";
       document.getElementById("summary-knowledge").textContent = String(state.knowledgeCards.length);
-      document.getElementById("summary-tender").textContent = state.tenderAnalysis ? "Ready" : "Pending";
+      document.getElementById("summary-tender").textContent = state.tenderAnalysis ? "Ready" : state.tenderParse ? "Parsed" : state.tenderDocumentId ? "Uploaded" : "Pending";
       document.getElementById("summary-retrieval").textContent = String(state.retrievalResults.length);
+      updateButtonStates();
     }
 
     function updateTagNarrative() {
       const option = selectedTagOption();
       document.getElementById("selected-prd-tag").textContent = option.label;
-      document.getElementById("selected-retrieval-tag").textContent = option.retrievalTag;
+      document.getElementById("selected-retrieval-tag").textContent = option.fallbackTag;
       document.getElementById("selected-top-k").textContent = "5";
     }
 
@@ -843,6 +964,32 @@
         : state.historicalDocumentId
           ? `已上传 ${uploadPayload?.original_filename || "historical bid"}，等待 parse。`
           : "等待上传历史投标文件。";
+    }
+
+    function upsertHistoricalEvidencePool(update) {
+      const existingIndex = state.historicalEvidencePool.findIndex((item) => item.document_id === update.document_id);
+      if (existingIndex >= 0) {
+        state.historicalEvidencePool[existingIndex] = {
+          ...state.historicalEvidencePool[existingIndex],
+          ...update
+        };
+      } else {
+        state.historicalEvidencePool.push(update);
+      }
+      renderHistoricalEvidencePool();
+    }
+
+    function renderHistoricalEvidencePool() {
+      renderList(
+        historicalEvidencePoolList,
+        state.historicalEvidencePool.map((item) =>
+          makeListItem(
+            item.original_filename || item.document_id,
+            `${item.status || "uploaded"} / sections ${item.sections_count || 0} / chunks ${item.chunks_count || 0} / cards ${item.cards_count || 0}`
+          )
+        ),
+        "暂无历史证据文件。"
+      );
     }
 
     function renderKnowledgeCards(cards, buildPayload) {
@@ -867,13 +1014,15 @@
       const requirements = payload?.project_requirements || [];
       const risks = payload?.disqualification_risks || [];
       const scoringItems = payload?.scoring_items || [];
-      document.getElementById("tender-status-chip").textContent = payload ? "Tender Analyzed" : state.tenderDocumentId ? "Parsed" : "Waiting Upload";
+      document.getElementById("tender-status-chip").textContent = payload ? "Tender Analyzed" : state.tenderParse ? "Tender Parsed" : state.tenderDocumentId ? "Uploaded" : "Waiting Upload";
       document.getElementById("tender-counts").textContent = `${requirements.length + scoringItems.length} / ${risks.length}`;
       document.getElementById("tender-status-note").textContent = payload
         ? `分析方法 ${payload.analysis_method}，项目需求 ${requirements.length} 条，评分项 ${scoringItems.length} 条，风险 ${risks.length} 条。`
-        : state.tenderDocumentId
-          ? "招标文件已上传或已解析，等待分析。"
-          : "等待上传招标文件。";
+        : state.tenderParse
+          ? "招标文件解析完成，等待分析。"
+          : state.tenderDocumentId
+            ? "招标文件已上传，等待 parse。"
+            : "等待上传招标文件。";
 
       renderList(
         tenderRequirementsList,
@@ -917,6 +1066,34 @@
         "暂无检索证据。"
       );
       updateSummary();
+    }
+
+    async function fetchRetrievalForTag(tag, query) {
+      return parseJsonResponse(await fetch("/api/retrieve", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          tag,
+          query,
+          top_k: 5
+        })
+      }));
+    }
+
+    function selectedTenderRequirement() {
+      return state.tenderAnalysis?.project_requirements?.[0] || null;
+    }
+
+    function generationQueryWithTenderContext(baseQuery, requirement) {
+      if (!requirement) {
+        return baseQuery;
+      }
+      const requirementText = [
+        `招标需求: ${requirement.title}`,
+        requirement.description,
+        requirement.source_section_title ? `来源章节: ${requirement.source_section_title}` : null
+      ].filter(Boolean).join(" / ");
+      return [baseQuery, requirementText].filter(Boolean).join("\n");
     }
 
     function renderGeneration(payload) {
@@ -1002,13 +1179,33 @@
       }));
       if (isHistorical) {
         state.historicalDocumentId = payload.document_id;
+        state.historicalOriginalFilename = payload.original_filename || null;
+        state.historicalParse = null;
+        state.knowledgeCards = [];
+        state.retrievalResults = [];
+        state.retrievalEffectiveTag = null;
+        state.retrievalUsedFallback = false;
+        upsertHistoricalEvidencePool({
+          document_id: payload.document_id,
+          original_filename: payload.original_filename || null,
+          status: "uploaded",
+          sections_count: 0,
+          chunks_count: 0,
+          cards_count: 0
+        });
         renderHistoricalPanel(payload, null);
+        renderKnowledgeCards([], null);
+        renderRetrieval({results: []});
       } else {
         state.tenderDocumentId = payload.document_id;
+        state.tenderOriginalFilename = payload.original_filename || null;
+        state.tenderParse = null;
+        state.tenderAnalysis = null;
         document.getElementById("tender-document-id").textContent = payload.document_id || "-";
         document.getElementById("tender-parse-status").textContent = payload.parse_status || "pending";
         document.getElementById("tender-status-chip").textContent = "Uploaded";
         document.getElementById("tender-status-note").textContent = `已上传 ${payload.original_filename || "tender file"}，等待 parse。`;
+        renderTenderAnalysis(null);
       }
       updateSummary();
       showJson(`${isHistorical ? "Historical upload" : "Tender upload"} response`, payload);
@@ -1028,19 +1225,28 @@
       }));
       if (isHistorical) {
         state.historicalParse = payload;
-        renderHistoricalPanel({document_id: documentId}, payload);
+        upsertHistoricalEvidencePool({
+          document_id: documentId,
+          original_filename: state.historicalOriginalFilename,
+          status: payload.parse_status || "parsed",
+          sections_count: payload.sections_count || 0,
+          chunks_count: payload.chunks_count || 0
+        });
+        renderHistoricalPanel({document_id: documentId, original_filename: state.historicalOriginalFilename}, payload);
       } else {
+        state.tenderParse = payload;
         document.getElementById("tender-parse-status").textContent = payload.parse_status || "pending";
         document.getElementById("tender-document-id").textContent = documentId;
         document.getElementById("tender-counts").textContent = `${payload.sections_count || 0} / ${payload.chunks_count || 0}`;
         document.getElementById("tender-status-chip").textContent = "Tender Parsed";
         document.getElementById("tender-status-note").textContent = "招标文件解析完成，可继续执行 tender analysis。";
       }
+      updateSummary();
       showJson(`${isHistorical ? "Historical parse" : "Tender parse"} response`, payload);
     }
 
     async function buildKnowledgeCards() {
-      if (!state.historicalDocumentId) {
+      if (state.historicalParse?.parse_status !== "parsed") {
         setStatus("Upload and parse a historical file first.");
         return;
       }
@@ -1051,6 +1257,12 @@
       }));
       const listPayload = await parseJsonResponse(await fetch(`/api/documents/${state.historicalDocumentId}/knowledge-cards`));
       state.knowledgeCards = listPayload.cards || [];
+      upsertHistoricalEvidencePool({
+        document_id: state.historicalDocumentId,
+        original_filename: state.historicalOriginalFilename,
+        status: "knowledge ready",
+        cards_count: buildPayload.cards_count || state.knowledgeCards.length
+      });
       renderKnowledgeCards(state.knowledgeCards, buildPayload);
       updateSummary();
       showJson("Knowledge cards response", {
@@ -1060,19 +1272,25 @@
     }
 
     async function refreshKnowledgeCards() {
-      if (!state.historicalDocumentId) {
+      if (state.historicalParse?.parse_status !== "parsed") {
         setStatus("Upload and parse a historical file first.");
         return;
       }
       const listPayload = await parseJsonResponse(await fetch(`/api/documents/${state.historicalDocumentId}/knowledge-cards`));
       state.knowledgeCards = listPayload.cards || [];
+      upsertHistoricalEvidencePool({
+        document_id: state.historicalDocumentId,
+        original_filename: state.historicalOriginalFilename,
+        status: state.knowledgeCards.length ? "knowledge ready" : "parsed",
+        cards_count: state.knowledgeCards.length
+      });
       renderKnowledgeCards(state.knowledgeCards, null);
       updateSummary();
       showJson("Knowledge cards list response", listPayload);
     }
 
     async function analyzeTender() {
-      if (!state.tenderDocumentId) {
+      if (state.tenderParse?.parse_status !== "parsed") {
         setStatus("Upload and parse a tender file first.");
         return;
       }
@@ -1089,19 +1307,24 @@
 
     async function retrieveEvidence() {
       const option = selectedTagOption();
-      const payload = await parseJsonResponse(await fetch("/api/retrieve", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          tag: option.retrievalTag,
-          query: document.getElementById("retrieval-query").value.trim() || null,
-          top_k: 5
-        })
-      }));
+      const query = document.getElementById("retrieval-query").value.trim() || null;
+      let payload = await fetchRetrievalForTag(option.label, query);
+      let effectiveTag = option.label;
+      let usedFallback = false;
+      if (!payload.results?.length && option.fallbackTag !== option.label) {
+        payload = await fetchRetrievalForTag(option.fallbackTag, query);
+        effectiveTag = option.fallbackTag;
+        usedFallback = true;
+      }
+      state.retrievalEffectiveTag = effectiveTag;
+      state.retrievalUsedFallback = usedFallback;
       renderRetrieval(payload);
       showJson("Retrieve evidence response", {
         narrative_tag: option.label,
-        retrieval_tag: option.retrievalTag,
+        requested_tag: option.label,
+        effective_tag: effectiveTag,
+        fallback_chunk_tag: option.fallbackTag,
+        used_fallback: usedFallback,
         retrieval: payload
       });
     }
@@ -1109,9 +1332,15 @@
     async function generateCandidate() {
       const option = selectedTagOption();
       try {
+        const effectiveTag = state.retrievalEffectiveTag || option.label;
+        const tenderRequirement = selectedTenderRequirement();
+        const generationQuery = generationQueryWithTenderContext(
+          document.getElementById("generation-query").value.trim(),
+          tenderRequirement
+        );
         const requestBody = {
-          target_tag: option.retrievalTag,
-          query: document.getElementById("generation-query").value.trim(),
+          target_tag: effectiveTag,
+          query: generationQuery,
           top_k: 5
         };
         const llmConfig = currentLlmConfig();
@@ -1126,7 +1355,12 @@
         renderGeneration(payload);
         showJson("Generate candidate response", {
           narrative_tag: option.label,
-          retrieval_tag: option.retrievalTag,
+          requested_tag: option.label,
+          effective_tag: effectiveTag,
+          fallback_chunk_tag: option.fallbackTag,
+          used_fallback: state.retrievalUsedFallback,
+          tender_requirement_used: tenderRequirement,
+          generation_query: generationQuery,
           generation: payload
         });
       } catch (error) {
@@ -1147,6 +1381,9 @@
       select.addEventListener("change", () => {
         const option = selectedTagOption();
         document.getElementById("retrieval-query").value = option.defaultQuery;
+        state.retrievalEffectiveTag = null;
+        state.retrievalUsedFallback = false;
+        renderRetrieval({results: []});
         updateTagNarrative();
       });
       document.getElementById("retrieval-query").value = PRD_TAG_OPTIONS[0].defaultQuery;
@@ -1154,35 +1391,36 @@
     }
 
     document.getElementById("historical-upload-button").addEventListener("click", async () => {
-      await uploadDocument("historical");
+      await runButtonAction("historical-upload-button", "Uploading...", () => uploadDocument("historical"));
     });
     document.getElementById("historical-parse-button").addEventListener("click", async () => {
-      await parseDocument("historical");
+      await runButtonAction("historical-parse-button", "Parsing...", () => parseDocument("historical"));
     });
     document.getElementById("knowledge-build-button").addEventListener("click", async () => {
-      await buildKnowledgeCards();
+      await runButtonAction("knowledge-build-button", "Building...", buildKnowledgeCards);
     });
     document.getElementById("knowledge-refresh-button").addEventListener("click", async () => {
-      await refreshKnowledgeCards();
+      await runButtonAction("knowledge-refresh-button", "Refreshing...", refreshKnowledgeCards);
     });
     document.getElementById("tender-upload-button").addEventListener("click", async () => {
-      await uploadDocument("tender");
+      await runButtonAction("tender-upload-button", "Uploading...", () => uploadDocument("tender"));
     });
     document.getElementById("tender-parse-button").addEventListener("click", async () => {
-      await parseDocument("tender");
+      await runButtonAction("tender-parse-button", "Parsing...", () => parseDocument("tender"));
     });
     document.getElementById("tender-analyze-button").addEventListener("click", async () => {
-      await analyzeTender();
+      await runButtonAction("tender-analyze-button", "Analyzing...", analyzeTender);
     });
     document.getElementById("retrieve-button").addEventListener("click", async () => {
-      await retrieveEvidence();
+      await runButtonAction("retrieve-button", "Retrieving...", retrieveEvidence);
     });
     document.getElementById("generate-button").addEventListener("click", async () => {
-      await generateCandidate();
+      await runButtonAction("generate-button", "Generating...", generateCandidate);
     });
 
     initializeTagOptions();
     renderKnowledgeCards([], null);
+    renderHistoricalEvidencePool();
     renderTenderAnalysis(null);
     renderRetrieval({results: []});
     renderOcrStatus();

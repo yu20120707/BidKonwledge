@@ -1,8 +1,9 @@
 # Handoff
 
-## Current State - Phase 11 Sample Outputs And Repeatable Runbook
+## Current State - Phase 12 Semantic Retrieval Adapter Spike
 
-Phase 11 implementation is complete and verified locally.
+Phase 12 planning/evaluation slice is complete. A resumed deterministic
+demo-flow closeout has also been applied.
 
 Current harness state:
 
@@ -17,150 +18,106 @@ Important harness note:
 - Do not claim a new gate has opened unless the matching harness command
   succeeds.
 
-Implemented in Phase 11:
+Current Phase 12 artifacts:
 
-1. Fixed sample manifest:
-   `docs/ai/sample-outputs/phase11/manifest.json`
-2. Representative sample outputs:
-   - historical upload/parse
-   - knowledge cards
-   - tender analysis
-   - retrieval evidence
-   - candidate generation
-   - no-LLM fallback
-   - OCR smoke status
-   - expected failures
-3. Phase 11 docs:
-   - `docs/ai/36-phase11-sample-outputs-dev-spec.md`
-   - `docs/ai/37-phase11-test-cases.md`
-   - `docs/ai/38-phase11-repeatable-demo-runbook.md`
-4. JSON validation test:
-   - `backend/tests/test_phase11_sample_outputs.py`
+1. `docs/ai/39-phase12-semantic-retrieval-spike-dev-spec.md`
+2. `docs/ai/40-phase12-test-cases.md`
+3. `docs/ai/41-phase12-evaluation-report.md`
 
-Latest verification:
+Resumed closeout implementation:
 
-- `ai-status`: passed.
-- `ai-doctor`: passed.
-- targeted pytest:
-  `backend/tests/test_phase11_sample_outputs.py`
-  -> `3 passed, 1 warning`
-- `.\scripts\ai_check.ps1`: passed with `114 passed, 1 warning`
-- `git diff --check`: passed with line-ending normalization warnings only
-- `bash ./scripts/ai_check.sh`: failed because no usable WSL/Linux distro is
-  available
+1. Deterministic retrieval now limits evidence candidates to parsed
+   `historical_bid` documents.
+2. PRD knowledge-card tags can retrieve their historical source chunks without
+   changing the public `/api/retrieve` contract.
+3. Knowledge-card-backed rows are preferred on equal-score ties so evidence
+   metadata remains visible.
+4. The demo page now performs a real PRD-tag-first, chunk-tag-fallback retrieve
+   and records `requested_tag`, `effective_tag`, `fallback_chunk_tag`, and
+   `used_fallback` in raw JSON.
+5. The loop-engineering polish pass prevents query-only retrieval drift after
+   knowledge-card build, adds PRD knowledge-card bridge metadata to generation
+   prompts, folds the first tender requirement into the demo generation query,
+   and tightens `/demo` visual/interaction details.
+6. `/demo` now includes a historical evidence pool so multiple Phase 11
+   historical files can be shown as evidence sources instead of disappearing
+   behind a single active document slot.
 
-Outstanding blocker:
+Updated context:
 
-1. Bash verification is still unavailable on this Windows machine because WSL
-   / Linux distro is not installed.
+1. `docs/ai/README.md`
+2. `docs/ai/09-phase-roadmap.md`
+3. `docs/ai/17-lightweight-prd-completion-plan.md`
+4. `.ai/spec.md`
+5. `.ai/implementation-plan.md`
+6. `.ai/affected-files.md`
+7. `.ai/run-trace.md`
+8. `.ai/verification.md`
+9. `.ai/evaluation.md`
+10. `.ai/handoff.md`
+11. `backend/app/storage/database.py`
+12. `backend/app/services/retrieval.py`
+13. `backend/app/services/prompt_builder.py`
+14. `backend/app/static/demo.html`
+15. `backend/tests/test_retrieval_api.py`
+16. `backend/tests/test_generation_api.py`
+17. `backend/tests/test_demo_page.py`
+18. `backend/tests/test_phase5_demo_workflow.py`
 
-## Ready For Phase 12
+Key decision:
 
-Recommended next phase:
+- Keep deterministic `/api/retrieve` as the default.
+- Do not add Qdrant, Haystack, embeddings, model downloads, API keys, network
+  access, or vector services to normal tests.
+- If implementation proceeds, start with a fake-testable semantic adapter
+  boundary and metadata-preservation tests before any real Qdrant/Haystack
+  integration.
 
-- Phase 12 - Semantic Retrieval Adapter Spike
+Phase 13 check:
 
-Phase 12 should start as an evaluation/spike, not as a replacement of the
-current deterministic retrieval path. The Phase 11 sample set is now the fixed
-comparison baseline.
+- No `Phase 13` / `phase13` definition exists in the repository at this handoff.
+- Do not start Phase 13 without an explicit roadmap entry, scope, non-goals,
+  and verification plan.
 
-Use these Phase 11 artifacts as inputs:
+Phase 11 baseline inputs:
 
 1. `docs/ai/sample-outputs/phase11/manifest.json`
 2. `docs/ai/sample-outputs/phase11/retrieval-evidence.json`
 3. `docs/ai/38-phase11-repeatable-demo-runbook.md`
 4. `backend/tests/test_phase11_sample_outputs.py`
 
-Do not add mandatory Qdrant, Haystack, or embedding dependencies to normal
-tests unless Phase 12 explicitly proves and documents that promotion decision.
+Known blocker:
 
-## Next Session Prompt
+1. Bash verification may remain unavailable on this Windows machine because
+   WSL / Linux distro is not installed.
 
-````md
-当前仓库：`F:\BidKonwledge`
+Latest verification:
 
-请继续按 `Auto_AICoding_Harness large mode` 执行。先做环境和上下文确认，不要直接写代码。
+- `ai-status`: passed.
+- `ai-doctor`: passed.
+- targeted pytest after resumed closeout:
+  `backend/tests/test_retrieval_api.py`
+  `backend/tests/test_generation_api.py`
+  `backend/tests/test_demo_page.py`
+  `backend/tests/test_phase5_demo_workflow.py`
+  -> `26 passed, 1 warning`
+- `.\scripts\ai_check.ps1`: passed after resumed closeout with
+  `121 passed, 1 warning`
+- `git diff --check`: passed with line-ending normalization warnings only
+- `bash ./scripts/ai_check.sh`: attempted and failed because no usable
+  WSL/Linux distro is available; not passed
+- browser smoke: local Chrome via Playwright loaded `/demo` at 1440x1000 and
+  390x844 with no console errors, no horizontal overflow, favicon present, and
+  correct initial button gating
+- real Phase 11 fixed-sample API replay: passed with temporary runtime storage;
+  historical samples parsed to `43/88` and `8/15` section/chunk counts, built
+  `88 + 15` knowledge cards, tender analysis produced `26/34/52`
+  requirement/scoring/risk counts, and PRD tag retrieval returned `5`
+  card-backed evidence results
 
-当前已完成并 push：
-- `61d10ba Complete phase 10 PRD demo flow`
-- `7cf8d24 Complete phase 11 repeatable sample outputs`
+Next safe step:
 
-当前状态：
-- `Phase 0-11` 已完成。
-- `Phase 11` 已完成固定样本集、代表性 JSON 输出、repeatable runbook 和 JSON 边界测试。
-- `.ai/state.json` 仍是 `DONE/current_gate: none`，不要声称新 gate 已打开。
-- `bash ./scripts/ai_check.sh` 在本机仍因无 WSL/Linux distro 阻塞，记录 blocker，不要声称通过。
-
-请先运行：
-```powershell
-git status --short --branch
-$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
-& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-status'
-& $py 'C:\Users\26561\Documents\Auto_AICoding_Harness\bin\ai-doctor'
-```
-
-请先阅读：
-- `AGENTS.md`
-- `docs/ai/README.md`
-- `docs/ai/09-phase-roadmap.md`
-- `docs/ai/17-lightweight-prd-completion-plan.md`
-- `docs/ai/36-phase11-sample-outputs-dev-spec.md`
-- `docs/ai/37-phase11-test-cases.md`
-- `docs/ai/38-phase11-repeatable-demo-runbook.md`
-- `docs/ai/sample-outputs/phase11/manifest.json`
-- `docs/ai/sample-outputs/phase11/retrieval-evidence.json`
-- `.ai/handoff.md`
-- `.ai/verification.md`
-- `.ai/evaluation.md`
-
-现在开始 `Phase 12: Semantic Retrieval Adapter Spike`。
-
-目标：
-评估 Qdrant、Haystack、embedding 作为可选语义检索路径的价值和集成边界。Phase 12 是 spike / evaluation，不是替换当前 deterministic retrieval 默认路径。
-
-范围：
-- 以 Phase 11 固定样本集作为对比基线。
-- 先做技术方案和最小 spike 计划，再决定是否写代码。
-- 如写代码，优先加可替换 adapter boundary，保持 deterministic retrieval 为默认。
-- 可新增 docs：
-  - `docs/ai/39-phase12-semantic-retrieval-spike-dev-spec.md`
-  - `docs/ai/40-phase12-test-cases.md`
-  - `docs/ai/41-phase12-evaluation-report.md`
-- 更新 `.ai/spec.md`、`.ai/implementation-plan.md`、`.ai/affected-files.md`、`.ai/run-trace.md`、`.ai/verification.md`、`.ai/evaluation.md`、`.ai/handoff.md`
-
-非目标：
-- 不把 Qdrant / Haystack / embeddings 变成 normal tests 的必需依赖。
-- 不替换现有 `/api/retrieve` 的 deterministic 默认行为。
-- 不做大规模 schema migration。
-- 不声称生产级 ranking 或语义检索质量。
-- 不做表格重建、图片批量 ingestion、证书/资质真实性校验、登录/用户系统、最终 Word/PDF 导出。
-- 不把 PyMuPDF 加进项目依赖。
-
-开始前请先给出任务合同：
-1. proposed execution level
-2. target outcome
-3. expected file or module scope
-4. planned verification
-5. known uncertainties or blockers
-
-建议验证：
-```powershell
-$py='C:\Users\26561\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
-& $py -m pytest backend/tests/test_phase11_sample_outputs.py
-.\scripts\ai_check.ps1
-git diff --check
-```
-
-如果尝试：
-```powershell
-bash ./scripts/ai_check.sh
-```
-本机没有 WSL/Linux distro 时，记录 blocker，不要声称通过。
-
-完成后请报告：
-- 实现了什么
-- 中间用到了什么 skill
-- 最重要的决定
-- 验证结果
-- 未验证项和真实原因
-````
+1. Either explicitly define Phase 13, or continue Phase 12 into the adapter
+   skeleton code slice.
+2. If continuing Phase 12, keep deterministic `/api/retrieve` as default and
+   start with fake-testable adapter boundary tests.

@@ -1,16 +1,12 @@
-# Spec - Phase 11 Sample Outputs And Repeatable Runbook
+# Spec - Phase 12 Semantic Retrieval Adapter Spike
 
 ## Objective
 
-Make the PRD-shaped server demo repeatable by another engineer or agent.
+Evaluate Qdrant, Haystack, and embeddings as an optional semantic retrieval
+path for BidKnowledge.
 
-Phase 11 produces a fixed demo replay package:
-
-1. selected sample files from `docs/source-materials/sample-catalog.md`
-2. selected PRD tags and their deterministic retrieval-tag mappings
-3. representative JSON outputs under `docs/ai/sample-outputs/phase11/`
-4. expected success and failure behavior
-5. a repeatable runbook for `/demo` and direct API comparison
+Phase 12 is a spike and evaluation phase. It must not replace the current
+deterministic retrieval default.
 
 ## Required Execution Mode
 
@@ -28,34 +24,74 @@ succeeds.
 
 ## In Scope
 
-1. Add Phase 11 docs:
-   - `docs/ai/36-phase11-sample-outputs-dev-spec.md`
-   - `docs/ai/37-phase11-test-cases.md`
-   - `docs/ai/38-phase11-repeatable-demo-runbook.md`
-2. Add representative JSON under `docs/ai/sample-outputs/phase11/`.
-3. Add lightweight pytest coverage for sample JSON validity and boundaries.
-4. Update roadmap, docs index, and active `.ai` runtime artifacts.
+Documentation/planning slice:
+
+1. Add Phase 12 docs:
+   - `docs/ai/39-phase12-semantic-retrieval-spike-dev-spec.md`
+   - `docs/ai/40-phase12-test-cases.md`
+   - `docs/ai/41-phase12-evaluation-report.md`
+2. Update roadmap, docs index, lightweight PRD plan, and active `.ai` runtime
+   artifacts.
+3. Define a minimum adapter boundary and decision gate before writing backend
+   code.
+4. Use the Phase 11 fixed sample set as the comparison baseline.
+
+Deterministic demo-flow closeout slice:
+
+1. Keep deterministic `/api/retrieve` as the default retrieval path.
+2. Allow PRD knowledge-card tags to retrieve their historical source chunks.
+3. Exclude tender documents from the retrieval evidence pool.
+4. Make the demo page's chunk-tag fallback an actual secondary request, not
+   only display text.
+5. Preserve existing public API request and response contracts.
+
+Loop-engineering polish slice:
+
+1. Keep query-only retrieval stable before and after knowledge-card build.
+2. Preserve PRD knowledge-card bridge metadata inside generation prompts.
+3. Include tender-analysis requirement context in demo generation without
+   changing the backend generation schema.
+4. Improve `/demo` visual hierarchy, focus/loading states, and responsive
+   behavior.
+5. Show a historical evidence pool for multiple Phase 11 historical sample
+   sources.
+6. Verify `/demo` with real browser smoke evidence.
+
+Potential follow-up implementation slice:
+
+1. Add fake-testable semantic retrieval records and adapter boundary.
+2. Preserve current `RetrievalResponse` source metadata.
+3. Keep default `POST /api/retrieve` deterministic.
+4. Keep Qdrant/Haystack/embedding dependencies optional and lazily imported.
 
 ## Out Of Scope
 
-1. No backend API/schema changes.
-2. No customer source files or runtime artifacts committed.
-3. No Qdrant, Haystack, embeddings, dense retrieval, or semantic retrieval.
-4. No table reconstruction.
-5. No image batch ingestion.
-6. No certificate or qualification-material authenticity validation.
-7. No login/user system.
-8. No final Word/PDF export.
-9. No PyMuPDF project dependency addition.
+1. No replacement of deterministic retrieval.
+2. No mandatory Qdrant, Haystack, embedding model, API key, network service, or
+   vector store for normal tests.
+3. No public API contract change.
+4. No SQLite schema migration.
+5. No production ranking or semantic retrieval quality claim.
+6. No table reconstruction.
+7. No image batch ingestion.
+8. No certificate or qualification-material authenticity validation.
+9. No login/user system.
+10. No final Word/PDF export.
+11. No PyMuPDF project dependency addition.
 
 ## Acceptance Criteria
 
-1. A fixed sample manifest exists and identifies two historical bid files, one
-   tender file, one OCR smoke sample, and selected tags.
-2. Representative sample JSON files exist and parse successfully.
-3. JSON samples avoid secrets, local runtime paths, and committed customer
-   content dumps.
-4. The runbook explains success, no-LLM fallback, OCR dependency failure,
-   text-PDF behavior, scanned-PDF OCR fallback, and large-file deferral.
-5. Project verification passes, except for the known bash/WSL blocker if still
-   unavailable.
+1. Phase 12 docs identify the optional semantic retrieval boundary and
+   comparison method.
+2. The Phase 11 sample set remains the baseline.
+3. The docs state when to proceed to code and when to defer.
+4. PRD-tag deterministic retrieval is covered by tests.
+5. Demo fallback/effective-tag evidence is visible in raw JSON.
+6. Demo generation records the tender requirement used and generation query.
+7. Multiple historical documents can contribute retrieval evidence while tender
+   documents remain excluded from retrieval evidence.
+8. Browser validation shows no console errors or horizontal overflow at desktop
+   and mobile widths.
+9. `.ai` runtime artifacts accurately reflect Phase 12 status without claiming
+   a new harness gate.
+10. Project verification is run or blockers are recorded honestly.

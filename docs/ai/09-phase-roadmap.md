@@ -356,7 +356,8 @@ Implemented:
 
 ## Phase 12 - Semantic Retrieval Adapter Spike
 
-Status: planned.
+Status: planning/evaluation slice complete, with deterministic demo-flow
+closeout applied.
 
 Goal: evaluate Qdrant, Haystack, and embeddings as an optional semantic
 retrieval path after the deterministic demo baseline is stable.
@@ -377,3 +378,36 @@ Non-goals:
 - No mandatory vector service for normal tests.
 - No migration that invalidates existing SQLite chunk/card storage.
 - No production-ranking claim before an evaluation set exists.
+
+Current Phase 12 artifacts:
+
+- `docs/ai/39-phase12-semantic-retrieval-spike-dev-spec.md`
+- `docs/ai/40-phase12-test-cases.md`
+- `docs/ai/41-phase12-evaluation-report.md`
+
+Current decision:
+
+1. Keep `POST /api/retrieve` deterministic by default.
+2. Do not add Qdrant, Haystack, embeddings, model downloads, API keys, or
+   network services to normal tests.
+3. If code is added next, start with a fake-testable semantic adapter boundary
+   before any real Qdrant/Haystack integration.
+4. Compare any optional semantic path against the Phase 11 fixed sample set.
+
+Closeout note:
+
+- Existing deterministic retrieval now supports PRD knowledge-card tag lookup
+  over historical source chunks, while keeping chunk-tag fallback in the demo
+  page and preserving the existing API contracts.
+- Tender documents are excluded from the retrieval evidence pool.
+- The demo page shows a historical evidence pool for multiple Phase 11
+  historical sample sources.
+- Demo generation folds analyzed tender requirement context into the existing
+  generation query and records that decision in Raw JSON.
+- No semantic runtime dependency was introduced.
+
+Next phase note:
+
+- No Phase 13 is defined yet in the repository. Do not start a Phase 13 task
+  without first adding an explicit roadmap entry, scope, non-goals, and
+  verification plan.

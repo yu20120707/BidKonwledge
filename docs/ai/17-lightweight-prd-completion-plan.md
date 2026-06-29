@@ -316,6 +316,8 @@ Acceptance:
 
 ### Phase 12 - Semantic Retrieval Adapter Spike
 
+Status: planning/evaluation slice complete.
+
 Goal: bring Qdrant, Haystack, and embeddings into the mainline only after the
 deterministic PRD demo baseline is repeatable.
 
@@ -343,6 +345,21 @@ Acceptance:
    notes, and rollback path.
 3. The next implementation decision is explicit: keep as optional, promote to
    default, or defer.
+
+Current Phase 12 decision:
+
+1. Begin with technical planning and evaluation docs.
+2. Keep deterministic retrieval as the only default and normal-test path.
+3. If implementation proceeds, first add a fake-testable adapter boundary and
+   metadata-preservation tests.
+4. Try Qdrant, Haystack, and real embeddings only as optional/manual spike
+   paths after the boundary is accepted.
+
+No Phase 13 follow-up is currently defined. The next step must be either:
+
+1. explicitly define Phase 13 in the roadmap, or
+2. continue Phase 12 into the adapter skeleton code slice under the existing
+   Phase 12 boundary.
 
 ## Dependency Plan
 

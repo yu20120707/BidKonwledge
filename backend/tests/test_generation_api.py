@@ -74,6 +74,29 @@ def test_generate_returns_content_citations_risks_and_human_review(client):
     assert "应急响应" in citation["content_snippet"]
 
 
+def test_generate_can_use_prd_knowledge_card_tag(client):
+    document_id = parse_generation_fixture(client)
+    build_response = client.post("/api/knowledge/build", json={"document_id": document_id})
+    assert build_response.status_code == 200
+    fake_llm = FakeLLM()
+    app.dependency_overrides[get_llm_client] = lambda: fake_llm
+
+    response = client.post(
+        "/api/generate",
+        json={"target_tag": "突发应急方案和措施", "query": "应急", "top_k": 5},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["target_tag"] == "突发应急方案和措施"
+    assert len(body["citations"]) == 1
+    assert body["citations"][0]["document_id"] == document_id
+    prompt = fake_llm.prompts[0]
+    assert "目标标签: 突发应急方案和措施" in prompt
+    assert "knowledge_card_tag=突发应急方案和措施" in prompt
+    assert "knowledge_card_title=运维服务应急" in prompt
+
+
 def test_generate_prompt_preserves_source_chunk_context(client):
     parse_generation_fixture(client)
     fake_llm = FakeLLM()

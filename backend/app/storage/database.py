@@ -461,6 +461,7 @@ def list_retrievable_chunks(settings: Settings) -> list[dict[str, Any]]:
             FROM document_chunks AS c
             JOIN documents AS d ON d.id = c.document_id
             WHERE d.parse_status = 'parsed'
+              AND d.doc_role = 'historical_bid'
             ORDER BY c.order_index ASC, c.chunk_index ASC, c.id ASC
             """
         ).fetchall()
@@ -471,6 +472,55 @@ def list_retrievable_chunks(settings: Settings) -> list[dict[str, Any]]:
         values.update(chunk.model_dump())
         values.pop("tags_json", None)
         values.pop("metadata_json", None)
+        records.append(values)
+    return records
+
+
+def list_retrievable_knowledge_card_chunks(settings: Settings) -> list[dict[str, Any]]:
+    init_database(settings)
+    with connect(settings.database_path) as connection:
+        rows = connection.execute(
+            """
+            SELECT
+                c.*,
+                d.original_filename,
+                d.doc_role,
+                d.file_ext,
+                kc.id AS knowledge_card_id,
+                kc.tag AS knowledge_card_tag,
+                kc.title AS knowledge_card_title,
+                kc.content AS knowledge_card_content,
+                kc.confidence AS knowledge_card_confidence,
+                kc.metadata_json AS knowledge_card_metadata_json
+            FROM knowledge_cards AS kc
+            JOIN document_chunks AS c ON c.id = kc.source_chunk_id
+            JOIN documents AS d ON d.id = kc.document_id
+            WHERE d.parse_status = 'parsed'
+              AND d.doc_role = 'historical_bid'
+            ORDER BY c.order_index ASC, c.chunk_index ASC, kc.id ASC
+            """
+        ).fetchall()
+    records: list[dict[str, Any]] = []
+    for row in rows:
+        values = dict(row)
+        chunk = _chunk_from_row(row)
+        card_tag = str(values["knowledge_card_tag"])
+        card_metadata = json.loads(values["knowledge_card_metadata_json"])
+        values.update(chunk.model_dump())
+        values["tags"] = _append_unique(chunk.tags, card_tag)
+        values["metadata"] = {
+            **chunk.metadata,
+            "knowledge_card": {
+                "card_id": values["knowledge_card_id"],
+                "tag": card_tag,
+                "title": values["knowledge_card_title"],
+                "confidence": values["knowledge_card_confidence"],
+                "metadata": card_metadata,
+            },
+        }
+        values.pop("tags_json", None)
+        values.pop("metadata_json", None)
+        values.pop("knowledge_card_metadata_json", None)
         records.append(values)
     return records
 
@@ -534,6 +584,12 @@ def _knowledge_card_from_row(row: sqlite3.Row) -> KnowledgeCardRecord:
     values = dict(row)
     values["metadata"] = json.loads(values.pop("metadata_json"))
     return KnowledgeCardRecord(**values)
+
+
+def _append_unique(values: list[str], value: str) -> list[str]:
+    if value in values:
+        return list(values)
+    return [*values, value]
 
 
 def _tender_analysis_to_row(analysis: TenderAnalysisRecord) -> dict[str, Any]:

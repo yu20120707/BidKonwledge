@@ -43,6 +43,9 @@ Read these files before implementation work:
 37. `36-phase11-sample-outputs-dev-spec.md` - Phase 11 fixed sample outputs contract.
 38. `37-phase11-test-cases.md` - Phase 11 sample-output and runbook test cases.
 39. `38-phase11-repeatable-demo-runbook.md` - Phase 11 repeatable demo runbook.
+40. `39-phase12-semantic-retrieval-spike-dev-spec.md` - Phase 12 semantic retrieval spike contract.
+41. `40-phase12-test-cases.md` - Phase 12 semantic retrieval test and smoke cases.
+42. `41-phase12-evaluation-report.md` - Phase 12 initial evaluation and next-decision report.
 
 Sample output artifacts:
 

@@ -1,34 +1,20 @@
-# Affected Files - Phase 11 Sample Outputs
+# Affected Files - Phase 12 Semantic Retrieval Adapter Spike
 
 ## Added Files
 
 Docs:
 
-- `docs/ai/36-phase11-sample-outputs-dev-spec.md`
-- `docs/ai/37-phase11-test-cases.md`
-- `docs/ai/38-phase11-repeatable-demo-runbook.md`
-
-Sample JSON:
-
-- `docs/ai/sample-outputs/phase11/manifest.json`
-- `docs/ai/sample-outputs/phase11/historical-bid-upload-parse.json`
-- `docs/ai/sample-outputs/phase11/knowledge-cards.json`
-- `docs/ai/sample-outputs/phase11/tender-analysis.json`
-- `docs/ai/sample-outputs/phase11/retrieval-evidence.json`
-- `docs/ai/sample-outputs/phase11/generation-candidate.json`
-- `docs/ai/sample-outputs/phase11/no-llm-error.json`
-- `docs/ai/sample-outputs/phase11/ocr-smoke-status.json`
-- `docs/ai/sample-outputs/phase11/expected-failures.json`
-
-Tests:
-
-- `backend/tests/test_phase11_sample_outputs.py`
+- `docs/ai/39-phase12-semantic-retrieval-spike-dev-spec.md`
+- `docs/ai/40-phase12-test-cases.md`
+- `docs/ai/41-phase12-evaluation-report.md`
 
 ## Updated Files
 
 - `docs/ai/README.md`
+- `docs/ai/04-api-contract.md`
 - `docs/ai/09-phase-roadmap.md`
 - `docs/ai/17-lightweight-prd-completion-plan.md`
+- `docs/ai/41-phase12-evaluation-report.md`
 - `.ai/spec.md`
 - `.ai/implementation-plan.md`
 - `.ai/affected-files.md`
@@ -36,14 +22,31 @@ Tests:
 - `.ai/verification.md`
 - `.ai/evaluation.md`
 - `.ai/handoff.md`
+- `backend/app/storage/database.py`
+- `backend/app/services/prompt_builder.py`
+- `backend/app/services/retrieval.py`
+- `backend/app/static/demo.html`
+- `backend/tests/test_retrieval_api.py`
+- `backend/tests/test_generation_api.py`
+- `backend/tests/test_demo_page.py`
+- `backend/tests/test_phase5_demo_workflow.py`
 
-## Forbidden Areas
+## Intentionally Untouched In Current Slice
 
-- backend API contracts
+- `backend/app/api/retrieval.py`
+- `backend/app/schemas/document.py`
+- `pyproject.toml`
 - database schema
-- runtime dependencies
-- customer source files
+- public API contracts
+- normal test dependency setup
+
+## Forbidden Areas Unless Explicitly Approved Later
+
+- replacing deterministic retrieval default
+- mandatory Qdrant/Haystack/embedding dependencies
 - generated runtime data under `data/`
+- customer source files
+- local model caches
+- Qdrant local storage
 - PyMuPDF project dependency
-- Qdrant/Haystack/embeddings
 - final document export

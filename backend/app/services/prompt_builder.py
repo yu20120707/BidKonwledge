@@ -19,6 +19,7 @@ def build_generation_prompt(
                     f"section_title={result.section_title}",
                     f"section_path={result.section_path}",
                     f"tags={', '.join(result.tags)}",
+                    *_knowledge_card_context(result),
                     f"text={result.text}",
                 ]
             )
@@ -35,3 +36,20 @@ def build_generation_prompt(
             context,
         ]
     )
+
+
+def _knowledge_card_context(result: RetrievalResult) -> list[str]:
+    knowledge_card = result.source.chunk_metadata.get("knowledge_card")
+    if not isinstance(knowledge_card, dict):
+        return []
+    lines = []
+    tag = knowledge_card.get("tag")
+    title = knowledge_card.get("title")
+    confidence = knowledge_card.get("confidence")
+    if tag:
+        lines.append(f"knowledge_card_tag={tag}")
+    if title:
+        lines.append(f"knowledge_card_title={title}")
+    if confidence is not None:
+        lines.append(f"knowledge_card_confidence={confidence}")
+    return lines

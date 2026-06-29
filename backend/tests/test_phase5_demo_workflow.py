@@ -39,14 +39,19 @@ class Phase10DemoWorkflowParser:
 
 
 class Phase10DemoWorkflowLLM:
+    def __init__(self) -> None:
+        self.prompts: list[str] = []
+
     def generate(self, prompt: str) -> str:
+        self.prompts.append(prompt)
         return "候选内容：建立运维实施与应急响应机制，并保留人工复核。"
 
 
 def test_phase10_demo_api_chain_upload_parse_build_analyze_retrieve_generate(client):
     parser = Phase10DemoWorkflowParser()
     app.dependency_overrides[get_document_parser] = lambda: parser
-    app.dependency_overrides[get_llm_client] = lambda: Phase10DemoWorkflowLLM()
+    fake_llm = Phase10DemoWorkflowLLM()
+    app.dependency_overrides[get_llm_client] = lambda: fake_llm
 
     historical_upload = upload(client, filename="historical-phase10.docx", doc_role="historical_bid")
     assert historical_upload.status_code == 201
@@ -86,7 +91,7 @@ def test_phase10_demo_api_chain_upload_parse_build_analyze_retrieve_generate(cli
 
     retrieve_response = client.post(
         "/api/retrieve",
-        json={"tag": "运维服务", "query": "应急", "top_k": 5},
+        json={"tag": "突发应急方案和措施", "query": "应急", "top_k": 5},
     )
     assert retrieve_response.status_code == 200
     retrieve_body = retrieve_response.json()
@@ -96,8 +101,8 @@ def test_phase10_demo_api_chain_upload_parse_build_analyze_retrieve_generate(cli
     generate_response = client.post(
         "/api/generate",
         json={
-            "target_tag": "运维服务",
-            "query": "应急",
+            "target_tag": "突发应急方案和措施",
+            "query": f"应急\n招标需求: {tender_body['project_requirements'][0]['description']}",
             "top_k": 5,
         },
     )
@@ -107,3 +112,5 @@ def test_phase10_demo_api_chain_upload_parse_build_analyze_retrieve_generate(cli
     assert generate_body["risks"] == []
     assert len(generate_body["citations"]) == 1
     assert generate_body["citations"][0]["document_id"] == historical_document_id
+    assert "招标需求:" in fake_llm.prompts[0]
+    assert "项目需求包括运维实施" in fake_llm.prompts[0]

@@ -37,12 +37,23 @@ def retrieve_chunks(
         raise InvalidRetrievalRequestError("top_k must be greater than zero")
 
     query_terms = _query_terms(normalized_query)
-    scored: list[ScoredChunk] = []
-    for row in database.list_retrievable_chunks(settings):
+    scored_by_chunk_id: dict[str, ScoredChunk] = {}
+    rows = database.list_retrievable_chunks(settings)
+    if normalized_tag is not None:
+        rows = [
+            *rows,
+            *[
+                row
+                for row in database.list_retrievable_knowledge_card_chunks(settings)
+                if row.get("knowledge_card_tag") == normalized_tag
+            ],
+        ]
+    for row in rows:
         score = _score_row(row, query_terms, normalized_tag)
         if score is not None:
-            scored.append(ScoredChunk(row=row, score=score))
+            _keep_best_score(scored_by_chunk_id, ScoredChunk(row=row, score=score))
 
+    scored = list(scored_by_chunk_id.values())
     scored.sort(
         key=lambda item: (
             -item.score,
@@ -75,6 +86,24 @@ def _score_row(
         score += float(query_score)
 
     return score
+
+
+def _keep_best_score(
+    scored_by_chunk_id: dict[str, ScoredChunk],
+    item: ScoredChunk,
+) -> None:
+    chunk_id = str(item.row["id"])
+    current = scored_by_chunk_id.get(chunk_id)
+    if current is None or item.score > current.score:
+        scored_by_chunk_id[chunk_id] = item
+        return
+    if item.score == current.score and _has_knowledge_card(item.row):
+        scored_by_chunk_id[chunk_id] = item
+
+
+def _has_knowledge_card(row: dict[str, Any]) -> bool:
+    metadata = row.get("metadata")
+    return isinstance(metadata, dict) and "knowledge_card" in metadata
 
 
 def _to_result(item: ScoredChunk) -> RetrievalResult:

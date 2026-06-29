@@ -343,8 +343,9 @@ Response:
 ```
 
 Phase 3 requires at least one of `query` or `tag`. Retrieval is local and
-deterministic over Phase 2 SQLite chunks. It does not call Qdrant, Haystack,
-embeddings, or LLM services.
+deterministic over parsed historical-bid SQLite chunks and knowledge-card
+source-chunk tags. Tender documents are excluded from the retrieval evidence
+pool. It does not call Qdrant, Haystack, embeddings, or LLM services.
 
 ## POST /api/generate
 
@@ -399,6 +400,17 @@ Response:
 Phase 4 uses Phase 3 retrieval context, an injectable LLM adapter, citation
 formatting, and rule-based risk checks. Automated tests use a fake LLM and do
 not require real external LLM credentials.
+
+Phase 12 closeout note:
+
+- The demo page may combine the user's generation query with the first analyzed
+  tender requirement before calling this endpoint. This preserves the existing
+  request schema while making the tender-analysis context visible to the
+  generation prompt.
+- When retrieval context came through a PRD knowledge-card tag, the internal
+  prompt includes optional `knowledge_card_tag`, `knowledge_card_title`, and
+  `knowledge_card_confidence` lines. The public response schema stays citation
+  based and unchanged.
 
 ## GET /demo
 
