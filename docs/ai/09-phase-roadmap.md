@@ -244,7 +244,7 @@ Phase 8B documents:
 
 ## Phase 9 - Real PaddleOCR Runtime And Scanned PDF Smoke
 
-Status: planned.
+Status: complete.
 
 Goal: verify the optional PaddleOCR-backed OCR adapter against the local real
 runtime before the demo page presents OCR as a demonstrated capability.
@@ -277,9 +277,18 @@ Phase 9 documents:
 - `docs/ai/31-phase9-test-cases.md`
 - `docs/ai/32-phase9-demo-runbook.md`
 
+Implemented:
+
+1. Verified `paddleocr 2.10.0` and `paddlepaddle 2.6.2` in the local runtime.
+2. Verified forced `parse_mode=ocr` against one temporary scanned-PDF smoke,
+   producing 1 section and 1 chunk.
+3. Verified `parse_mode=auto` OCR fallback for the same smoke class.
+4. Kept `PyMuPDF` local-smoke-only because of AGPL/commercial licensing.
+5. Preserved fake-OCR automated test strategy for normal project checks.
+
 ## Phase 10 - PRD Demo Flow Page
 
-Status: planned.
+Status: complete.
 
 Goal: make the demo page match the PRD story, not only expose raw endpoints.
 
@@ -294,6 +303,19 @@ Scope:
 4. Keep it a single FastAPI-hosted static page.
 5. Show OCR capability/status only from the Phase 9 smoke evidence; do not
    imply OCR is production-ready.
+
+Implemented:
+
+1. Rebuilt `GET /demo` into a PRD-shaped single-page narrative.
+2. Split the page into historical bid ingestion, knowledge cards, tender
+   ingestion/analysis, PRD tag selection, retrieval evidence, candidate
+   generation, review evidence, and OCR status.
+3. Added page-layer PRD tag to deterministic retrieval-tag mapping so the demo
+   story matches the PRD without changing backend retrieval/generation
+   contracts.
+4. Kept the page static and FastAPI-hosted.
+5. Kept Raw JSON visible for each stage.
+6. Limited OCR copy to Phase 9 smoke evidence only.
 
 Non-goals:
 

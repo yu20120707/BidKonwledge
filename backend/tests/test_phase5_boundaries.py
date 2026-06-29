@@ -24,7 +24,6 @@ def test_phase5_demo_files_do_not_introduce_forbidden_scope():
     content = "\n".join(path.read_text(encoding="utf-8").lower() for path in demo_files)
 
     forbidden_terms = [
-        "paddleocr",
         "qdrant",
         "haystack",
         "embedding",
@@ -35,3 +34,7 @@ def test_phase5_demo_files_do_not_introduce_forbidden_scope():
     ]
     for term in forbidden_terms:
         assert term not in content
+
+    assert "paddleocr" in content
+    assert "smoke evidence only" in content
+    assert "does not claim ocr is production-ready" in content

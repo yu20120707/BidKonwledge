@@ -1,12 +1,21 @@
-# Affected Files - Phase 9 Real OCR Smoke
+# Affected Files - Phase 10 PRD Demo Flow
 
 ## Updated Files
 
-Implementation/config:
+Implementation and tests:
 
-- `backend/app/adapters/ocr_adapter.py`
-- `backend/tests/test_ocr_adapter_parse.py`
-- `pyproject.toml`
+- `backend/app/static/demo.html`
+- `backend/tests/test_demo_page.py`
+- `backend/tests/test_phase5_boundaries.py`
+- `backend/tests/test_phase5_demo_workflow.py`
+
+Durable docs:
+
+- `docs/ai/09-phase-roadmap.md`
+- `docs/ai/README.md`
+- `docs/ai/33-phase10-prd-demo-flow-dev-spec.md`
+- `docs/ai/34-phase10-test-cases.md`
+- `docs/ai/35-phase10-demo-runbook.md`
 
 Runtime evidence:
 
@@ -18,35 +27,21 @@ Runtime evidence:
 - `.ai/evaluation.md`
 - `.ai/handoff.md`
 
-## Runtime-Only Artifacts
+## Scope Boundary
 
-Do not commit:
+Do not touch unless the current page cannot work without it:
 
-- temporary scanned PDF generated under `%TEMP%`
-- uploaded smoke files under temporary upload roots
-- temporary SQLite smoke databases
-- PaddleOCR model cache under `C:\Users\26561\.paddleocr`
-- customer source images or PDFs
-
-## Dependency Boundary
-
-Committed OCR optional dependencies:
-
-- `paddleocr>=2.8,<3.0`
-- `paddlepaddle>=2.6,<3.0`
-
-Local smoke-only dependency:
-
-- `PyMuPDF 1.27.2.3`, installed only in the local Python runtime because
-  PaddleOCR PDF input imports `fitz`. It is not added to `pyproject.toml`
-  because the package reports dual `GNU AFFERO GPL 3.0 or Artifex Commercial`
-  licensing and needs explicit license review before becoming project
-  dependency.
+- FastAPI route wiring
+- backend API contracts
+- database schema
+- dependency declarations
 
 ## Forbidden Areas
 
-- Do not add Qdrant, Haystack, embeddings, dense retrieval, or hybrid retrieval.
-- Do not add table reconstruction.
-- Do not add image batch ingestion.
-- Do not validate certificates, seals, or qualification evidence.
-- Do not commit customer samples or generated OCR output.
+- Qdrant, Haystack, embeddings, semantic retrieval
+- table reconstruction
+- image batch ingestion
+- qualification/certificate validation
+- login/user system
+- final Word/PDF export
+- adding PyMuPDF to project dependencies

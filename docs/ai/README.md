@@ -37,6 +37,9 @@ Read these files before implementation work:
 31. `30-phase9-real-ocr-smoke-dev-spec.md` - Phase 9 real PaddleOCR runtime and scanned-PDF smoke contract.
 32. `31-phase9-test-cases.md` - Phase 9 real OCR smoke test-case specification.
 33. `32-phase9-demo-runbook.md` - Phase 9 real OCR smoke runbook.
+34. `33-phase10-prd-demo-flow-dev-spec.md` - Phase 10 PRD-shaped demo page flow contract.
+35. `34-phase10-test-cases.md` - Phase 10 demo page test-case specification.
+36. `35-phase10-demo-runbook.md` - Phase 10 PRD-shaped demo runbook.
 
 Python backend profile files from Auto_AICoding_Harness are also present:
 

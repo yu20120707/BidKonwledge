@@ -7,14 +7,16 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #f7f7f4;
-      --panel: #ffffff;
-      --text: #202124;
-      --muted: #5f6368;
-      --line: #d9dadd;
-      --accent: #0f766e;
-      --accent-dark: #115e59;
-      --danger: #b42318;
+      --paper: #f4efe7;
+      --panel: rgba(255, 252, 247, 0.92);
+      --panel-strong: #fffdf9;
+      --ink: #241b15;
+      --muted: #6a5c50;
+      --line: rgba(113, 92, 73, 0.18);
+      --accent: #176b5a;
+      --accent-strong: #0d4f43;
+      --warning: #a1401f;
+      --shadow: 0 18px 50px rgba(36, 27, 21, 0.08);
     }
 
     * {
@@ -23,52 +25,178 @@
 
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, "Microsoft YaHei", sans-serif;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
       line-height: 1.5;
+      background:
+        radial-gradient(circle at top left, rgba(206, 180, 145, 0.28), transparent 24rem),
+        linear-gradient(180deg, #f7f1e8 0%, #f2ebe0 42%, #ece4d7 100%);
     }
 
-    header,
-    main {
-      width: min(1120px, calc(100% - 32px));
+    .shell {
+      width: min(1320px, calc(100% - 32px));
       margin: 0 auto;
+      padding: 28px 0 40px;
     }
 
-    header {
-      padding: 28px 0 16px;
-      border-bottom: 1px solid var(--line);
+    .hero {
+      display: grid;
+      gap: 12px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(135deg, rgba(23, 107, 90, 0.08), rgba(255, 255, 255, 0.66)),
+        var(--panel);
+      box-shadow: var(--shadow);
     }
 
-    h1 {
+    .eyebrow {
       margin: 0;
-      font-size: 28px;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
       font-weight: 700;
     }
 
-    main {
-      display: grid;
-      grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
-      gap: 20px;
-      padding: 20px 0 32px;
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", "Songti SC", serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
 
-    section {
-      background: var(--panel);
+    h1 {
+      font-size: clamp(30px, 4vw, 52px);
+      max-width: 12ch;
+    }
+
+    .hero p,
+    .panel p,
+    .status-note,
+    .summary-copy {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .summary-card {
+      padding: 14px 16px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .summary-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .summary-value {
+      display: block;
+      margin-top: 8px;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .summary-copy {
+      margin-top: 4px;
+      font-size: 13px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.95fr);
+      gap: 20px;
+      margin-top: 20px;
+      align-items: start;
+    }
+
+    .flow-column,
+    .signal-column {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .step-badge {
+      min-width: 42px;
+      height: 42px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .panel-header-copy {
+      display: grid;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .panel-title {
+      font-size: 24px;
+    }
+
+    .status-chip {
+      align-self: flex-start;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
     }
 
     .controls {
       display: grid;
-      gap: 14px;
-      align-content: start;
-    }
-
-    h2 {
-      margin: 0 0 12px;
-      font-size: 17px;
+      gap: 12px;
     }
 
     label {
@@ -76,6 +204,7 @@
       gap: 6px;
       color: var(--muted);
       font-size: 13px;
+      font-weight: 600;
     }
 
     input,
@@ -89,196 +218,546 @@
     input,
     select,
     textarea {
-      min-height: 40px;
+      min-height: 42px;
       border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 8px 10px;
-      background: #fff;
-      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.86);
     }
 
     textarea {
-      min-height: 84px;
+      min-height: 88px;
       resize: vertical;
     }
 
     button {
-      min-height: 40px;
+      min-height: 44px;
       border: 0;
-      border-radius: 6px;
-      background: var(--accent);
+      border-radius: 999px;
+      padding: 0 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
       color: #fff;
-      cursor: pointer;
       font-weight: 700;
+      cursor: pointer;
     }
 
     button:hover {
-      background: var(--accent-dark);
+      filter: brightness(1.03);
     }
 
     button:disabled {
+      opacity: 0.56;
       cursor: not-allowed;
-      opacity: 0.55;
     }
 
-    .results {
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .button-row button {
+      width: auto;
+      min-width: 160px;
+    }
+
+    .button-secondary {
+      background: rgba(36, 27, 21, 0.08);
+      color: var(--ink);
+    }
+
+    .meta-grid {
       display: grid;
-      gap: 14px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
     }
 
-    pre {
-      min-height: 120px;
-      max-height: 360px;
-      margin: 0;
-      overflow: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-      background: #111827;
-      color: #f9fafb;
-      border-radius: 6px;
-      padding: 12px;
-      font-size: 13px;
+    .meta-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.72);
     }
 
-    .status {
-      min-height: 24px;
+    .meta-label {
+      display: block;
       color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-value {
+      display: block;
+      margin-top: 6px;
+      font-size: 18px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .status-note {
       font-size: 13px;
     }
 
-    .review {
-      font-weight: 700;
-      color: var(--danger);
+    .status-note strong {
+      color: var(--ink);
     }
 
-    .list {
+    .list,
+    .timeline {
       display: grid;
-      gap: 8px;
+      gap: 10px;
       margin: 0;
       padding: 0;
       list-style: none;
     }
 
-    .list li {
+    .list li,
+    .timeline li {
+      padding: 12px 14px;
       border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 10px;
-      background: #fbfbfa;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.8);
     }
 
-    @media (max-width: 820px) {
-      main {
+    .timeline li {
+      position: relative;
+      padding-left: 16px;
+    }
+
+    .timeline li::before {
+      content: "";
+      position: absolute;
+      top: 14px;
+      left: -7px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(23, 107, 90, 0.12);
+    }
+
+    .card-title,
+    .evidence-title {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .dim {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .candidate-box,
+    pre {
+      margin: 0;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+    }
+
+    .candidate-box {
+      min-height: 160px;
+      white-space: pre-wrap;
+    }
+
+    pre {
+      min-height: 240px;
+      max-height: 460px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #171717;
+      color: #f8f5f0;
+    }
+
+    .review-flag {
+      font-weight: 700;
+      color: var(--warning);
+    }
+
+    .inline-code {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(36, 27, 21, 0.08);
+    }
+
+    @media (max-width: 1120px) {
+      .layout,
+      .split {
         grid-template-columns: 1fr;
+      }
+
+      .summary-grid,
+      .meta-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        width: min(100% - 20px, 1320px);
+        padding-top: 18px;
+      }
+
+      .hero,
+      .panel {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .summary-grid,
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-header {
+        flex-direction: column;
+      }
+
+      .button-row button {
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>BidKnowledge Demo</h1>
-  </header>
+  <div class="shell">
+    <header class="hero">
+      <p class="eyebrow">Phase 10 Demo Flow</p>
+      <h1>BidKnowledge PRD-shaped Demo</h1>
+      <p>
+        这个页面按 PRD 叙事组织历史投标文件、知识卡片、招标分析、标签检索与候选内容生成。
+        所有输出都保持 <span class="inline-code">need_human_review = true</span> 的演示边界。
+      </p>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <span class="summary-label">Historical Bid</span>
+          <span id="summary-historical" class="summary-value">Pending</span>
+          <p class="summary-copy">上传、解析、构建知识卡片。</p>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Knowledge Cards</span>
+          <span id="summary-knowledge" class="summary-value">0</span>
+          <p class="summary-copy">展示 PRD 形状标签和来源片段。</p>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Tender Analysis</span>
+          <span id="summary-tender" class="summary-value">Pending</span>
+          <p class="summary-copy">需求、评分项、废标风险。</p>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Evidence Hits</span>
+          <span id="summary-retrieval" class="summary-value">0</span>
+          <p class="summary-copy">当前标签检索到的证据块数量。</p>
+        </div>
+      </div>
+    </header>
 
-  <main>
-    <div class="controls">
-      <section id="upload-section">
-        <h2>Upload</h2>
-        <label>
-          File
-          <input id="file-input" type="file" accept=".txt,.pdf,.doc,.docx">
-        </label>
-        <label>
-          Document role
-          <select id="doc-role">
-            <option value="historical_bid">Historical bid</option>
-            <option value="tender">Tender</option>
-          </select>
-        </label>
-        <button id="upload-button" type="button">Upload</button>
-      </section>
+    <main class="layout">
+      <div class="flow-column">
+        <section id="historical-section" class="panel">
+          <div class="panel-header">
+            <span class="step-badge">1</span>
+            <div class="panel-header-copy">
+              <h2 class="panel-title">历史投标文件上传 / 解析</h2>
+              <p>先把历史投标文件转成可检索的段落与块，为后续知识卡片和检索证据打底。</p>
+            </div>
+            <span id="historical-status-chip" class="status-chip">Waiting Upload</span>
+          </div>
 
-      <section id="parse-section">
-        <h2>Parse</h2>
-        <label>
-          Document ID
-          <input id="document-id" type="text" autocomplete="off">
-        </label>
-        <button id="parse-button" type="button">Parse Document</button>
-      </section>
+          <div class="split">
+            <div class="controls">
+              <label>
+                Historical bid file
+                <input id="historical-file-input" type="file" accept=".txt,.pdf,.doc,.docx">
+              </label>
+              <div class="button-row">
+                <button id="historical-upload-button" type="button">Upload Historical Bid</button>
+                <button id="historical-parse-button" class="button-secondary" type="button">Parse Historical Bid</button>
+              </div>
+              <p class="status-note">
+                演示默认调用 <strong>现有 parse API</strong>，页面只重组流程，不新增 parser 契约。
+              </p>
+            </div>
 
-      <section id="retrieve-section">
-        <h2>Retrieve</h2>
-        <label>
-          Tag
-          <input id="retrieve-tag" type="text" value="运维服务">
-        </label>
-        <label>
-          Query
-          <input id="retrieve-query" type="text" value="应急">
-        </label>
-        <label>
-          Top K
-          <input id="retrieve-top-k" type="number" min="1" max="20" value="5">
-        </label>
-        <button id="retrieve-button" type="button">Retrieve</button>
-      </section>
+            <div class="stack">
+              <div class="meta-grid">
+                <div class="meta-card">
+                  <span class="meta-label">Document ID</span>
+                  <span id="historical-document-id" class="meta-value">-</span>
+                </div>
+                <div class="meta-card">
+                  <span class="meta-label">Parse Status</span>
+                  <span id="historical-parse-status" class="meta-value">pending</span>
+                </div>
+                <div class="meta-card">
+                  <span class="meta-label">Sections / Chunks</span>
+                  <span id="historical-counts" class="meta-value">0 / 0</span>
+                </div>
+              </div>
+              <p id="historical-status-note" class="status-note">
+                等待上传历史投标文件。
+              </p>
+            </div>
+          </div>
+        </section>
 
-      <section id="generate-section">
-        <h2>Generate</h2>
-        <label>
-          Target tag
-          <input id="generate-tag" type="text" value="运维服务">
-        </label>
-        <label>
-          Generation query
-          <textarea id="generate-query">根据招标要求生成运维服务应急方案</textarea>
-        </label>
-        <label>
-          LLM API key
-          <input id="llm-api-key" type="password" autocomplete="off" placeholder="Use server env if empty">
-        </label>
-        <label>
-          LLM base URL
-          <input id="llm-base-url" type="url" value="https://api.openai.com/v1">
-        </label>
-        <label>
-          LLM model
-          <input id="llm-model" type="text" value="gpt-4o-mini">
-        </label>
-        <button id="generate-button" type="button">Generate Candidate</button>
-      </section>
-    </div>
+        <section id="knowledge-section" class="panel">
+          <div class="panel-header">
+            <span class="step-badge">2</span>
+            <div class="panel-header-copy">
+              <h2 class="panel-title">知识卡片构建与展示</h2>
+              <p>把历史文档块整理成 PRD 读得懂的知识卡片，并保留来源 section/path。</p>
+            </div>
+            <span id="knowledge-status-chip" class="status-chip">Waiting Parse</span>
+          </div>
 
-    <div class="results">
-      <section id="review-section">
-        <h2>Human Review</h2>
-        <div id="need-human-review" class="review">need_human_review: not generated</div>
-      </section>
+          <div class="button-row">
+            <button id="knowledge-build-button" type="button">Build Knowledge Cards</button>
+            <button id="knowledge-refresh-button" class="button-secondary" type="button">Refresh Knowledge Cards</button>
+          </div>
+          <p id="knowledge-status-note" class="status-note">
+            先完成历史文件 parse，再构建 knowledge cards。
+          </p>
+          <ul id="knowledge-cards-list" class="list"></ul>
+        </section>
 
-      <section id="citations-section">
-        <h2>Citations</h2>
-        <ul id="citations-list" class="list"></ul>
-      </section>
+        <section id="tender-section" class="panel">
+          <div class="panel-header">
+            <span class="step-badge">3</span>
+            <div class="panel-header-copy">
+              <h2 class="panel-title">招标文件上传 / 解析 / 分析</h2>
+              <p>这里展示当前 Demo 的规则型招标分析结果，不把它描述成最终投标结论。</p>
+            </div>
+            <span id="tender-status-chip" class="status-chip">Waiting Upload</span>
+          </div>
 
-      <section id="risks-section">
-        <h2>Risks</h2>
-        <ul id="risks-list" class="list"></ul>
-      </section>
+          <div class="split">
+            <div class="controls">
+              <label>
+                Tender file
+                <input id="tender-file-input" type="file" accept=".txt,.pdf,.doc,.docx">
+              </label>
+              <div class="button-row">
+                <button id="tender-upload-button" type="button">Upload Tender File</button>
+                <button id="tender-parse-button" class="button-secondary" type="button">Parse Tender File</button>
+                <button id="tender-analyze-button" class="button-secondary" type="button">Analyze Tender</button>
+              </div>
+              <p class="status-note">
+                输出包括项目需求、评分项、废标/否决风险，并保持 <strong>human review</strong> 标记。
+              </p>
+            </div>
 
-      <section id="raw-json-section">
-        <h2>Raw JSON</h2>
-        <div id="status-line" class="status"></div>
-        <pre id="raw-json">{}</pre>
-      </section>
-    </div>
-  </main>
+            <div class="stack">
+              <div class="meta-grid">
+                <div class="meta-card">
+                  <span class="meta-label">Document ID</span>
+                  <span id="tender-document-id" class="meta-value">-</span>
+                </div>
+                <div class="meta-card">
+                  <span class="meta-label">Parse Status</span>
+                  <span id="tender-parse-status" class="meta-value">pending</span>
+                </div>
+                <div class="meta-card">
+                  <span class="meta-label">Requirements / Risks</span>
+                  <span id="tender-counts" class="meta-value">0 / 0</span>
+                </div>
+              </div>
+              <p id="tender-status-note" class="status-note">
+                等待上传招标文件。
+              </p>
+            </div>
+          </div>
+
+          <div class="split">
+            <div>
+              <h3>Project Requirements</h3>
+              <ul id="tender-requirements-list" class="list"></ul>
+            </div>
+            <div>
+              <h3>Disqualification Risks</h3>
+              <ul id="tender-risks-list" class="list"></ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="tag-selection-section" class="panel">
+          <div class="panel-header">
+            <span class="step-badge">4</span>
+            <div class="panel-header-copy">
+              <h2 class="panel-title">PRD 标签选择</h2>
+              <p>页面按 PRD 标签叙事展示，但底层仍复用当前 deterministic retrieval contract。</p>
+            </div>
+            <span id="tag-status-chip" class="status-chip">Narrative Mapping</span>
+          </div>
+
+          <div class="split">
+            <div class="controls">
+              <label>
+                PRD target tag
+                <select id="prd-tag-select"></select>
+              </label>
+              <label>
+                Retrieval query
+                <input id="retrieval-query" type="text" value="应急 响应 方案">
+              </label>
+              <label>
+                Candidate generation query
+                <textarea id="generation-query">根据招标要求生成该标签对应的候选内容，并保留引用与风险提示。</textarea>
+              </label>
+            </div>
+
+            <div class="stack">
+              <div class="meta-grid">
+                <div class="meta-card">
+                  <span class="meta-label">Selected PRD Tag</span>
+                  <span id="selected-prd-tag" class="meta-value">运维服务实施方案</span>
+                </div>
+                <div class="meta-card">
+                  <span class="meta-label">Mapped Retrieval Tag</span>
+                  <span id="selected-retrieval-tag" class="meta-value">运维服务</span>
+                </div>
+                <div class="meta-card">
+                  <span class="meta-label">Top K</span>
+                  <span id="selected-top-k" class="meta-value">5</span>
+                </div>
+              </div>
+              <p class="status-note">
+                重要决定：<strong>不改 `/api/retrieve` 与 `/api/generate` 契约</strong>，
+                由页面把 PRD 标签映射到当前后端可验证的检索 tag。
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="signal-column">
+        <section id="retrieval-evidence-section" class="panel">
+          <div class="panel-header">
+            <span class="step-badge">5</span>
+            <div class="panel-header-copy">
+              <h2 class="panel-title">检索证据展示</h2>
+              <p>把当前标签命中的 chunk 作为后续生成的证据来源，展示 score、来源文件和片段。</p>
+            </div>
+            <span id="retrieval-status-chip" class="status-chip">Waiting Query</span>
+          </div>
+          <div class="button-row">
+            <button id="retrieve-button" type="button">Retrieve Evidence</button>
+          </div>
+          <p id="retrieval-status-note" class="status-note">
+            选择 PRD 标签后执行检索。
+          </p>
+          <ul id="retrieval-results-list" class="list"></ul>
+        </section>
+
+        <section id="candidate-section" class="panel">
+          <div class="panel-header">
+            <span class="step-badge">6</span>
+            <div class="panel-header-copy">
+              <h2 class="panel-title">候选内容生成</h2>
+              <p>生成结果只定位为候选内容，页面同时展示引用、风险、人工复核和 Raw JSON。</p>
+            </div>
+            <span id="generation-status-chip" class="status-chip">Waiting Generate</span>
+          </div>
+          <div class="controls">
+            <label>
+              LLM API key
+              <input id="llm-api-key" type="password" autocomplete="off" placeholder="Use server env if empty">
+            </label>
+            <label>
+              LLM base URL
+              <input id="llm-base-url" type="url" value="https://api.openai.com/v1">
+            </label>
+            <label>
+              LLM model
+              <input id="llm-model" type="text" value="gpt-4o-mini">
+            </label>
+          </div>
+          <div class="button-row">
+            <button id="generate-button" type="button">Generate Candidate Content</button>
+          </div>
+          <p id="generation-status-note" class="status-note">
+            没有外部 LLM 配置时，页面会保留风险提示，不伪装成成功生成。
+          </p>
+          <div id="generated-content" class="candidate-box">候选内容尚未生成。</div>
+        </section>
+
+        <section id="review-section" class="panel">
+          <div class="panel-header">
+            <span class="step-badge">7</span>
+            <div class="panel-header-copy">
+              <h2 class="panel-title">引用、风险、人工复核、Raw JSON</h2>
+              <p>保留演示证据链，而不是只给一段成文结果。</p>
+            </div>
+            <span id="review-status-chip" class="status-chip">Evidence First</span>
+          </div>
+          <p id="need-human-review" class="review-flag">need_human_review: not generated</p>
+          <div class="split">
+            <div>
+              <h3>Citations</h3>
+              <ul id="citations-list" class="list"></ul>
+            </div>
+            <div>
+              <h3>Risks</h3>
+              <ul id="risks-list" class="list"></ul>
+            </div>
+          </div>
+          <div id="status-line" class="status-note"></div>
+          <pre id="raw-json">{}</pre>
+        </section>
+
+        <section id="ocr-status-section" class="panel">
+          <div class="panel-header">
+            <span class="step-badge">8</span>
+            <div class="panel-header-copy">
+              <h2 class="panel-title">OCR 能力状态</h2>
+              <p>这里只展示 Phase 9 的本机 smoke evidence，不把 OCR 描述成已生产可用能力。</p>
+            </div>
+            <span class="status-chip">Smoke Evidence Only</span>
+          </div>
+          <ul id="ocr-status-list" class="timeline"></ul>
+        </section>
+      </div>
+    </main>
+  </div>
 
   <script>
+    const PRD_TAG_OPTIONS = [
+      {label: "运维服务实施方案", retrievalTag: "运维服务", defaultQuery: "运维 服务 方案"},
+      {label: "突发应急方案和措施", retrievalTag: "应急响应", defaultQuery: "应急 响应 措施"},
+      {label: "网络和数据安全防护保障措施", retrievalTag: "安全保障", defaultQuery: "网络 数据 安全 防护"},
+      {label: "服务质量保障和考核评估方案", retrievalTag: "项目管理", defaultQuery: "质量 考核 评估"},
+      {label: "团队人员", retrievalTag: "人员资质", defaultQuery: "团队 人员 资质"},
+      {label: "资格材料", retrievalTag: "人员资质", defaultQuery: "资格 材料 资质"},
+      {label: "商务报价", retrievalTag: "商务报价", defaultQuery: "报价 价格 费用"}
+    ];
+
     const rawJson = document.getElementById("raw-json");
     const statusLine = document.getElementById("status-line");
-    const documentIdInput = document.getElementById("document-id");
     const reviewStatus = document.getElementById("need-human-review");
     const citationsList = document.getElementById("citations-list");
     const risksList = document.getElementById("risks-list");
+    const generatedContent = document.getElementById("generated-content");
+    const retrievalResultsList = document.getElementById("retrieval-results-list");
+    const knowledgeCardsList = document.getElementById("knowledge-cards-list");
+    const tenderRequirementsList = document.getElementById("tender-requirements-list");
+    const tenderRisksList = document.getElementById("tender-risks-list");
+
+    const state = {
+      historicalDocumentId: null,
+      tenderDocumentId: null,
+      historicalParse: null,
+      knowledgeCards: [],
+      tenderAnalysis: null,
+      retrievalResults: [],
+      generation: null
+    };
 
     function setStatus(message) {
       statusLine.textContent = message;
@@ -289,49 +768,9 @@
       rawJson.textContent = JSON.stringify(payload, null, 2);
     }
 
-    async function parseJsonResponse(response) {
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        showJson(`HTTP ${response.status}`, payload);
-        const error = new Error(payload.message || `HTTP ${response.status}`);
-        error.payload = payload;
-        error.status = response.status;
-        throw error;
-      }
-      return payload;
-    }
-
-    function renderGeneration(payload) {
-      const needReview = payload.need_human_review;
-      reviewStatus.textContent = `need_human_review: ${String(needReview)}`;
-
-      citationsList.replaceChildren(
-        ...(payload.citations || []).map((citation) => {
-          const item = document.createElement("li");
-          item.textContent = `${citation.source_filename} / ${citation.source_section_title}: ${citation.content_snippet}`;
-          return item;
-        })
-      );
-
-      risksList.replaceChildren(
-        ...(payload.risks || []).map((risk) => {
-          const item = document.createElement("li");
-          item.textContent = `${risk.severity}: ${risk.risk_type} - ${risk.description}`;
-          return item;
-        })
-      );
-    }
-
-    function renderGenerationError(payload) {
-      if (payload.error_code !== "LLM_NOT_CONFIGURED") {
-        return;
-      }
-      reviewStatus.textContent = "need_human_review: true";
-      citationsList.replaceChildren();
-
-      const item = document.createElement("li");
-      item.textContent = `high: LLM_NOT_CONFIGURED - ${payload.message || "LLM is not configured."}`;
-      risksList.replaceChildren(item);
+    function selectedTagOption() {
+      const index = Number(document.getElementById("prd-tag-select").value || 0);
+      return PRD_TAG_OPTIONS[index] || PRD_TAG_OPTIONS[0];
     }
 
     function currentLlmConfig() {
@@ -346,67 +785,408 @@
       };
     }
 
-    document.getElementById("upload-button").addEventListener("click", async () => {
-      const file = document.getElementById("file-input").files[0];
+    async function parseJsonResponse(response) {
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        showJson(`HTTP ${response.status}`, payload);
+        const error = new Error(payload.message || `HTTP ${response.status}`);
+        error.payload = payload;
+        error.status = response.status;
+        throw error;
+      }
+      return payload;
+    }
+
+    function renderList(target, items, emptyText) {
+      if (!items.length) {
+        const item = document.createElement("li");
+        item.textContent = emptyText;
+        target.replaceChildren(item);
+        return;
+      }
+      target.replaceChildren(...items);
+    }
+
+    function makeListItem(title, detail) {
+      const item = document.createElement("li");
+      const heading = document.createElement("span");
+      heading.className = "card-title";
+      heading.textContent = title;
+      const body = document.createElement("div");
+      body.className = "dim";
+      body.textContent = detail;
+      item.append(heading, body);
+      return item;
+    }
+
+    function updateSummary() {
+      document.getElementById("summary-historical").textContent = state.historicalDocumentId ? "Ready" : "Pending";
+      document.getElementById("summary-knowledge").textContent = String(state.knowledgeCards.length);
+      document.getElementById("summary-tender").textContent = state.tenderAnalysis ? "Ready" : "Pending";
+      document.getElementById("summary-retrieval").textContent = String(state.retrievalResults.length);
+    }
+
+    function updateTagNarrative() {
+      const option = selectedTagOption();
+      document.getElementById("selected-prd-tag").textContent = option.label;
+      document.getElementById("selected-retrieval-tag").textContent = option.retrievalTag;
+      document.getElementById("selected-top-k").textContent = "5";
+    }
+
+    function renderHistoricalPanel(uploadPayload, parsePayload) {
+      document.getElementById("historical-document-id").textContent = state.historicalDocumentId || "-";
+      document.getElementById("historical-parse-status").textContent = parsePayload?.parse_status || uploadPayload?.parse_status || "pending";
+      document.getElementById("historical-counts").textContent = `${parsePayload?.sections_count || 0} / ${parsePayload?.chunks_count || 0}`;
+      document.getElementById("historical-status-chip").textContent = parsePayload ? "Historical Parsed" : state.historicalDocumentId ? "Uploaded" : "Waiting Upload";
+      document.getElementById("historical-status-note").textContent = parsePayload
+        ? `已解析 ${uploadPayload?.original_filename || "historical bid"}，可继续构建知识卡片。`
+        : state.historicalDocumentId
+          ? `已上传 ${uploadPayload?.original_filename || "historical bid"}，等待 parse。`
+          : "等待上传历史投标文件。";
+    }
+
+    function renderKnowledgeCards(cards, buildPayload) {
+      document.getElementById("knowledge-status-chip").textContent = cards.length ? "Knowledge Ready" : "Waiting Parse";
+      document.getElementById("knowledge-status-note").textContent = cards.length
+        ? `已构建 ${buildPayload?.cards_count || cards.length} 张知识卡片，标签来自现有 deterministic PRD tagging。`
+        : "先完成历史文件 parse，再构建 knowledge cards。";
+
+      renderList(
+        knowledgeCardsList,
+        cards.map((card) =>
+          makeListItem(
+            `${card.tag} · ${card.title}`,
+            `${card.source_filename} / ${card.source_section_title} / ${card.content}`
+          )
+        ),
+        "暂无知识卡片。"
+      );
+    }
+
+    function renderTenderAnalysis(payload) {
+      const requirements = payload?.project_requirements || [];
+      const risks = payload?.disqualification_risks || [];
+      const scoringItems = payload?.scoring_items || [];
+      document.getElementById("tender-status-chip").textContent = payload ? "Tender Analyzed" : state.tenderDocumentId ? "Parsed" : "Waiting Upload";
+      document.getElementById("tender-counts").textContent = `${requirements.length + scoringItems.length} / ${risks.length}`;
+      document.getElementById("tender-status-note").textContent = payload
+        ? `分析方法 ${payload.analysis_method}，项目需求 ${requirements.length} 条，评分项 ${scoringItems.length} 条，风险 ${risks.length} 条。`
+        : state.tenderDocumentId
+          ? "招标文件已上传或已解析，等待分析。"
+          : "等待上传招标文件。";
+
+      renderList(
+        tenderRequirementsList,
+        requirements.map((item) =>
+          makeListItem(
+            `${item.title} · ${item.source_section_title}`,
+            `${item.description} / keywords: ${(item.matched_keywords || []).join(", ")}`
+          )
+        ),
+        "暂无项目需求证据。"
+      );
+
+      renderList(
+        tenderRisksList,
+        risks.map((item) =>
+          makeListItem(
+            `${item.severity || "medium"} · ${item.title}`,
+            `${item.description} / keywords: ${(item.matched_keywords || []).join(", ")}`
+          )
+        ),
+        "暂无废标/否决风险。"
+      );
+    }
+
+    function renderRetrieval(payload) {
+      const results = payload?.results || [];
+      state.retrievalResults = results;
+      document.getElementById("retrieval-status-chip").textContent = results.length ? `Retrieved ${results.length}` : "No Evidence";
+      document.getElementById("retrieval-status-note").textContent = results.length
+        ? `当前标签命中 ${results.length} 条证据，后续生成会保留 citation。`
+        : "当前 PRD 标签还没有命中证据块。";
+
+      renderList(
+        retrievalResultsList,
+        results.map((result) =>
+          makeListItem(
+            `${result.source.original_filename} · score ${result.score}`,
+            `${result.section_title} / tags: ${result.tags.join(", ")} / ${result.text}`
+          )
+        ),
+        "暂无检索证据。"
+      );
+      updateSummary();
+    }
+
+    function renderGeneration(payload) {
+      state.generation = payload;
+      generatedContent.textContent = payload.generated_content || "候选内容为空。";
+      reviewStatus.textContent = `need_human_review: ${String(payload.need_human_review)}`;
+      document.getElementById("generation-status-chip").textContent = "Candidate Generated";
+      document.getElementById("generation-status-note").textContent = `已生成 ${payload.target_tag} 对应候选内容，引用和风险在下方同步展示。`;
+
+      renderList(
+        citationsList,
+        (payload.citations || []).map((citation) =>
+          makeListItem(
+            `${citation.source_filename} · ${citation.source_section_title}`,
+            citation.content_snippet
+          )
+        ),
+        "暂无 citations。"
+      );
+
+      renderList(
+        risksList,
+        (payload.risks || []).map((risk) =>
+          makeListItem(
+            `${risk.severity} · ${risk.risk_type}`,
+            risk.description
+          )
+        ),
+        "暂无 risks。"
+      );
+    }
+
+    function renderGenerationError(payload) {
+      if (payload.error_code !== "LLM_NOT_CONFIGURED") {
+        return;
+      }
+      generatedContent.textContent = "未配置外部 LLM，当前没有候选内容。";
+      reviewStatus.textContent = "need_human_review: true";
+      document.getElementById("generation-status-chip").textContent = "LLM Missing";
+      document.getElementById("generation-status-note").textContent = payload.message || "LLM is not configured.";
+      citationsList.replaceChildren();
+      renderList(
+        risksList,
+        [makeListItem("high · LLM_NOT_CONFIGURED", payload.message || "LLM is not configured.")],
+        "暂无 risks。"
+      );
+    }
+
+    function renderOcrStatus() {
+      const ocrEvidence = [
+        "Phase 9 local smoke verified before Phase 10 demo copy.",
+        "paddleocr 2.10.0 / paddlepaddle 2.6.2 imported successfully.",
+        "parse_mode=ocr produced 1 section / 1 chunk on the scanned-PDF smoke sample.",
+        "parse_mode=auto succeeded with OCR fallback when text parse failed.",
+        "PyMuPDF was used only as a local smoke dependency and is not added to project dependencies.",
+        "This page does not claim OCR is production-ready; it only reports smoke evidence."
+      ];
+      renderList(
+        document.getElementById("ocr-status-list"),
+        ocrEvidence.map((line) => {
+          const item = document.createElement("li");
+          item.textContent = line;
+          return item;
+        }),
+        "No OCR evidence."
+      );
+    }
+
+    async function uploadDocument(kind) {
+      const isHistorical = kind === "historical";
+      const input = document.getElementById(isHistorical ? "historical-file-input" : "tender-file-input");
+      const file = input.files[0];
       if (!file) {
-        setStatus("Select a file first.");
+        setStatus(`Select a ${kind} file first.`);
         return;
       }
       const form = new FormData();
       form.append("file", file);
-      form.append("doc_role", document.getElementById("doc-role").value);
+      form.append("doc_role", isHistorical ? "historical_bid" : "tender");
       const payload = await parseJsonResponse(await fetch("/api/files/upload", {
         method: "POST",
         body: form
       }));
-      documentIdInput.value = payload.document_id || "";
-      showJson("Upload response", payload);
-    });
+      if (isHistorical) {
+        state.historicalDocumentId = payload.document_id;
+        renderHistoricalPanel(payload, null);
+      } else {
+        state.tenderDocumentId = payload.document_id;
+        document.getElementById("tender-document-id").textContent = payload.document_id || "-";
+        document.getElementById("tender-parse-status").textContent = payload.parse_status || "pending";
+        document.getElementById("tender-status-chip").textContent = "Uploaded";
+        document.getElementById("tender-status-note").textContent = `已上传 ${payload.original_filename || "tender file"}，等待 parse。`;
+      }
+      updateSummary();
+      showJson(`${isHistorical ? "Historical upload" : "Tender upload"} response`, payload);
+    }
 
-    document.getElementById("parse-button").addEventListener("click", async () => {
-      const documentId = documentIdInput.value.trim();
+    async function parseDocument(kind) {
+      const isHistorical = kind === "historical";
+      const documentId = isHistorical ? state.historicalDocumentId : state.tenderDocumentId;
+      if (!documentId) {
+        setStatus(`Upload the ${kind} file first.`);
+        return;
+      }
       const payload = await parseJsonResponse(await fetch(`/api/documents/${documentId}/parse`, {
-        method: "POST"
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({parse_mode: "auto"})
       }));
-      showJson("Parse response", payload);
-    });
+      if (isHistorical) {
+        state.historicalParse = payload;
+        renderHistoricalPanel({document_id: documentId}, payload);
+      } else {
+        document.getElementById("tender-parse-status").textContent = payload.parse_status || "pending";
+        document.getElementById("tender-document-id").textContent = documentId;
+        document.getElementById("tender-counts").textContent = `${payload.sections_count || 0} / ${payload.chunks_count || 0}`;
+        document.getElementById("tender-status-chip").textContent = "Tender Parsed";
+        document.getElementById("tender-status-note").textContent = "招标文件解析完成，可继续执行 tender analysis。";
+      }
+      showJson(`${isHistorical ? "Historical parse" : "Tender parse"} response`, payload);
+    }
 
-    document.getElementById("retrieve-button").addEventListener("click", async () => {
+    async function buildKnowledgeCards() {
+      if (!state.historicalDocumentId) {
+        setStatus("Upload and parse a historical file first.");
+        return;
+      }
+      const buildPayload = await parseJsonResponse(await fetch("/api/knowledge/build", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({document_id: state.historicalDocumentId})
+      }));
+      const listPayload = await parseJsonResponse(await fetch(`/api/documents/${state.historicalDocumentId}/knowledge-cards`));
+      state.knowledgeCards = listPayload.cards || [];
+      renderKnowledgeCards(state.knowledgeCards, buildPayload);
+      updateSummary();
+      showJson("Knowledge cards response", {
+        build: buildPayload,
+        list: listPayload
+      });
+    }
+
+    async function refreshKnowledgeCards() {
+      if (!state.historicalDocumentId) {
+        setStatus("Upload and parse a historical file first.");
+        return;
+      }
+      const listPayload = await parseJsonResponse(await fetch(`/api/documents/${state.historicalDocumentId}/knowledge-cards`));
+      state.knowledgeCards = listPayload.cards || [];
+      renderKnowledgeCards(state.knowledgeCards, null);
+      updateSummary();
+      showJson("Knowledge cards list response", listPayload);
+    }
+
+    async function analyzeTender() {
+      if (!state.tenderDocumentId) {
+        setStatus("Upload and parse a tender file first.");
+        return;
+      }
+      const payload = await parseJsonResponse(await fetch("/api/tender/analyze", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({document_id: state.tenderDocumentId})
+      }));
+      state.tenderAnalysis = payload;
+      renderTenderAnalysis(payload);
+      updateSummary();
+      showJson("Tender analysis response", payload);
+    }
+
+    async function retrieveEvidence() {
+      const option = selectedTagOption();
       const payload = await parseJsonResponse(await fetch("/api/retrieve", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-          tag: document.getElementById("retrieve-tag").value.trim() || null,
-          query: document.getElementById("retrieve-query").value.trim() || null,
-          top_k: Number(document.getElementById("retrieve-top-k").value || 5)
+          tag: option.retrievalTag,
+          query: document.getElementById("retrieval-query").value.trim() || null,
+          top_k: 5
         })
       }));
-      showJson("Retrieve response", payload);
-    });
+      renderRetrieval(payload);
+      showJson("Retrieve evidence response", {
+        narrative_tag: option.label,
+        retrieval_tag: option.retrievalTag,
+        retrieval: payload
+      });
+    }
 
-    document.getElementById("generate-button").addEventListener("click", async () => {
+    async function generateCandidate() {
+      const option = selectedTagOption();
       try {
         const requestBody = {
-          target_tag: document.getElementById("generate-tag").value.trim(),
-          query: document.getElementById("generate-query").value.trim(),
-          top_k: Number(document.getElementById("retrieve-top-k").value || 5)
+          target_tag: option.retrievalTag,
+          query: document.getElementById("generation-query").value.trim(),
+          top_k: 5
         };
         const llmConfig = currentLlmConfig();
         if (llmConfig) {
           requestBody.llm_config = llmConfig;
         }
-
         const payload = await parseJsonResponse(await fetch("/api/generate", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify(requestBody)
         }));
         renderGeneration(payload);
-        showJson("Generate response", payload);
+        showJson("Generate candidate response", {
+          narrative_tag: option.label,
+          retrieval_tag: option.retrievalTag,
+          generation: payload
+        });
       } catch (error) {
         renderGenerationError(error.payload || {});
       }
+    }
+
+    function initializeTagOptions() {
+      const select = document.getElementById("prd-tag-select");
+      select.replaceChildren(
+        ...PRD_TAG_OPTIONS.map((option, index) => {
+          const element = document.createElement("option");
+          element.value = String(index);
+          element.textContent = option.label;
+          return element;
+        })
+      );
+      select.addEventListener("change", () => {
+        const option = selectedTagOption();
+        document.getElementById("retrieval-query").value = option.defaultQuery;
+        updateTagNarrative();
+      });
+      document.getElementById("retrieval-query").value = PRD_TAG_OPTIONS[0].defaultQuery;
+      updateTagNarrative();
+    }
+
+    document.getElementById("historical-upload-button").addEventListener("click", async () => {
+      await uploadDocument("historical");
     });
+    document.getElementById("historical-parse-button").addEventListener("click", async () => {
+      await parseDocument("historical");
+    });
+    document.getElementById("knowledge-build-button").addEventListener("click", async () => {
+      await buildKnowledgeCards();
+    });
+    document.getElementById("knowledge-refresh-button").addEventListener("click", async () => {
+      await refreshKnowledgeCards();
+    });
+    document.getElementById("tender-upload-button").addEventListener("click", async () => {
+      await uploadDocument("tender");
+    });
+    document.getElementById("tender-parse-button").addEventListener("click", async () => {
+      await parseDocument("tender");
+    });
+    document.getElementById("tender-analyze-button").addEventListener("click", async () => {
+      await analyzeTender();
+    });
+    document.getElementById("retrieve-button").addEventListener("click", async () => {
+      await retrieveEvidence();
+    });
+    document.getElementById("generate-button").addEventListener("click", async () => {
+      await generateCandidate();
+    });
+
+    initializeTagOptions();
+    renderKnowledgeCards([], null);
+    renderTenderAnalysis(null);
+    renderRetrieval({results: []});
+    renderOcrStatus();
+    updateSummary();
   </script>
 </body>
 </html>
